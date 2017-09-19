@@ -1,0 +1,95 @@
+.hide-overflow {
+  overflow-x: hidden;
+}
+.nav-coloring {
+  color: #fff;
+}
+.btn-outline-success-blue {
+    color: #2888a7;
+    background-color: transparent;
+    background-image: none;
+    border-color: #2888a7;
+}
+.btn-outline-success-blue:hover {
+    color: #fff;
+    background-color: #2888a7;
+    background-image: none;
+    border-color: #2888a7;
+}
+.fix-sidebar {
+  position: fixed;
+  max-width: 14rem;
+  margin-top: 10%;
+}
+.first-list-option {
+  border-radius: 0.5rem 0.5rem 0px 0px;
+}
+.login-box {
+  position: absolute;
+  left: 100%;
+  padding: 0.9rem;
+  background-color: #2888a7;
+  max-width: 16%;
+  width: 100%;
+  transition-duration: 0.6s;
+}
+.login-form {
+  margin-bottom: 0.25rem;
+}
+.image {
+  overflow: hidden;
+  position: relative;
+  max-height: 13rem;
+  padding-bottom: 0.25rem;
+}
+.image img {
+  height: auto;
+  width: 100%;
+  top: -40px;
+}
+.entry-url {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+.entry-heading {
+  padding: 0.25rem;
+}
+.hover-detect:hover + .entry-heading {
+  color: #2888a7;
+}
+.entry-stats {
+  position: relative;
+  height: 2.4rem;
+}
+.site-icon {
+  vertical-align: middle;
+  padding-left: 0.8rem;
+  height: 1.125rem;
+  width: 1.925rem;
+}
+.site-info {
+  color: black;
+  font-size: 14px;
+  line-height: 1.2rem;
+  margin-bottom: 0px;
+}
+.site-info-url {
+  padding-left: 0.8rem;
+  position: relative;
+  z-index: 2;
+  color: inherit;
+}
+.site-info-url:hover {
+  color: #2888a7;
+}
+.feed-tile {
+  border: 1px solid grey;
+  height: 20rem;
+}
+.tile-wrapper {
+  padding: 0.4rem;
+}
