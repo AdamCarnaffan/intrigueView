@@ -10,10 +10,10 @@
   <title>Intrigue View 1.0</title>
 
   <!-- Bootstrap core CSS -->
-  <link href="bootstrap.min.css" rel="stylesheet">
-  <link href="bootstrap-grid.css" rel="stylesheet">
+  <link href="styling/bootstrap.min.css" rel="stylesheet">
+  <link href="styling/bootstrap-grid.css" rel="stylesheet">
   <!-- Custom styles -->
-  <link href="custom-styles.css" rel="stylesheet">
+  <link href="styling/custom-styles.css" rel="stylesheet">
 </head>
 <body class="hide-overflow">
   <!-- Fixed navbar -->
