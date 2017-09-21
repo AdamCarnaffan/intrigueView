@@ -44,21 +44,25 @@ class SiteData {
     // Find the feature image on the page
     $this->imageURL = $this->validateImageLink($this->getImage($this->pageContent));
     // Get an excerpt of text from the article to display if no feature image is found
-    $this->synopsis = addslashes($this->getExcerpt($this->pageContent));
+    $this->synopsis = trim(addslashes($this->getExcerpt($this->pageContent)));
   }
   
   public function getImage($pageContent) {
     // Check for schema.org inclusion (this is used to determine compatibility)
     if (strpos($pageContent, 'schema.org"') !== false) {
       // Remove whitespaces for uniformity of string searches
-      $noWhiteContent = str_replace(' ','',$pageContent);
+      $noWhiteContent = preg_replace('/\s*/m','',$pageContent);
       // Select the beginning position of the required section
       $beginningPos = strpos($noWhiteContent, '"@context":"http://schema.org"');
+      $beginningPos = ($beginningPos == null) ? strpos($noWhiteContent, '"@context":"https://schema.org"') : $beginningPos;
       // Find the end and create a string that includes only required properties
       $contentsTrim = substr($noWhiteContent, $beginningPos, strpos($noWhiteContent,'</script>', $beginningPos) - $beginningPos);
+      // Remove the [] in cases where developers decided to throw those in
+      $noBracketing = str_replace('[','',$contentsTrim);
+      $noBracketingFinal = str_replace(']','',$noBracketing);
       // Select each instance of ":{" --> if it is preceeded by "image", it contains the image url.
       $nextContainsURL = false; // Define the variable to prevent exceptions
-      foreach (explode(":{",$noWhiteContent) as $segment) {
+      foreach (explode(":{",$noBracketingFinal) as $segment) {
         if ($nextContainsURL) {
           $honedURL = substr($segment, strpos($segment, "url"),-1);
           $imageURL = explode('"',$honedURL)[2];
@@ -100,6 +104,25 @@ class SiteData {
   public function validateImageLink($imgURL) {
     // Make a library of supported extensions
     $supportedExtensions = ['bmp','jpg','jpeg','png','gif','webp','ico'];
+    // Interpret URL if it is from a URI scheme
+    do {
+      $imgURL = str_replace('%25','%',$imgURL); // Interpret percentage signs
+      $urlPos = strpos($imgURL, "image_uri");
+      $cdnLinkNoEnd = substr($imgURL, $urlPos);
+      $cdnLink = explode('&',$cdnLinkNoEnd)[0];
+      // Fix the equals signs where they've been reformatted
+      $cdnLink = str_replace('%3D','=',$cdnLink);
+      $cdnLink = preg_replace('~image_uri=~','',$cdnLink,1);
+      // reformat the link as a URL, as URI practice converts slashes into codes
+      // Fix the http colons
+      $firstReplace = str_replace('%3A', ':', $cdnLink);
+      // Fix the /'s
+      $imgURL = str_replace('%2F', "/", $firstReplace);
+      // Fix the &'s
+      $imgURL = str_replace('%26', "&", $firstReplace);
+    } while (false !== strpos($imgURL, "image_uri"));  // In some cases, 3 image_uri formattings are buried inside eachother
+    // Interpret all /'s final 
+    $imgURL = str_replace('%2F', '/', $imgURL);
     // Breakdown the URL for the file extension (as the extension is of an unknown length)
     $breakdownForExtension = explode(".",$imgURL);
     $extension = $breakdownForExtension[count($breakdownForExtension) - 1];
