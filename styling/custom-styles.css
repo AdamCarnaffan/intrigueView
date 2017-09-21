@@ -37,15 +37,22 @@
   margin-bottom: 0.25rem;
 }
 .image {
-  overflow: hidden;
-  position: relative;
-  max-height: 13rem;
-  padding-bottom: 0.25rem;
-}
-.image img {
+  position: absolute;
+  display: block;
+  margin: 0;
+  top: 50%;
+  transform: translateY(-50%);
   height: auto;
   width: 100%;
-  top: -40px;
+}
+.image-container {
+  position: relative;
+  overflow: hidden;
+  overflow: hidden;
+  width: 100%;
+  padding-bottom: 0.25rem;
+  flex: 1;
+  background-color: rgba(0,0,0,0.9);
 }
 .entry-url {
   position: absolute;
@@ -63,7 +70,9 @@
 }
 .entry-stats {
   position: relative;
-  height: 2.4rem;
+  height: 2rem;
+  bottom: 0;
+  right: 0;
 }
 .site-icon {
   vertical-align: middle;
@@ -74,21 +83,27 @@
 .site-info {
   color: black;
   font-size: 14px;
-  line-height: 1.2rem;
   margin-bottom: 0px;
+  position: relative;
+  left: 0px;
 }
 .site-info-url {
-  padding-left: 0.8rem;
+  padding-left: 0.4rem;
   position: relative;
   z-index: 2;
   color: inherit;
+  line-height: 2rem;
 }
 .site-info-url:hover {
   color: #2888a7;
 }
 .feed-tile {
-  border: 1px solid grey;
+  border: 1px solid rgba(210,210,210,0.4);
+  background-color: #fafdf5;
+  box-shadow: 0.05rem 0.05rem rgba(128,128,128,0.35);
   height: 20rem;
+  display: flex;
+  flex-direction: column;
 }
 .tile-wrapper {
   padding: 0.4rem;
