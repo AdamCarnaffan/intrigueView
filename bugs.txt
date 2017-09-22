@@ -14,3 +14,43 @@ A Site that uses javascript to display content has nothing to show when pulled (
   https://techinasia.com/talk/8-machine-learning-8-minutes
   
 Some Synopsis text snippets don't represent the article at all (ie. Advertisement, Front Page Layout, etc.)
+
+
+Feature tiles appear very rarely after entry 31
+
+
+
+
+
+TILE TEMPLATES
+
+  <!-- Feature Entry-->
+  <div class="col-12 col-lg-6 tile-wrapper">
+    <div class="feed-tile">
+      <!-- LINK TO ARTICLE HERE -->
+      <a href="http://google.ca" class="hover-detect"><span class="entry-url"></span></a>
+      <h5 class="entry-heading">Article Heading</h5>
+      <div class="image-container"><img class="image" src="https://d33ypg4xwx0n86.cloudfront.net/direct?url=https%3A%2F%2Fassets.fastcompany.com%2Fimage%2Fupload%2Fw_707%2Cf_auto%2Cq_auto%3Abest%2Cfl_lossy%2Fwp-cms%2Fuploads%2F2017%2F09%2Fp-1-what-do-you-think-of-the-iphone-x-alan-key.jpg&resize=w704"/></div>
+      <div class="entry-stats">
+        <p class="site-info">
+          <img src="http://jsfiddle.net/favicon.png" class="site-icon"/><!-- SITE ICON -->
+          <a class="site-info-url" href="https://getpocket.com/a/queue/">google.ca</a>
+        </p>
+      </div>
+    </div><!--/span-->
+  </div>
+  <!-- Regular Entry -->
+  <div class="col-6 col-lg-3 tile-wrapper">
+    <div class="feed-tile">
+      <!-- LINK TO ARTICLE HERE -->
+      <a href="http://google.ca" class="hover-detect"><span class="entry-url"></span></a>
+      <h5 class="entry-heading">Article Heading which is longer than before, therefore hopefully shrinking image</h5>
+      <div class="image-container"><img class="image" src="https://d33ypg4xwx0n86.cloudfront.net/direct?url=https%3A%2F%2Fassets.fastcompany.com%2Fimage%2Fupload%2Fw_707%2Cf_auto%2Cq_auto%3Abest%2Cfl_lossy%2Fwp-cms%2Fuploads%2F2017%2F09%2Fp-1-what-do-you-think-of-the-iphone-x-alan-key.jpg&resize=w704"/></div>
+      <div class="entry-stats">
+        <p class="site-info">
+          <img src="http://jsfiddle.net/favicon.png" class="site-icon"/><!-- SITE ICON -->
+          <a class="site-info-url" href="https://getpocket.com/a/queue/">google.ca</a>
+        </p>
+      </div>
+    </div><!--/span-->
+  </div>

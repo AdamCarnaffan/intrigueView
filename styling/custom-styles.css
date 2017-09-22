@@ -106,5 +106,22 @@
   flex-direction: column;
 }
 .tile-wrapper {
-  padding: 0.4rem;
+  padding: 0.6rem;
+}
+.synopsis-container {
+  position: relative;
+  overflow: hidden;
+  overflow: hidden;
+  width: 100%;
+  padding-bottom: 0.25rem;
+  flex: 1;
+  background-color: white;
+}
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.synopsis {
+  font-size: 0.95rem;
 }

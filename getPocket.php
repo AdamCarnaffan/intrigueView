@@ -44,7 +44,6 @@ $feedSelection = new FeedInfo($sourceId, $conn);
 // Time zone info to sync with feed
 $timeZone = ('-5:00');
 
-
 /*
 RSS Feed xml attributes come from xml->[title][description][link]->attributes->ITEM PROPERTY
 RSS Feed xml interpretation points xml->channel->LISTOFITEMS(item)->ITEM PROPERTY
