@@ -1,5 +1,7 @@
 Some site icons use collective pathing (ie. they begin "/resources/.."). These need a URL prepended
 
+  Solve by prepending these urls with http://SITENAME.DOMAIN
+
 Some sites don't get an icon, though one IS present on the site
 
 Some Sites don't get feature images, though they exist. Listed below:

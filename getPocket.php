@@ -97,8 +97,6 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
       array_push($summary->failuresList, $item->title);
       $summary->failureReason = $conn->error . " @ " . $item->link;
     }
-  } else {
-    break; // Stop when one is older than the last update as the feed data is chronological
   }
 }
 

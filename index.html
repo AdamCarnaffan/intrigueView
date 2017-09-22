@@ -71,12 +71,17 @@
     <!-- PLACEHOLDER -> SMALL CIRCLE TO CALL THE SORT ORDERS ON MOBILE-->
       <!-- Script to fetch the first set of articles -->
       <script>
+      var entriesDisplayed = 0;
       $(document).ready(function() { 
-        $.get({
+        $.post({
           url: "fetchEntries.php",
-          data: 24,
+          data: {
+            'selection': 51,
+            'currentDisplay': entriesDisplayed
+          },
           success: function (data) {
             $('#feed-view').append(data);
+            entriesDisplayed += 51;
           },
           alert: "Success!"
         });
@@ -90,6 +95,27 @@
 </body>
 <!-- Scripting -->
 <script src="displayManager.js"></script>
+<script>
+  var cooldown = 0.8;
+  $(window).scroll(function() { 
+    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150) {
+      cooldown = 5;
+      $.post({
+        url: "fetchEntries.php",
+        data: {
+          'selection': 26,
+          'currentDisplay': entriesDisplayed
+        },
+        success: function (data) {
+          $('#feed-view').append(data);
+          cooldown = 0.8;
+          entriesDisplayed += 25;
+        },
+        alert: "Success!"
+      });
+    }
+  });
+</script>
 </html>
 
 <!--

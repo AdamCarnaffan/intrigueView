@@ -160,7 +160,8 @@ class SiteData {
       if (strpos($rel, "icon") !== false) {
         $iconURL = explode('href="', $tag)[1];
         $iconURL = explode('"', $iconURL)[0];
-        return $iconURL;
+        $iconURLFinal = $this->checkURLPathing($iconURL);
+        return $iconURLFinal;
       }
     }
     return null;
@@ -199,6 +200,15 @@ class SiteData {
     $this->imageURL = null; 
     $this->synopsis = " ";
     $this->pageContent = null; 
+  }
+  
+  public function checkURLPathing($url) {
+    if (substr(strtolower($url), 0, 4) != 'http') {
+      $urlNew = "http://" . $this->siteURL . $url;
+      return $urlNew;
+    } else {
+      return $url;
+    }
   }
 }
 
