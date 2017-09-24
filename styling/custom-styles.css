@@ -125,3 +125,31 @@
 .synopsis {
   font-size: 0.95rem;
 }
+.login-center {
+  margin: auto;
+}
+.login-top-pad {
+  margin-top: 5rem;
+}
+.heading-pad {
+  margin-top: 0.75rem
+}
+.text-box-input {
+  margin-left: 0.5rem;
+}
+.input-length {
+  width: 65%;
+}
+.user-error-message {
+  font-size: 1rem;
+  height: 1.5rem;
+  padding: 0px;
+  margin-left: 1.25rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  color: red;
+}
+.login-adjust {
+  height: auto;
+  padding: 1rem;
+}

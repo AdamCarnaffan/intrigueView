@@ -14,8 +14,7 @@ html {
 }
 
 .container {
-  margin-right: 8rem;
-  margin-left: 16rem;
+  margin: auto;
   padding-right: 15px;
   padding-left: 15px;
   width: 100%;

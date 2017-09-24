@@ -1,7 +1,3 @@
-Some site icons use collective pathing (ie. they begin "/resources/.."). These need a URL prepended
-
-  Solve by prepending these urls with http://SITENAME.DOMAIN
-
 Some sites don't get an icon, though one IS present on the site
 
 Some Sites don't get feature images, though they exist. Listed below:
@@ -16,7 +12,6 @@ A Site that uses javascript to display content has nothing to show when pulled (
   https://techinasia.com/talk/8-machine-learning-8-minutes
   
 Some Synopsis text snippets don't represent the article at all (ie. Advertisement, Front Page Layout, etc.)
-
 
 Feature tiles appear very rarely after entry 31
 

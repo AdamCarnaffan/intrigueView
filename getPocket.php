@@ -1,41 +1,11 @@
 <?php 
 include ('dbConnect.php');
-include ('getSiteData.php');
+include ('objectConstruction.php');
 //Testing feedId Definition
 $_POST['feedId'] = 1;
 
 // Summary Class Definition (for calling the page as an instantaneous update return)
-class Summary {
-  
-  public $entriesAdded = 0;
-  public $entriesList = [];
-  public $entriesFailed;
-  public $failuresList = [];
-  public $failureReason;
-  
-  public function __construct() {}
-  
-}
 
-class FeedInfo {
-  
-  public $title;
-  public $source;
-  public $id;
-  
-  public function __construct($feedId, $dbConn) {
-    $this->id = $feedId;
-    $sourceQuery = "SELECT `url`,`title` FROM `feeds` WHERE `feed_id` = '$this->id'";
-    if ($result = $dbConn->query($sourceQuery)) {
-      $sourceInfo = $result->fetch_array();
-    } else {
-      throw new exception($conn->error);
-    }
-    $this->source = $sourceInfo['url'];
-    $this->title = $sourceInfo['title'];
-  }
-  
-}
 
 // Get the Source ID for database selection of feed
 $sourceId = $_POST['feedId'];
