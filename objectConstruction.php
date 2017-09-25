@@ -261,15 +261,19 @@ class SiteData {
         return null;
       }
     }
+    // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
+    $excerptNoScript = preg_replace("#(<script.*?>).*?(</script>)#", " ", $excerptTagged);
     // Remove html tags and formatting from the excerpt
-    $excerptClean = preg_replace("#\<[^\>]+\>#", " ", $excerptTagged);
+    $excerptNoHTML = preg_replace("#\<[^\>]+\>#", " ", $excerptNoScript);
+    // Clean additional whitespaces
+    $excerptClean = preg_replace("#\s+#", " ", $excerptNoHTML);
     // Check that the excerpt contains content
-    if (!array_intersect(str_split($excerptClean), range('a','z'))) {
+    if (!array_intersect(str_split($excerptClean), range('a','z')) || strlen($excerptClean) < 80) {
       if ($attempt > 10) { // Timeout for attempting to get excerpt
         return null;
       }
       $attempt++;
-      goto start;
+      goto start; // This is bad, I know
     }
     return $excerptClean;
   }
@@ -299,8 +303,9 @@ class User {
   public $name;
   public $permissions = [];
   
-  public function __construct($id, $dbConn) {
+  public function __construct($id, $dbConn, $username) {
     $this->id = $id;
+    $this->name = $username;
     $getPerms = "SELECT permission_id, feed_id FROM user_permissions WHERE user_id = '$this->id'";
     if ($result = $dbConn->query($getPerms)) {
       while ($row = $result->fetch_array()) {

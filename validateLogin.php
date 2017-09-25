@@ -6,7 +6,7 @@ $validationError = "The username or password entered was incorrect";
 $inputUsername = $_POST['username'];
 $inputPassword = $_POST['password'];
 
-$getUser = $conn->prepare("SELECT user_id, password FROM users WHERE username = ? AND active = 1");
+$getUser = $conn->prepare("SELECT user_id, password, username FROM users WHERE username = ? AND active = 1");
 $getUser->bind_param('s', $inputUsername);
 
 if ($getUser->execute()) {
@@ -14,9 +14,10 @@ if ($getUser->execute()) {
   if (count($row) > 0) {
     $userId = $row[0];
     $dbPass = $row[1];
+    $username = $row[2];
     if (password_verify($inputPassword, $dbPass)) {
       session_start();
-      $_SESSION['user'] = new User($userId, $conn);
+      $_SESSION['user'] = new User($userId, $conn, $username);
       echo "<script>window.location = 'adminConsole.php'</script>";
     } else {
       echo $validationError;
