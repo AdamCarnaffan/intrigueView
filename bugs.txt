@@ -15,7 +15,9 @@ Some Synopsis text snippets don't represent the article at all (ie. Advertisemen
 
 Feature tiles appear very rarely after entry 31
 
-
+Script data is still included in excerpts 
+  
+  remove all text between <script></script> tags when processing
 
 
 

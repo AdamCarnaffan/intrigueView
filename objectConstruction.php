@@ -295,6 +295,32 @@ class SiteData {
 
 class User {
   
+  public $id;
+  public $name;
+  public $permissions = [];
+  
+  public function __construct($id, $dbConn) {
+    $this->id = $id;
+    $getPerms = "SELECT permission_id, feed_id FROM user_permissions WHERE user_id = '$this->id'";
+    if ($result = $dbConn->query($getPerms)) {
+      while ($row = $result->fetch_array()) {
+        $tempPerm = new Permission($row[0],$row[1]);
+        array_push($this->permissions, $tempPerm);
+      }
+    }
+  }
+  
+}
+
+class Permission {
+  
+  public $permissionId;
+  public $feedId; // 0/null indicates all feeds
+  
+  public function __construct($permId, $feedId) {
+    $this->permissionId = $permId;
+    $this->feedId = $feedId;
+  }
   
 }
 

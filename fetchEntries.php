@@ -1,5 +1,5 @@
 <?php 
-include ('dbConnect.php');
+include('dbConnect.php');
 include('objectConstruction.php');
 
 $selectionLimit = $_POST['selection'];
