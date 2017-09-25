@@ -8,9 +8,7 @@
 </head>
 <body>
   <?php 
-  
-  echo "hey there, nice login";
-  var_dump($_SESSION['user']);
+  $user = $_SESSION['user'];
   
   
   ?>
