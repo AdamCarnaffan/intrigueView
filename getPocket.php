@@ -23,7 +23,7 @@ RSS Feed xml interpretation points xml->channel->LISTOFITEMS(item)->ITEM PROPERT
 $xml = simplexml_load_file($feedSelection->source) or die("Error: Could not connect to the feed");
 
 // Get the last update time (for comparison with any articles to add)
-$getLastPub = "SELECT `date_published` FROM `entries` ORDER BY `entry_id` DESC LIMIT 1";
+$getLastPub = "SELECT `date_published` FROM `entries` ORDER BY `date_published` DESC LIMIT 1";
 
 // Get the one data point in a single line and convert to a DateTime object
 // GET TIMEZONE on insert (The data entering the database will be of the same timezone as that leaving the database) --> pocket doesn't offer this offset so matching is the best way

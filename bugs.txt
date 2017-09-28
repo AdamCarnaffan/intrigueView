@@ -6,7 +6,7 @@ Some Sites don't get feature images, though they exist. Listed below:
   cnbc.com
   
   
-Images from theguardian.com are blacked output
+Images from theguardian.com are blacked out
 
 A Site that uses javascript to display content has nothing to show when pulled (techinasia.com). See below URL
 
