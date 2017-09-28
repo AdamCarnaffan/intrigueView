@@ -57,7 +57,7 @@ foreach ($features as $feature) {
 $getEntries = "SELECT feed.title, entries.title, entries.url, entries.date_published, entries.feature_image, entries.preview_text, site.url, site.icon FROM `entries` 
                   JOIN `feeds` AS feed ON entries.feed_id = feed.feed_id 
                   JOIN `sites` AS site ON entries.site_id = site.site_id 
-                  ORDER BY entries.date_published, entries.entry_id DESC 
+                  ORDER BY entries.date_published DESC, entries.entry_id ASC 
                   LIMIT $selectionLimit OFFSET $selectionOffset";
 $result = $conn->query($getEntries);
 while ($row = $result->fetch_array()) {

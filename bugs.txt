@@ -12,6 +12,9 @@ A Site that uses javascript to display content has nothing to show when pulled (
 
   https://techinasia.com/talk/8-machine-learning-8-minutes
 
+Add Dots to display when entries are being loaded
+
+Add bottom contact bar (small dark grey)
 
 
 TILE TEMPLATES
