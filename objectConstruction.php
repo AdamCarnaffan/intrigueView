@@ -11,7 +11,7 @@ class Entry {
   public $siteIcon;
   public $entryDisplaySize;
   
-  public function __construct($dataArray, $displayPoint) {
+  public function __construct($dataArray, $displayPoint, $features) {
     // Get all data from the Query. Indexes are based on position in the query
     $this->feedName = $dataArray[0];
     $this->title = $dataArray[1];
@@ -20,12 +20,11 @@ class Entry {
     $this->synopsis = $dataArray[5];
     $this->siteURL = $dataArray[6];
     $this->siteIcon = $dataArray[7];
-    echo $this->displayEntryTile($displayPoint);
+    echo $this->displayEntryTile($displayPoint, $features);
   }
   
-  public function displayEntryTile($entryDisplay) {
-    $featuredTiles = ['1','10','21','31'];
-    if (in_array($entryDisplay, $featuredTiles) || $entryDisplay % 21 == 0) { // Decide if the article will be a feature or not
+  public function displayEntryTile($entryDisplay, $featuredTiles) {
+    if (in_array($entryDisplay, $featuredTiles)) { // Decide if the article will be a feature or not
       $this->entryDisplaySize = 2;
     } else {
       $this->entryDisplaySize = 1;
@@ -45,13 +44,15 @@ class Entry {
     // Add Article Feature Image if available
     if ($this->image != null) {
       $tile .= '<div class="image-container"><img class="image" src="' . $this->image . '"/></div>';
-    } else {
+    } elseif ($this->synopsis != null) {
       // Add the synopsis here (STYLING INCOMPLETE)
       $synopsisExcerpt = substr($this->synopsis, 0, 270);
       if (strlen($synopsisExcerpt) == 270) {
         $synopsisExcerpt .= "...";
       }
       $tile .= '<div class="synopsis-container centered"><p class="synopsis">' . $synopsisExcerpt . '</p></div>';
+    } else {
+      $tile .= '<div class="image-container"><img class="image" src="assets/tileFill.png"/></div>';
     }
     // Add Site Stats
     $tile .= '<div class="entry-stats"><p class="site-info">';
@@ -67,14 +68,6 @@ class Entry {
     // Close all required tags
     $tile .= '</a></p></div></div></div>';
     return $tile;
-  }
-  
-  public function isFeature() {
-    if ($this->entryDisplaySize == 2) {
-      return true;
-    } else {
-      return false;
-    }
   }
   
 }
@@ -127,7 +120,7 @@ class SiteData {
   
   public function getImage($pageContent) {
     // Check for schema.org inclusion (this is used to determine compatibility)
-    if (strpos($pageContent, 'schema.org"') !== false) {
+    if (strpos($pageContent, 'schema.org"') !== false && strpos($pageContent, '"image":') !== false || strpos($pageContent, '"image" :') !== false) {
       // Remove whitespaces for uniformity of string searches
       $noWhiteContent = preg_replace('/\s*/m','',$pageContent);
       // Select the beginning position of the required section
@@ -143,8 +136,11 @@ class SiteData {
       foreach (explode(":{",$noBracketingFinal) as $segment) {
         if ($nextContainsURL) {
           $honedURL = substr($segment, strpos($segment, "url"),-1);
-          $imageURL = explode('"',$honedURL)[2];
-          return $imageURL;
+          // If the image is subdivided into another object, progress to that segment instead
+          if (isset(explode('"',$honedURL)[2])) {
+            $imageURL = explode('"',$honedURL)[2];
+            return $imageURL;
+          }
         }
         if (substr($segment, strlen($segment) - 7, 7) == '"image"') { // Check if the last characters of a segment are the correct ones for an "image":{} property
           // Flag the next segment as that with the URL
@@ -157,9 +153,21 @@ class SiteData {
       $targetURL = substr($contentsTrim, strpos($contentsTrim, '<img src='), 400);
       $imageURL = explode('"',$targetURL)[1];
       return $imageURL;
-    } elseif (strpos($pageContent, "og:image") !== false) { // Cover Wikipedia articles which never use schema.org but are common
-      $contentsTrim = substr($pageContent, strpos($pageContent, "og:image"), 600);
-      $imageURL = explode('"',$contentsTrim)[2];
+    } elseif (strpos($pageContent, '"og:image"') !== false) { // Cover Wikipedia type articles which never use schema.org but are common
+      $contentByMeta = explode("<meta", $pageContent);
+      foreach ($contentByMeta as $content) {
+        if (strpos($content, '"og:image"')) {
+          $contentTrim = explode("/>", $content)[0];
+          $contentTag = substr($contentTrim, strpos($contentTrim, "content="));
+          // Cover cases where single quotes are used to define content (outliers)
+          if (isset(explode('"', $contentTag)[1])) {
+            $imageURL = explode('"', $contentTag)[1];
+          } else {
+            $imageURL = explode("'", $contentTag)[1];
+          }
+          break;
+        }
+      }
       return $imageURL;
     } else { // The page is not compatible with the method
       return null;
@@ -291,6 +299,35 @@ class SiteData {
     } else {
       return $url;
     }
+  }
+  
+  // For when the title is not provided by pocket
+  public function getTitle() {
+    if (strpos($this->pageContent, "og:title") !== false) {
+      // Break down the content by meta tags to look for the title tag
+      $contentByMeta = explode("<meta", $this->pageContent);
+      foreach ($contentByMeta as $content) {
+        if (strpos($content, "og:title")) {
+          // Separate the title meta tag from the rest of the content
+          $contentTrim = explode("/>", $content)[0];
+          // trim for only the content property
+          $contentTag = substr($contentTrim, strpos($contentTrim, "content="));
+          // Get the title
+          // To cover outlier cases where single quotes are used in lieu
+          if (isset(explode('"', $contentTag)[1])) {
+            $finalTitle = addslashes(explode('"', $contentTag)[1]);
+          } else {
+            $finalTitle = addslashes(explode("'", $contentTag)[1]);
+          }
+          break;
+        }
+      }
+    } else {
+      $titleSection = explode("<title>", $this->pageContent)[1];
+      $endTitle = explode("</title>", $titleSection)[0];
+      $finalTitle = addslashes($endTitle);
+    }
+    $this->title = $finalTitle;
   }
 }
 

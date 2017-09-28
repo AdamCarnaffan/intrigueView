@@ -2,16 +2,15 @@ Some sites don't get an icon, though one IS present on the site
 
 Some Sites don't get feature images, though they exist. Listed below:
   
-  engadget.com
-  theguardian.com
   qz.com
   cnbc.com
   
+  
+Images from theguardian.com are blacked output
+
 A Site that uses javascript to display content has nothing to show when pulled (techinasia.com). See below URL
 
   https://techinasia.com/talk/8-machine-learning-8-minutes
-
-Feature tiles appear very rarely after entry 31
 
 
 
