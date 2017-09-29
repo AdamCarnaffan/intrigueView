@@ -18,8 +18,9 @@ class Entry {
     $this->url = $dataArray[2];
     $this->image = $dataArray[4];
     $this->synopsis = $dataArray[5];
-    $this->siteURL = $dataArray[6];
-    $this->siteIcon = $dataArray[7];
+    $this->isFeatured = ($dataArray[6] == 1) ? true : false; // Create a boolean based on the data table output
+    $this->siteURL = $dataArray[7];
+    $this->siteIcon = $dataArray[8];
     echo $this->displayEntryTile($displayPoint, $features);
   }
   
@@ -36,7 +37,11 @@ class Entry {
       $tile = '<div class="col-12 col-lg-6 tile-wrapper">';
     }
     // Add feed tile Class
-    $tile .= '<div class="feed-tile">';
+    $tile .= '<div class="feed-tile';
+    if ($this->isFeatured) {
+      $tile .= ' featured-tile';
+    }
+    $tile .= '">';
     // Add Article URL
     $tile .= '<a href="' . $this->url .'" class="hover-detect"><span class="entry-url"></span></a>';
     // Add Article Heading

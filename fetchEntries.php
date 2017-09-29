@@ -54,7 +54,7 @@ foreach ($features as $feature) {
   $pos++;
 }
 // When changing the query, remember to adjust object 
-$getEntries = "SELECT feed.title, entries.title, entries.url, entries.date_published, entries.feature_image, entries.preview_text, site.url, site.icon FROM `entries` 
+$getEntries = "SELECT feed.title, entries.title, entries.url, entries.date_published, entries.feature_image, entries.preview_text, entries.featured, site.url, site.icon FROM `entries` 
                   JOIN `feeds` AS feed ON entries.feed_id = feed.feed_id 
                   JOIN `sites` AS site ON entries.site_id = site.site_id 
                   ORDER BY entries.date_published DESC, entries.entry_id ASC 

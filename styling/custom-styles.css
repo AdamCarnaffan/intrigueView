@@ -153,3 +153,6 @@
   height: auto;
   padding: 1rem;
 }
+.featured-tile {
+  box-shadow: 0.25rem 0.25rem 0.3rem rgba(40,136,167,0.6);
+}
