@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Sep 21, 2017 at 02:51 AM
+-- Generation Time: Oct 01, 2017 at 03:35 AM
 -- Server version: 5.6.35
 -- PHP Version: 7.1.0
 
@@ -35,6 +35,7 @@ CREATE TABLE `entries` (
   `date_published` datetime NOT NULL,
   `feature_image` text,
   `preview_text` text NOT NULL,
+  `featured` tinyint(1) NOT NULL DEFAULT '0',
   `views` int(11) DEFAULT NULL,
   `rating` tinyint(4) DEFAULT NULL,
   `visible` tinyint(1) NOT NULL DEFAULT '1'
@@ -60,10 +61,19 @@ CREATE TABLE `entry_tags` (
 
 CREATE TABLE `feeds` (
   `feed_id` int(11) NOT NULL,
-  `url` text NOT NULL,
-  `title` text NOT NULL,
-  `linked_by` int(11) NOT NULL
+  `url` text,
+  `title` varchar(255) NOT NULL,
+  `linked_by` int(11) NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `feeds`
+--
+
+INSERT INTO `feeds` (`feed_id`, `url`, `title`, `linked_by`, `active`) VALUES
+(0, NULL, 'Unsorted Feed Data', 1, 1),
+(1, 'https://getpocket.com/users/*sso14832800504759bc/feed/all', 'Thompson\'s Feed', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -75,6 +85,16 @@ CREATE TABLE `permissions` (
   `permission_id` int(11) NOT NULL,
   `title` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `permissions`
+--
+
+INSERT INTO `permissions` (`permission_id`, `title`) VALUES
+(1, 'Manage Users'),
+(2, 'Manage Feed'),
+(3, 'Add Feed'),
+(4, 'Manage Entries');
 
 -- --------------------------------------------------------
 
@@ -109,6 +129,7 @@ CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
   `username` varchar(24) NOT NULL,
   `password` text NOT NULL,
+  `default_submission_feed` int(11) NOT NULL DEFAULT '0',
   `active` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -116,8 +137,8 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `username`, `password`, `active`) VALUES
-(1, 'admin', '$2y$10$S8Cwd8Bs01h05rYIQCX8BukSxb2L934lD.uZ0jiVNbQMkqzFzvbwS', 1);
+INSERT INTO `users` (`user_id`, `username`, `password`, `default_submission_feed`, `active`) VALUES
+(1, 'admin', '$2y$10$S8Cwd8Bs01h05rYIQCX8BukSxb2L934lD.uZ0jiVNbQMkqzFzvbwS', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -130,6 +151,16 @@ CREATE TABLE `user_permissions` (
   `permission_id` int(11) NOT NULL,
   `feed_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `user_permissions`
+--
+
+INSERT INTO `user_permissions` (`user_id`, `permission_id`, `feed_id`) VALUES
+(1, 1, NULL),
+(1, 2, NULL),
+(1, 3, NULL),
+(1, 4, NULL);
 
 --
 -- Indexes for dumped tables
@@ -155,6 +186,7 @@ ALTER TABLE `entry_tags`
 --
 ALTER TABLE `feeds`
   ADD PRIMARY KEY (`feed_id`),
+  ADD UNIQUE KEY `title` (`title`),
   ADD KEY `linked_by_user` (`linked_by`);
 
 --
@@ -180,7 +212,9 @@ ALTER TABLE `tags`
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_id`);
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `username` (`username`),
+  ADD KEY `feed_id` (`default_submission_feed`);
 
 --
 -- Indexes for table `user_permissions`
@@ -198,22 +232,22 @@ ALTER TABLE `user_permissions`
 -- AUTO_INCREMENT for table `entries`
 --
 ALTER TABLE `entries`
-  MODIFY `entry_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=143;
+  MODIFY `entry_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=605;
 --
 -- AUTO_INCREMENT for table `feeds`
 --
 ALTER TABLE `feeds`
-  MODIFY `feed_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `feed_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 --
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `permission_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `permission_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `sites`
 --
 ALTER TABLE `sites`
-  MODIFY `site_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `site_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 --
 -- AUTO_INCREMENT for table `tags`
 --
@@ -247,6 +281,12 @@ ALTER TABLE `entry_tags`
 --
 ALTER TABLE `feeds`
   ADD CONSTRAINT `feeds_ibfk_1` FOREIGN KEY (`linked_by`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`default_submission_feed`) REFERENCES `feeds` (`feed_id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `user_permissions`

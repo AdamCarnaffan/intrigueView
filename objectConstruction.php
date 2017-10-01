@@ -51,8 +51,8 @@ class Entry {
       $tile .= '<div class="image-container"><img class="image" src="' . $this->image . '"/></div>';
     } elseif ($this->synopsis != null) {
       // Add the synopsis here (STYLING INCOMPLETE)
-      $synopsisExcerpt = substr($this->synopsis, 0, 270);
-      if (strlen($synopsisExcerpt) == 270) {
+      $synopsisExcerpt = trim(substr($this->synopsis, 0, 270));
+      if (strlen($synopsisExcerpt) > 267) {
         $synopsisExcerpt .= "...";
       }
       $tile .= '<div class="synopsis-container centered"><p class="synopsis">' . $synopsisExcerpt . '</p></div>';

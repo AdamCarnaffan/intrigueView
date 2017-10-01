@@ -1,14 +1,10 @@
 <?php 
 include ('dbConnect.php');
 include ('objectConstruction.php');
-//Testing feedId Definition
-$_POST['feedId'] = 1;
-
-// Summary Class Definition (for calling the page as an instantaneous update return)
 
 
 // Get the Source ID for database selection of feed
-$sourceId = $_POST['feedId'];
+$sourceId = $_POST['sourceId'];
 // The Export URL (RSS Feed) from getPocket
 $feedSelection = new FeedInfo($sourceId, $conn);
 // Time zone info to sync with feed
@@ -23,7 +19,7 @@ RSS Feed xml interpretation points xml->channel->LISTOFITEMS(item)->ITEM PROPERT
 $xml = simplexml_load_file($feedSelection->source) or die("Error: Could not connect to the feed");
 
 // Get the last update time (for comparison with any articles to add)
-$getLastPub = "SELECT `date_published` FROM `entries` ORDER BY `date_published` DESC LIMIT 1";
+$getLastPub = "SELECT `date_published` FROM `entries` ORDER BY `date_published` DESC WHERE feed_id = '$feedSelection->id' LIMIT 1";
 
 // Get the one data point in a single line and convert to a DateTime object
 // GET TIMEZONE on insert (The data entering the database will be of the same timezone as that leaving the database) --> pocket doesn't offer this offset so matching is the best way

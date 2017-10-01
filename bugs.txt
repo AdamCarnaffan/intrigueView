@@ -16,6 +16,13 @@ Add Dots to display when entries are being loaded
 
 Add bottom contact bar (small dark grey)
 
+Currently, in the administration area, 2 feeds may share a URL
+
+PHP pages are scattered. They can be condensed to a smaller number of pages with specific external calls
+
+No response is returned in the admin area
+
+DisplayManager.js console errors
 
 TILE TEMPLATES
 

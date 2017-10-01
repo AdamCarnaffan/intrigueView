@@ -1,0 +1,14 @@
+September 30th, 2017
+
+-> Re-organizing a few items into folders for a cleaner treeview (not quite there)
+-> Added the Administrative area as follows:
+    -> Manage Feeds with the Feed tab of the treeview
+    -> Add new Linked Feeds under the currently connected user
+    -> Fetch and Delete Feeds on command through the UI (soft delete)
+-> Began adding basic frameworking for the chrome extension (coming soon)
+-> Cleaned up the UI for visitors
+-> Included a FRESH Database script (with a new extension to the original framework)
+-> Added Permissions
+-> Added permission checks in the Feeds Area
+-> Added the ability to Feature an Entry (though the Entry management UI is still incomplete)
+-> Many new features planned

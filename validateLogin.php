@@ -18,7 +18,7 @@ if ($getUser->execute()) {
     if (password_verify($inputPassword, $dbPass)) {
       session_start();
       $_SESSION['user'] = new User($userId, $conn, $username);
-      echo "<script>window.location = 'adminConsole.php'</script>";
+      echo "<script>window.location = 'admin/'</script>";
     } else {
       echo $validationError;
     }

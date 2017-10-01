@@ -19,7 +19,6 @@
 .fix-sidebar {
   position: fixed;
   max-width: 14rem;
-  margin-top: 10%;
 }
 .first-list-option {
   border-radius: 0.5rem 0.5rem 0px 0px;
@@ -155,4 +154,7 @@
 }
 .featured-tile {
   box-shadow: 0.25rem 0.25rem 0.3rem rgba(40,136,167,0.6);
+}
+.feed-url {
+  width: 18rem;
 }
