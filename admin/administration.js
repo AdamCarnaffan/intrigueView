@@ -78,4 +78,81 @@ function submitFeed() {
 
 // Entry Functions
 
+function getManageableEntries(button) {
+  $(button).html("Loading...");
+  $(button).attr("disabled", 'disabled');
+  var feedId = $('#feedSelection').find(":selected").val();
+  if (feedId == null) {
+    $('#entriesDisplay').html("</br>There is nothing to display for the selected feed...");
+  } else {
+    $('#entriesDisplay').html(
+      "<table id><tr><td>Image</td><td>Title</td><td>Options</td></tr>");
+  }
+  $(document).ready(function() {
+    $.post({
+      url: "getEntryManagement.php",
+      data: {
+        'feedId': feedId
+      },
+      success: function(data) {
+        if (data.error) {
+          // Log the error to console
+          console.log(data.error.msg);
+        } else {
+          $('#entriesDisplay tbody:last').append(data);
+          console.log(data);
+        }
+      },
+      alert: "Success!"
+    });
+  });
+  $(button).html("GO >");
+  $(button).removeAttr('disabled');
+}
+
+function toggleFeatureEntry(button, entryId) {
+  var featureStat = $(button).hasClass("entry-feature");
+  $.post({
+    url: "toggleFeatured.php",
+    data: {
+      'entryId': entryId,
+      'isFeatured': featureStat
+    },
+    success: function(data) {
+      if (data.error) {
+        // Log the error to console
+        console.log(data.error.msg);
+      } else {
+        if (featureStat) {
+          $(button).removeClass("entry-feature");
+        } else {
+          $(button).addClass("entry-feature");
+        }
+      }
+    },
+    alert: "Success!"
+  });
+}
+
+function deleteEntry(button, entryId) {
+  if (confirm("Deleting an Entry is permanent. Would you like to proceed?")) {
+    $.post({
+      url: "deleteEntry.php",
+      data: {
+        'entryId': entryId
+      },
+      success: function(data) {
+        if (data.error) {
+          // Log the error to console
+          console.log(data.error.msg);
+        } else {
+          // Remove the entry from view
+          $(button).closest('tr').remove();
+        }
+      },
+      alert: "Success!"
+    });
+  }
+}
+
 // User Functions

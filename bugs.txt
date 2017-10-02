@@ -6,7 +6,7 @@ Some Sites don't get feature images, though they exist. Listed below:
   cnbc.com
   
   
-Images from theguardian.com are blacked out
+*****Images from theguardian.com are blacked out
 
 A Site that uses javascript to display content has nothing to show when pulled (techinasia.com). See below URL
 
@@ -23,6 +23,17 @@ PHP pages are scattered. They can be condensed to a smaller number of pages with
 No response is returned in the admin area
 
 DisplayManager.js console errors
+
+Articles should open as new tabs
+
+No Feeds are displayed if permission for editing feeds is not ALL
+    This issue also exists with Entries
+
+Entries Management displays all entries in a single query (should be broken into multiple like the index)
+
+Not all pages or functions support error logging
+
+
 
 TILE TEMPLATES
 

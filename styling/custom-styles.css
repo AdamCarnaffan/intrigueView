@@ -158,3 +158,10 @@
 .feed-url {
   width: 18rem;
 }
+.entry-feature {
+  background-color: rgba(40,136,167,1);
+}
+.sample {
+  width: 100px;
+  height: auto;
+}

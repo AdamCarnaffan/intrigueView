@@ -14,6 +14,7 @@
   <!-- Custom styles -->
   <link href="../styling/custom-styles.css" rel="stylesheet">
   <script src='../jquery-3.2.1.min.js'></script>
+  <script src='administration.js'></script>
   <?php 
     include('../dbConnect.php');
     include('../objectConstruction.php');
@@ -31,16 +32,7 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item active">
-          <a class="nav-link" href="../testSpace.php">Test Space<span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item active">
-          <a class="nav-link" href="../getPocket.php">New Pocket Fetch</a></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" href="#">Disabled</a>
+          <a class="nav-link" href="../index.html">Home <span class="sr-only">(current)</span></a>
         </li>
       </ul>
       <ul class="navbar-nav">
@@ -49,44 +41,71 @@
     </div>
   </nav>
   
-  <aside>
-      <div id="sidebar"  class="nav-collapse ">
-          <!-- sidebar menu start-->
-          <ul class="sidebar-menu">                
-              <li class="active">
-                  <a class="" href="index.php">
-                      <span>Dashboard</span>
-                  </a>
-              </li>
-              <li class="active">
-                  <a class="" href="feeds.php">
-                      <span>Feeds</span>
-                  </a>
-              </li>
-              <li class="active">
-                  <a class="" href="entries.php">
-                      <span>Entries</span>
-                  </a>
-              </li>
-              <?php 
-                foreach ($user->permissions as $perm) {
-                  if ($perm->permissionId == 1) {
-                    echo '<li class="active">
-                        <a class="" href="users.php">
-                            <span>Users</span>
-                        </a>
-                    </li>';
-                    break;
-                  }
-                }
-              
-              
-              ?>
-              
-              
-          </ul>
-          <!-- sidebar menu end-->
-      </div>
-  </aside>
+  <div id="sidebar"  class="fix-sidebar">
+      <!-- sidebar menu start-->
+      <ul class="sidebar-menu">                
+          <li class="active">
+              <a class="" href="index.php">
+                  <span>Dashboard</span>
+              </a>
+          </li>
+          <li class="active">
+              <a class="" href="feeds.php">
+                  <span>Feeds</span>
+              </a>
+          </li>
+          <li class="active">
+              <a class="" href="entries.php">
+                  <span>Entries</span>
+              </a>
+          </li>
+          <?php 
+            foreach ($user->permissions as $perm) {
+              if ($perm->permissionId == 1) {
+                echo '<li class="active">
+                    <a class="" href="users.php">
+                        <span>Users</span>
+                    </a>
+                </li>';
+                break;
+              }
+            }
+          ?>
+      </ul>
+      <!-- sidebar menu end-->
+  </div>
+  <div class='container'>
+    <h5>Select a Feed to View Entries:</h5>
+    <select id='feedSelection'>
+    <?php 
+      foreach ($user->permissions as $perm) {
+        if ($perm->permissionId == 4) {
+          if ($perm->feedId == null) {
+            $getAllFeedIds = "SELECT feed_id FROM feeds WHERE active = 1";
+          } else {
+            array_push($editableFeeds, $perm->feedId);
+          }
+        }
+      }
+      $feedsList = [];
+      $result = $conn->query($getAllFeedIds);
+      while ($row = $result->fetch_array()) {
+        array_push($feedsList, new FeedInfo($row[0], $conn));
+      }
+      if (count($feedsList) == 0) {
+        echo "<option value='null'>No Feeds Available</option>";
+      } else {
+        foreach ($feedsList as $feed) {
+          echo "<option value='" . $feed->id .  "'>" . $feed->title . "</option>";
+        }
+      }
+     ?>
+   </select>
+   <button id='getEntries' onclick='getManageableEntries(this)'>GO ></button>
+   </br>
+   <div id='entriesDisplay'>
+   </div>
+  </div>
+  
 </body>
 </html>
