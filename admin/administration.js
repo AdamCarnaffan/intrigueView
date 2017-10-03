@@ -21,6 +21,7 @@ function refreshFeed(feedId, target) {
       }
       $(target).text('Refresh');
       $(target).removeAttr('disabled');
+      console.log(data);
     },
     alert: "Success!"
   });
@@ -69,6 +70,7 @@ function submitFeed() {
         console.log(data.error.msg);
       } else {
         window.location.reload(true);
+        console.log(data);
       }
     },
     alert: "Success!"
@@ -100,7 +102,6 @@ function getManageableEntries(button) {
           console.log(data.error.msg);
         } else {
           $('#entriesDisplay tbody:last').append(data);
-          console.log(data);
         }
       },
       alert: "Success!"
