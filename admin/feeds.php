@@ -1,4 +1,7 @@
 <html>
+<?php
+include('validateUser.php');
+?>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -15,7 +18,7 @@
   <link href="../styling/custom-styles.css" rel="stylesheet">
   <script src='../jquery-3.2.1.min.js'></script>
   <script src='administration.js'></script>
-  <?php 
+  <?php
     include('../dbConnect.php');
     include('../objectConstruction.php');
     session_start();
@@ -23,7 +26,7 @@
    ?>
 </head>
 <body class="hide-overflow">
-  
+
   <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
     <a class="navbar-brand" href="#">IntrigueView</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,10 +43,10 @@
       </ul>
     </div>
   </nav>
-  
+
   <div id="sidebar"  class="fix-sidebar">
       <!-- sidebar menu start-->
-      <ul class="sidebar-menu">                
+      <ul class="sidebar-menu">
           <li class="active">
               <a class="" href="index.php">
                   <span>Dashboard</span>
@@ -59,7 +62,7 @@
                   <span>Entries</span>
               </a>
           </li>
-          <?php 
+          <?php
             foreach ($user->permissions as $perm) {
               if ($perm->permissionId == 1) {
                 echo '<li class="active">
@@ -74,7 +77,7 @@
       </ul>
       <!-- sidebar menu end-->
   </div>
-  
+
   <!-- PAGE SPECIFIC CONTENT STARTS -->
   <div class="container">
     <?php
@@ -107,7 +110,7 @@
     <!-- EDIT FEEDS -->
     <h5>Edit a Feed:</h5>
     <table>
-      <?php 
+      <?php
         foreach ($feedInfos as $feed) {
           // Only display a feed that can be edited
           if ($feed->source != null) {
@@ -121,7 +124,7 @@
             echo "</tr>";
           }
         }
-      
+
        ?>
        <!-- SAVE CHANGES BUTTON -->
     </table>
@@ -129,7 +132,7 @@
   </br>
   <!-- ADD FEEDS -->
     <!-- ERROR RETURN -->
-    <?php 
+    <?php
       // If the user is allowed to create new linked feeds, display this portion
       foreach ($user->permissions as $perm) {
         if ($perm->permissionId == 3) {
@@ -142,7 +145,7 @@
           break;
         }
       }
-    
+
      ?>
    </br>
  </br>
@@ -151,7 +154,7 @@
     <b>Feed Name: </b>
     <select id='feed-selector'>
       <option value='0'>All</option>
-      <?php 
+      <?php
         $feedsList = [];
         $result = $conn->query($getAllFeedIds);
         while ($row = $result->fetch_array()) {
@@ -165,7 +168,7 @@
   </br>
   <b>Export Size: </b>
   <select id='export-quantity'>
-    <?php 
+    <?php
       for ($x = 10; $x < 100; $x *= 2) {
         echo "<option value='" . $x .  "'>" . $x . "</option>";
       }
@@ -177,7 +180,7 @@
   <button class='feed-source-input' id='getRSSFeed' onclick='getRSS()'>Export</button>
        <!-- ADD THE ABILITY TO COMBINE FEEDS HERE -->
   </div>
-  
-  
+
+
 </body>
 </html>

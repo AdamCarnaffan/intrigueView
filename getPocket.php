@@ -1,4 +1,4 @@
-<?php 
+<?php
 include ('dbConnect.php');
 include ('objectConstruction.php');
 
@@ -50,7 +50,7 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     } catch (Exception $e) {
       $entryInfo->clearData();
       echo $e->getMessage() . " @ " . $item->link . "</br>";
-    } 
+    }
     // Format Date Time for mySQL
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
     // MySQL Statement

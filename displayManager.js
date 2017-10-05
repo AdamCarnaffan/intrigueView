@@ -9,18 +9,18 @@ function selectSort(elementId) {
   // DRAWING & VISUALS
   if (pastSelect != null) {
     var removeTarget = document.getElementById(pastSelect);
-    removeTarget.classList.remove("active");
+    //removeTarget.classList.remove("active");
   }
   var selected = document.getElementById(elementId);
-  selected.classList.add("active");
+  //selected.classList.add("active");
   pastSelect = elementId;
   // RESORTING
-  
-  
-  
+
+
+
   return false;
 }
 
 function fixTree() {
-  
+
 }

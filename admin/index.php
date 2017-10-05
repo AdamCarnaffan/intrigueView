@@ -1,4 +1,7 @@
 <html>
+<?php
+include('validateUser.php');
+?>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -14,7 +17,7 @@
   <!-- Custom styles -->
   <link href="../styling/custom-styles.css" rel="stylesheet">
   <script src='../jquery-3.2.1.min.js'></script>
-  <?php 
+  <?php
     include('../dbConnect.php');
     include('../objectConstruction.php');
     session_start();
@@ -22,7 +25,7 @@
    ?>
 </head>
 <body class="hide-overflow">
-  
+
   <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
     <a class="navbar-brand" href="#">IntrigueView</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,11 +42,11 @@
       </ul>
     </div>
   </nav>
-  
+
   <aside>
       <div id="sidebar"  class="nav-collapse ">
           <!-- sidebar menu start-->
-          <ul class="sidebar-menu">                
+          <ul class="sidebar-menu">
               <li class="active">
                   <a class="" href="index.php">
                       <span>Dashboard</span>
@@ -59,7 +62,7 @@
                       <span>Entries</span>
                   </a>
               </li>
-              <?php 
+              <?php
                 foreach ($user->permissions as $perm) {
                   if ($perm->permissionId == 1) {
                     echo '<li class="active">
@@ -70,11 +73,11 @@
                     break;
                   }
                 }
-              
-              
+
+
               ?>
-              
-              
+
+
           </ul>
           <!-- sidebar menu end-->
       </div>
