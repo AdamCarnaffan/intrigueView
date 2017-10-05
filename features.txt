@@ -17,3 +17,6 @@ Contributors
 ADMINISTRATION 
   Support multi-adding new Feeds
   Support Feed name changes
+  support multi-exporting specific Feeds to RSS
+
+Dark Theme (#212529)

@@ -33,7 +33,7 @@ Entries Management displays all entries in a single query (should be broken into
 
 Not all pages or functions support error logging
 
-
+Admin pages are accessible without logging in
 
 TILE TEMPLATES
 

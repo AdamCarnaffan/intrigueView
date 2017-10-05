@@ -78,6 +78,12 @@ function submitFeed() {
   return false;
 }
 
+function getRSS() {
+  var selectionSize = $('#export-quantity').find(':selected').val();
+  var feedSelection = $('#feed-selector').find(':selected').val();
+  location.href = '../feed.php?size=' + selectionSize + '&selection=' + feedSelection;
+}
+
 // Entry Functions
 
 function getManageableEntries(button) {

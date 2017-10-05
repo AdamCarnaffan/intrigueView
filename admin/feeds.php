@@ -104,6 +104,7 @@
         array_push($feedInfos, new FeedInfo($feedId, $conn));
       }
     ?>
+    <!-- EDIT FEEDS -->
     <h5>Edit a Feed:</h5>
     <table>
       <?php 
@@ -126,6 +127,7 @@
     </table>
   </br>
   </br>
+  <!-- ADD FEEDS -->
     <!-- ERROR RETURN -->
     <?php 
       // If the user is allowed to create new linked feeds, display this portion
@@ -142,7 +144,38 @@
       }
     
      ?>
-    
+   </br>
+ </br>
+    <!-- Export an RSS Feed -->
+    <h5>Export an RSS Feed:</h5>
+    <b>Feed Name: </b>
+    <select id='feed-selector'>
+      <option value='0'>All</option>
+      <?php 
+        $feedsList = [];
+        $result = $conn->query($getAllFeedIds);
+        while ($row = $result->fetch_array()) {
+          array_push($feedsList, new FeedInfo($row[0], $conn));
+        }
+        foreach ($feedsList as $feed) {
+          echo "<option value='" . $feed->id .  "'>" . $feed->title . "</option>";
+        }
+       ?>
+    </select>
+  </br>
+  <b>Export Size: </b>
+  <select id='export-quantity'>
+    <?php 
+      for ($x = 10; $x < 100; $x *= 2) {
+        echo "<option value='" . $x .  "'>" . $x . "</option>";
+      }
+     ?>
+     <option value='100'>100</option>
+     <option value='*'>All</option>
+  </select>
+</br>
+  <button class='feed-source-input' id='getRSSFeed' onclick='getRSS()'>Export</button>
+       <!-- ADD THE ABILITY TO COMBINE FEEDS HERE -->
   </div>
   
   
