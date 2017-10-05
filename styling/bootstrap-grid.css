@@ -131,10 +131,21 @@ html {
   max-width: 41.666667%;
 }
 
-.col-6 {
-  -ms-flex: 0 0 50%;
-      flex: 0 0 50%;
-  max-width: 50%;
+/* Adjust Column Containers for Mobile */
+@media (min-width: 400px) {
+  .col-6 {
+    -ms-flex: 0 0 100%;
+        flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 992px) {
+  .col-6 {
+    -ms-flex: 0 0 25%;
+        flex: 0 0 25%;
+    max-width: 25%;
+  }
 }
 
 .col-7 {

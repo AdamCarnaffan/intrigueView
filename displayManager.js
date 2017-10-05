@@ -24,3 +24,10 @@ function selectSort(elementId) {
 function fixTree() {
 
 }
+
+function openInNewTab(url) {
+  var tab = window.open(url, '_blank');
+  tab.focus();
+  console.log("hey");
+  return false;
+}

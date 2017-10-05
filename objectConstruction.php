@@ -1,7 +1,7 @@
-<?php 
+<?php
 
 class Entry {
-  
+
   public $feedName;
   public $title;
   public $url;
@@ -10,7 +10,7 @@ class Entry {
   public $siteURL;
   public $siteIcon;
   public $entryDisplaySize;
-  
+
   public function __construct($dataArray, $displayPoint, $features) {
     // Get all data from the Query. Indexes are based on position in the query
     $this->feedName = $dataArray[0];
@@ -23,7 +23,7 @@ class Entry {
     $this->siteIcon = $dataArray[8];
     echo $this->displayEntryTile($displayPoint, $features);
   }
-  
+
   public function displayEntryTile($entryDisplay, $featuredTiles) {
     if (in_array($entryDisplay, $featuredTiles)) { // Decide if the article will be a feature or not
       $this->entryDisplaySize = 2;
@@ -43,7 +43,7 @@ class Entry {
     }
     $tile .= '">';
     // Add Article URL
-    $tile .= '<a href="' . $this->url .'" class="hover-detect"><span class="entry-url"></span></a>';
+    $tile .= '<a href="#" onclick="openInNewTab(\'' . $this->url . '\')" class="hover-detect"><span class="entry-url"></span></a>';
     // Add Article Heading
     $tile .= '<h5 class="entry-heading">' . $this->title . '</h5>';
     // Add Article Feature Image if available
@@ -74,19 +74,19 @@ class Entry {
     $tile .= '</a></p></div></div></div>';
     return $tile;
   }
-  
+
 }
 
 class SiteData {
-  
+
   public $siteIcon;
-  public $siteURL; 
-  public $siteId; 
-  public $feedId; 
-  public $imageURL; 
+  public $siteURL;
+  public $siteId;
+  public $feedId;
+  public $imageURL;
   public $synopsis;
-  public $pageContent; 
-  
+  public $pageContent;
+
   public function __construct($url, $feedId, $dbConn) {
     $this->feedId = $feedId; // PLACEHOLDER FOR FEED DATA SUBMISSION
     // Get the contents of the site page
@@ -122,7 +122,7 @@ class SiteData {
     // Get an excerpt of text from the article to display if no feature image is found
     $this->synopsis = trim(addslashes($this->getExcerpt($this->pageContent)));
   }
-  
+
   public function getImage($pageContent) {
     // Check for schema.org inclusion (this is used to determine compatibility)
     if (strpos($pageContent, 'schema.org"') !== false && strpos($pageContent, '"image":') !== false || strpos($pageContent, '"image" :') !== false) {
@@ -178,7 +178,7 @@ class SiteData {
       return null;
     }
   }
-  
+
   public function getPageContents($pageURL) {
     // Run a query to the page for source contents
     $pageContents = @file_get_contents($pageURL);
@@ -188,10 +188,10 @@ class SiteData {
       if ($pageContents == null) {
         return null;
       }
-    } 
+    }
     return $pageContents;
   }
-  
+
   public function validateImageLink($imgURL) {
     // Make a library of supported extensions
     $supportedExtensions = ['bmp','jpg','jpeg','png','gif','webp','ico'];
@@ -212,7 +212,7 @@ class SiteData {
       // Fix the &'s
       $imgURL = str_replace('%26', "&", $firstReplace);
     } while (false !== strpos($imgURL, "image_uri"));  // In some cases, 3 image_uri formattings are buried inside eachother
-    // Interpret all /'s final 
+    // Interpret all /'s final
     $imgURL = str_replace('%2F', '/', $imgURL);
     // Breakdown the URL for the file extension (as the extension is of an unknown length)
     $breakdownForExtension = explode(".",$imgURL);
@@ -223,7 +223,7 @@ class SiteData {
     $validURL = (in_array($extension, $supportedExtensions)) ? $imgURL : null;
     return $validURL;
   }
-  
+
   private function getContentsAsUser($pageURL) {
     // Mimic a user browser request to work around potential 401 FORBIDDEN errors
     $userAgent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36';
@@ -242,7 +242,7 @@ class SiteData {
     }
     return $pageContents;
   }
-  
+
   public function getSiteIconURL($pageContents) {
     $linkTagSelection = explode("<link",$pageContents);
     array_shift($linkTagSelection);
@@ -257,7 +257,7 @@ class SiteData {
     }
     return null;
   }
-  
+
   public function getExcerpt($pageContents) {
     // The excerpt is always assumed the first paragraph of an article
     $attempt = 0;
@@ -290,13 +290,13 @@ class SiteData {
     }
     return $excerptClean;
   }
-  
+
   public function clearData() {
-    $this->imageURL = null; 
+    $this->imageURL = null;
     $this->synopsis = " ";
-    $this->pageContent = null; 
+    $this->pageContent = null;
   }
-  
+
   public function checkURLPathing($url) {
     if (substr(strtolower($url), 0, 4) != 'http') {
       $urlNew = "http://" . $this->siteURL . $url;
@@ -305,7 +305,7 @@ class SiteData {
       return $url;
     }
   }
-  
+
   // For when the title is not provided by pocket
   public function getTitle() {
     if (strpos($this->pageContent, "og:title") !== false) {
@@ -340,11 +340,11 @@ class SiteData {
 //echo "<img src='" . getImage($pageURL) . "' />"; // AS Image
 
 class User {
-  
+
   public $id;
   public $name;
   public $permissions = [];
-  
+
   public function __construct($id, $dbConn, $username) {
     $this->id = $id;
     $this->name = $username;
@@ -356,39 +356,39 @@ class User {
       }
     }
   }
-  
+
 }
 
 class Permission {
-  
+
   public $permissionId;
   public $feedId; // 0/null indicates all feeds
-  
+
   public function __construct($permId, $feedId) {
     $this->permissionId = $permId;
     $this->feedId = $feedId;
   }
-  
+
 }
 
 class Summary {
-  
+
   public $entriesAdded = 0;
   public $entriesList = [];
   public $entriesFailed;
   public $failuresList = [];
   public $failureReason;
-  
+
   public function __construct() {}
-  
+
 }
 
 class FeedInfo {
-  
+
   public $title;
   public $source;
   public $id;
-  
+
   public function __construct($feedId, $dbConn) {
     $this->id = $feedId;
     $sourceQuery = "SELECT `url`,`title` FROM `feeds` WHERE `feed_id` = '$this->id'";
@@ -400,7 +400,7 @@ class FeedInfo {
     $this->source = $sourceInfo['url'];
     $this->title = $sourceInfo['title'];
   }
-  
+
 }
 
 

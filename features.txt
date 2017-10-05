@@ -13,10 +13,12 @@ Contributors
   Suggested content can then be added by the public feed owner to the public feed to be shared with others
   *CHROME* Contributors can push content directly to a suggestion box for public feed owners (like researchers)
   Contributors can push from their private feed to the suggestion box of any feed they are a contributor on
-  
-ADMINISTRATION 
+
+ADMINISTRATION
   Support multi-adding new Feeds
   Support Feed name changes
   support multi-exporting specific Feeds to RSS
 
 Dark Theme (#212529)
+
+Keep the User logged in following a log in
