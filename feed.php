@@ -7,15 +7,15 @@
 	// Build the correct Query for the Database
 	if ($feedId == 0) {
 		if ($feedSize == "*") {
-			$getFeed = "SELECT title, url, date_published FROM entries";
+			$getFeed = "SELECT title, url, date_published FROM entries ORDER BY date_published DESC";
 		} else {
 			$getFeed = "SELECT title, url, date_published FROM entries ORDER BY date_published DESC LIMIT $feedSize";
 		}
 	} else {
 		if ($feedSize == "*") {
-			$getFeed = "SELECT title, url, date_published FROM entries WHERE feed_id = '$feedId'";
+			$getFeed = "SELECT title, url, date_published FROM entries WHERE feed_id = '$feedId' ORDER BY date_published DESC";
 		} else {
-			$getFeed = "SELECT title, url, date_published FROM entries WHERE feed_id = '$feedId' LIMIT $feedSize";
+			$getFeed = "SELECT title, url, date_published FROM entries WHERE feed_id = '$feedId' ORDER BY date_published DESC LIMIT $feedSize";
 		}
 	}
 	// Generate Feed details

@@ -35,6 +35,8 @@ Not all pages or functions support error logging
 
 Admin pages are accessible without logging in
 
+Make Containers mobile friendly
+
 TILE TEMPLATES
 
   <!-- Feature Entry-->
