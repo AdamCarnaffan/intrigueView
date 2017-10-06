@@ -1,15 +1,18 @@
 <?php
 	header("Content-Type: application/xml; charset=ISO-8859-1");
-	include('dbconnect.php');
+	include('dbConnect.php');
 	// Set Default Values
 	$feedSize = (isset($_GET['size'])) ? $_GET['size'] : 100;
 	$feedId = (isset($_GET['selection'])) ? $_GET['selection'] : 0;
+	// Validate the Feed Size and Id Values
+	$feedId = (is_int($feedId)) ? $feedId : 0;
+	$feedSize = (is_int($feedSize)) ? $feedSize : '*';
 	// Build the correct Query for the Database
-	$getFeed = "SELECT title, url, date_published FROM entries";
+	$getFeed = "SELECT title, url, date_published FROM entries WHERE visible = 1";
 	if ($feedId == 0) {
 		$getFeed .= " ORDER BY date_published DESC";
 	} else {
-		$getFeed .= "WHERE feed_id = '$feedId' ORDER BY date_published DESC";
+		$getFeed .= " AND feed_id = '$feedId' ORDER BY date_published DESC";
 	}
 	if ($feedSize != "*") {
 		$getFeed .= " LIMIT $feedSize";
@@ -32,7 +35,9 @@
 
 		";
 		while ($row = $result->fetch_array()) {
+			// Purge unsupported XML characters
 			$row[0] = str_replace("&nbsp;", " ", $row[0]);
+			$row[0] = str_replace("&ndash;", "-", $row[0;
 			echo "
 			<entry>
 			<title>" . $row[0] . "</title>

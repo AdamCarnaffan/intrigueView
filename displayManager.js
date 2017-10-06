@@ -31,3 +31,24 @@ function openInNewTab(url) {
   console.log("hey");
   return false;
 }
+
+function beginSearch() {
+  search = $('#search-input').val();
+  if (search.length > 0) {
+    entriesDisplayed = 0;
+    $.post({
+      url: "fetchEntries.php",
+      data: {
+        'selection': 51,
+        'currentDisplay': entriesDisplayed,
+        'search': search
+      },
+      success: function (data) {
+        $('#feed-view').html(data);
+        entriesDisplayed = 51;
+      },
+      alert: "Success!"
+    });
+  }
+  return false;
+}

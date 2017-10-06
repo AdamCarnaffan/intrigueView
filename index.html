@@ -15,6 +15,7 @@
   <!-- Custom styles -->
   <link href="styling/custom-styles.css" rel="stylesheet">
   <script src='jquery-3.2.1.min.js'></script>
+  <script src="displayManager.js"></script>
 </head>
 <body class="hide-overflow">
   <!-- Fixed navbar -->
@@ -28,6 +29,11 @@
       <li class="nav-item active">
         <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
       </li>
+      <!-- USED TO BROWSE FEEDS
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Browse <span class="sr-only">(current)</span></a>
+      </li>
+    -->
     </ul>
     <ul class="navbar-nav">
       <button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href='login.html';">Login</button>
@@ -45,17 +51,15 @@
 </div>
 -->
 <!-- Left Side Sort Bar -->
-<!--
-<div class="col-4 col-md-3 sidebar-offcanvas fix-sidebar" id="sidebar">
+<div class="sidebar-hide col-4 col-md-3 fix-sidebar round-bars search-border" id="sidebar">
   <div class="list-group round-bars">
-    <h4>Sort By (WIP)</h4>
-    <a href="#" id="sortDef1" class="list-group-item first-list-option" onclick="selectSort(this.id)">Most Recent</a>
-    <a href="#" id="sortDef2" class="list-group-item" onclick="selectSort(this.id)">Oldest</a>
-    <a href="#" id="sortDef3" class="list-group-item" onclick="selectSort(this.id)">A-Z Alphabetical</a>
-    <a href="#" id="sortDef4" class="list-group-item" onclick="selectSort(this.id)">Z-A Alphabetical</a>
+    <h4>Search</h4>
+    <input class="feed-source-input" id='search-input' type="text" placeholder="Search">
+  </br>
+  <!-- CATEGORY SELECTION GOES HERE -->
+    <button class="btn btn-outline-success-blue" onclick="beginSearch()" href="#">Search</button>
   </div>
 </div>
--->
 
 <!-- Main album view -->
 <div class="container">
@@ -65,7 +69,8 @@
       <!-- Script to fetch the first set of articles -->
       <script>
       var entriesDisplayed = 0;
-      $(document).ready(function() { 
+      var search = "";
+      $(document).ready(function() {
         $.post({
           url: "fetchEntries.php",
           data: {
@@ -87,17 +92,17 @@
 
 </body>
 <!-- Scripting -->
-<script src="displayManager.js"></script>
 <script>
   var cooldown = 0.8;
-  $(window).scroll(function() { 
+  $(window).scroll(function() {
     if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150) {
       cooldown = 5;
       $.post({
         url: "fetchEntries.php",
         data: {
           'selection': 26,
-          'currentDisplay': entriesDisplayed
+          'currentDisplay': entriesDisplayed,
+          'search': search
         },
         success: function (data) {
           $('#feed-view').append(data);

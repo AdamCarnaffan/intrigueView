@@ -165,3 +165,19 @@
   width: 100px;
   height: auto;
 }
+@media (min-width: 400px) {
+  .sidebar-hide {
+    display: none;
+  }
+}
+@media (min-width: 922px) {
+  .sidebar-hide {
+    display: inline;
+  }
+}
+.search-border {
+  border: 1px solid black;
+  border-radius: 0.5rem;
+  margin: 1rem;
+  padding: 0.2rem;
+}

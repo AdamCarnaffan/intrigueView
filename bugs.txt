@@ -29,6 +29,8 @@ Entries Management displays all entries in a single query (should be broken into
 
 Not all pages or functions support error logging
 
+Update script fetched again --> This was actually user error. The article displays that it was added at 2 different times. In future a validation to prevent duplicates is required
+
 TILE TEMPLATES
 
   <!-- Feature Entry-->
