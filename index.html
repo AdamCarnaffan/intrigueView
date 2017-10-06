@@ -70,21 +70,26 @@
       <script>
       var entriesDisplayed = 0;
       var search = "";
-      $(document).ready(function() {
+      var display = true;
+      //$(document).ready(function() {
         $.post({
           url: "fetchEntries.php",
           data: {
             'selection': 51,
             'currentDisplay': entriesDisplayed
           },
+          dataType: 'json',
           success: function (data) {
-            $('#feed-view').append(data);
+            $('#feed-view').append(data.display);
+            if (data.isFull == 'false') {
+              display = false;
+            }
             entriesDisplayed += 51;
           },
           alert: "Success!"
         });
-      });
-      </script>
+      //});
+    </script>
     </div><!--/row-->
   </div><!--/span-->
 </div>
@@ -97,25 +102,47 @@
 <!-- Scripting -->
 <script>
   var cooldown = 0.8;
-  $(window).scroll(function() {
-    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150) {
-      cooldown = 5;
-      $.post({
-        url: "fetchEntries.php",
-        data: {
-          'selection': 26,
-          'currentDisplay': entriesDisplayed,
-          'search': search
-        },
-        success: function (data) {
-          $('#feed-view').append(data);
-          cooldown = 0.8;
-          entriesDisplayed += 26;
-        },
-        alert: "Success!"
-      });
-    }
+
+  $(document).ready( function () {
+    // Reset scroll before watching for scroll changes
+    $(this).scrollTop(0);
+    // Begin waiting for the scroll
+    $(window).scroll(function() {
+      if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150 && display == true) {
+        console.log("hey");
+        cooldown = 5;
+        $.post({
+          url: "fetchEntries.php",
+          data: {
+            'selection': 26,
+            'currentDisplay': entriesDisplayed,
+            'search': search
+          },
+          dataType: 'json',
+          success: function (data) {
+            $('#feed-view').append(data.display);
+            if (data.isFull == 'false') {
+              display = false;
+              console.log("stop");
+            }
+            cooldown = 0.8;
+            entriesDisplayed += 26;
+          },
+          alert: "Success!"
+        });
+      }
+    });
   });
+
+  var ReturnButton = "<div><span><a href='#' onclick='returnToTop()'></a></span></div>";
+
+  if ($(document).scrollTop() > 200) {
+    $('body').append(ReturnButton);
+  }
+
+  function returnToTop() {
+    $(document).scrollTop(0);
+  }
 </script>
 <script>
 $('#search-input').keypress(function(event) {

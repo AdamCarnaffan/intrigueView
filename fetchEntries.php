@@ -62,19 +62,27 @@ $getEntries = "SELECT feed.title, entries.title, entries.url, entries.date_publi
                   ORDER BY entries.date_published DESC, entries.entry_id ASC
                   LIMIT $selectionLimit OFFSET $selectionOffset";
 // Adjust the query if a search is present
+$search = false;
 if ($searchKey != null && strlen($searchKey) > 0) {
   $getEntries = substr_replace($getEntries, " AND entries.title LIKE '%$searchKey%'", 361 ,1);
+  $search = true;
 }
 // Prepare and query
 $entriesFound = false;
+$display = [];
 $result = $conn->query($getEntries);
 while ($row = $result->fetch_array()) {
-  $entry = new Entry($row, $entryDisplayNumber, $features);
+  $entry = new Entry($row);
+  $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
+  array_push($display, $tempTile);
   $entryDisplayNumber++;
   $entriesFound = true;
 }
-if (!$entriesFound) {
-  echo "<h2>No Entries were found matching the provided parameters.</h2>";
+if (!$entriesFound && $search == true) {
+  arrya_push($display, "<h2>No Entries were found matching the provided parameters.</h2>");
 }
-
+$finalDisplay = implode($display);
+$fullQuery = ($entryDisplayNumber-1 == $selectionLimit) ? 'true' : 'false';
+$totalData = ['display'=>$finalDisplay, 'isFull'=>$fullQuery];
+echo json_encode($totalData);
  ?>

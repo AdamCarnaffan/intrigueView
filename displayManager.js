@@ -33,6 +33,10 @@ function openInNewTab(url) {
 }
 
 function beginSearch() {
+  // Reset Settings
+  display = true;
+  $(document).scrollTop(0);
+  // Begin Search function
   search = $('#search-input').val();
   entriesDisplayed = 0;
   $.post({
@@ -42,8 +46,9 @@ function beginSearch() {
       'currentDisplay': entriesDisplayed,
       'search': search
     },
+    dataType: 'json',
     success: function (data) {
-      $('#feed-view').html(data);
+      $('#feed-view').html(data.display);
       entriesDisplayed = 51;
     },
     alert: "Success!"

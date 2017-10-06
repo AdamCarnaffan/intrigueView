@@ -11,7 +11,7 @@ class Entry {
   public $siteIcon;
   public $entryDisplaySize;
 
-  public function __construct($dataArray, $displayPoint, $features) {
+  public function __construct($dataArray) {
     // Get all data from the Query. Indexes are based on position in the query
     $this->feedName = $dataArray[0];
     $this->title = $dataArray[1];
@@ -21,7 +21,6 @@ class Entry {
     $this->isFeatured = ($dataArray[6] == 1) ? true : false; // Create a boolean based on the data table output
     $this->siteURL = $dataArray[7];
     $this->siteIcon = $dataArray[8];
-    echo $this->displayEntryTile($displayPoint, $features);
   }
 
   public function displayEntryTile($entryDisplay, $featuredTiles) {

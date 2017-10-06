@@ -1,9 +1,9 @@
-<?php 
+<?php
 include('dbConnect.php');
 include('objectConstruction.php');
 
 
-$fileName = "math.txt";
+$fileName = "pocketHTML/math.txt";
 $feedId = 1;
 
 $pocketContent = file_get_contents($fileName);
@@ -16,7 +16,7 @@ $foundURLs = [];
 // Process each URL into only the entry URL
 foreach ($breakIntoSections as $singleURL) {
   $tempURL = explode('"',$singleURL)[1];
-  // Trim the URL 
+  // Trim the URL
   $trimmedURL = str_replace("https://getpocket.com/redirect?url=", "", $tempURL);
   $trimmedEnd = explode("&", $trimmedURL)[0];
   // Fix Characters
@@ -33,7 +33,7 @@ foreach ($breakIntoSections as $singleURL) {
 $getAllCurrentURLs = "SELECT entry.url, entry.feed_id FROM feeds AS feed
                         JOIN entries AS entry ON feed.feed_id = entry.feed_id
                         WHERE feed.feed_id = '$feedId'";
-                    
+
 // Build an array of current URLs for the feed
 $currentURLs = [];
 if ($result = $conn->query($getAllCurrentURLs)) {
@@ -44,7 +44,7 @@ if ($result = $conn->query($getAllCurrentURLs)) {
   throw new Exception("No connection could be made or the query is incorrect");
 }
 
-// Generate Feed and Summary Objects 
+// Generate Feed and Summary Objects
 $feedSelection = new FeedInfo($feedId, $conn);
 $summary = new Summary();
 
@@ -57,7 +57,7 @@ foreach ($foundURLs as $url) {
       } catch (Exception $e) {
         $entryInfo->clearData();
         echo $e->getMessage() . " @ " . $item->link . "</br>";
-      } 
+      }
       // Fetch the title (usually done by pocket)
       $entryInfo->getTitle();
       // Format Date Time for mySQL
