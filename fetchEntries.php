@@ -62,11 +62,9 @@ $getEntries = "SELECT feed.title, entries.title, entries.url, entries.date_publi
                   ORDER BY entries.date_published DESC, entries.entry_id ASC
                   LIMIT $selectionLimit OFFSET $selectionOffset";
 // Adjust the query if a search is present
-if ($searchKey != null) {
-  substr_replace($getEntries, " AND entries.title LIKE '%$searchKey%'", " ", 100);
-  echo "SEARCH";
+if ($searchKey != null && strlen($searchKey) > 0) {
+  $getEntries = substr_replace($getEntries, " AND entries.title LIKE '%$searchKey%'", 361 ,1);
 }
-echo $getEntries;
 // Prepare and query
 $entriesFound = false;
 $result = $conn->query($getEntries);
