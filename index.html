@@ -109,7 +109,6 @@
     // Begin waiting for the scroll
     $(window).scroll(function() {
       if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150 && display == true) {
-        console.log("hey");
         cooldown = 5;
         $.post({
           url: "fetchEntries.php",

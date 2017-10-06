@@ -5,16 +5,11 @@ Some Sites don't get feature images, though they exist. Listed below:
   qz.com
   cnbc.com
 
-
-*****Images from theguardian.com are blacked out
-
 A Site that uses javascript to display content has nothing to show when pulled (techinasia.com). See below URL
 
   https://techinasia.com/talk/8-machine-learning-8-minutes
 
 Add Dots to display when entries are being loaded
-
-Add bottom contact bar (small dark grey)
 
 Currently, in the administration area, 2 feeds may share a URL
 

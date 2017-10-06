@@ -197,9 +197,17 @@ class SiteData {
     // Interpret URL if it is from a URI scheme
     do {
       $imgURL = str_replace('%25','%',$imgURL); // Interpret percentage signs
-      $urlPos = strpos($imgURL, "image_uri");
-      $cdnLinkNoEnd = substr($imgURL, $urlPos);
-      $cdnLink = explode('&',$cdnLinkNoEnd)[0];
+      if (false !== strpos($imgURL, "image_uri")) {
+        // The Distribution takes place through a routed network, the true URL is embedded
+        $urlPos = strpos($imgURL, "image_uri");
+        $cdnLinkNoEnd = substr($imgURL, $urlPos);
+        $cdnLink = explode('&',$cdnLinkNoEnd)[0];
+        $embedded = true;
+      } else {
+        // The Distribution is not through a routed CDN
+        $cdnLink = $imgURL;
+        $embedded = false;
+      }
       // Fix the equals signs where they've been reformatted
       $cdnLink = str_replace('%3D','=',$cdnLink);
       $cdnLink = preg_replace('~image_uri=~','',$cdnLink,1);
@@ -211,8 +219,11 @@ class SiteData {
       // Fix the &'s
       $imgURL = str_replace('%26', "&", $firstReplace);
     } while (false !== strpos($imgURL, "image_uri"));  // In some cases, 3 image_uri formattings are buried inside eachother
-    // Interpret all /'s final
-    $imgURL = str_replace('%2F', '/', $imgURL);
+    if ($embedded) {
+      // Interpret all /'s final
+      $imgURL = str_replace('%2F', '/', $imgURL);
+      return $imgURL;
+    }
     // Breakdown the URL for the file extension (as the extension is of an unknown length)
     $breakdownForExtension = explode(".",$imgURL);
     $extension = $breakdownForExtension[count($breakdownForExtension) - 1];
