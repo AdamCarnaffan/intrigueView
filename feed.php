@@ -37,7 +37,7 @@
 		while ($row = $result->fetch_array()) {
 			// Purge unsupported XML characters
 			$row[0] = str_replace("&nbsp;", " ", $row[0]);
-			$row[0] = str_replace("&ndash;", "-", $row[0;
+			$row[0] = str_replace("&ndash;", "-", $row[0]);
 			echo "
 			<entry>
 			<title>" . $row[0] . "</title>

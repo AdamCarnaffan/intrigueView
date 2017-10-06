@@ -181,3 +181,9 @@
   margin: 1rem;
   padding: 0.2rem;
 }
+.fix-link-color {
+  color: #fff;
+}
+.fix-link-color:hover {
+  color: rgba(255,255,255,.5);
+}
