@@ -101,6 +101,7 @@
 </body>
 <!-- Scripting -->
 <script>
+  var returnButtonIsDisplayed = false;
   var cooldown = 0.8;
 
   $(document).ready( function () {
@@ -130,17 +131,26 @@
           alert: "Success!"
         });
       }
+      if ($(document).scrollTop() > 600 && returnButtonIsDisplayed == false) {
+        returnButtonIsDisplayed = true;
+        $(document.body).append(ReturnButton);
+      } else if ($(document).scrollTop() < 200) {
+        $('#return-button').remove();
+        returnButtonIsDisplayed = false;
+      }
     });
   });
 
-  var ReturnButton = "<div><span><a href='#' onclick='returnToTop()'></a></span></div>";
+  var ReturnButton = "<div class='button-holder' id='return-button'><a href='#' onclick='returnToTop()'><img class='return-button' src='assets/returnToTop.png'></a></div>";
 
-  if ($(document).scrollTop() > 200) {
-    $('body').append(ReturnButton);
-  }
 
   function returnToTop() {
-    $(document).scrollTop(0);
+    $('html, body').animate({
+      scrollTop: '0px'}, 700);
+    $('#return-button').remove();
+    setTimeout( function() {
+      returnButtonIsDisplayed = false;
+    }, 3000);
   }
 </script>
 <script>
