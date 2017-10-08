@@ -2,9 +2,12 @@
 include('dbConnect.php');
 include('objectConstruction.php');
 
+// Take Inputs from the specific call
 $selectionLimit = $_POST['selection'];
 $selectionOffset = $_POST['currentDisplay'];
 $searchKey = (isset($_POST['search']) && strlen($_POST['search']) > 0) ? $_POST['search'] : null;
+
+// Set default values
 $entryDisplayNumber = 1; // The slot for page display in a given set
 $features = [1];
 $tiles = $selectionLimit; // Assumes all are single tiles
@@ -13,7 +16,7 @@ for ($c = 1; $c <= round($selectionLimit / 25); $c++) { // Number of feature cyc
   array_push($features, $c*19);
   array_push($features, $c*11);
 }
-$tiles += count($features);
+$tiles += count($features); // Make the total count of display tiles include the double tiles
 if (0 != $currentFeatureOffset = $tiles % 4) {
   for ($c = 1; $c <= (4 - $currentFeatureOffset); $c++) {
     if (isset($features[$c])) {

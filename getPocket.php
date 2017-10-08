@@ -54,7 +54,8 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     // Format Date Time for mySQL
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
     // MySQL Statement
-    $addEntry = "INSERT INTO `entries` (`feed_id`,`site_id`,`title`,`url`,`date_published`,`feature_image`,`preview_text`) VALUES ('$feedSelection->id','$entryInfo->siteId','$filteredTitle','$item->link','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis')";
+    $addEntry = "INSERT INTO `entries` (`feed_id`,`site_id`,`title`,`url`,`date_published`,`feature_image`,`preview_text`)
+                  VALUES ('$feedSelection->id','$entryInfo->siteId','$filteredTitle','$item->link','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis')";
     if ($conn->query($addEntry)) { // Report all succcessful entries to the user
       $summary->entriesAdded++;
       array_push($summary->entriesList, $item->title);
@@ -67,7 +68,7 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
 }
 
 // Summary of Action
-echo "<b>" . $summary->entriesAdded . " entries have been added to the database, including: </b></br>";
+echo $summary->entriesAdded . " entries have been added to the database, including: ";
 foreach ($summary->entriesList as $title) {
   echo $title . "</br>";
 }
@@ -75,8 +76,6 @@ foreach ($summary->entriesList as $title) {
 if ($summary->entriesFailed > 0) {
   echo $summary->entriesFailed . " entries failed to be added to the database table due to: '" . $summary->failureReason . "'";
 }
-
-echo "hey";
 
 return $summary; // To be returned to administrative page on a forced update
 

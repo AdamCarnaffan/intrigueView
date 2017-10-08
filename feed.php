@@ -1,4 +1,5 @@
 <?php
+	// Encode the page
 	header("Content-Type: application/xml; charset=ISO-8859-1");
 	include('dbConnect.php');
 	// Set Default Values
@@ -19,6 +20,7 @@
 	}
 	// Generate Feed details
 	echo '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0">';
+	// Get the Feed Name from the database
 	if ($feedId != 0) {
 		$feedTitle = $conn->query("SELECT title FROM feeds WHERE feed_id = '$feedId'")->fetch_array()[0];
 	} else {

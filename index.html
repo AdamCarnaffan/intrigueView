@@ -17,7 +17,7 @@
   <script src='jquery-3.2.1.min.js'></script>
   <script src="displayManager.js"></script>
 </head>
-<body class="hide-overflow">
+<body class="hide-overflow" onresize='resizeCanvas'>
   <!-- Fixed navbar -->
 <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
   <a class="navbar-brand" href="index.html">IntrigueView</a>
@@ -41,15 +41,6 @@
   </div>
 </nav>
 
-<!-- Login Dialog trigged by openLogin() -> Registering is not supported, closed membership for management
-<div id="loginDialog" class="login-box">
-  <form method="post" action="adminConsole.php">
-    <input type="text" name="username" placeholder="Username" class="login-form"/>
-    <input type="password" name="password" placeholder="Password" />
-    <input type="submit" name="submit" value="Login" class="btn btn-otuline-success-blue my-2 my-sm-0"/>
-  </form>
-</div>
--->
 <!-- Left Side Sort Bar -->
 <div class="sidebar-hide col-4 col-md-3 fix-sidebar round-bars search-border" id="sidebar">
   <div class="list-group round-bars">
@@ -66,35 +57,6 @@
   <div class="col-12 col-md-12">
     <div class="row" id="feed-view">
     <!-- PLACEHOLDER -> SMALL CIRCLE TO CALL THE SORT ORDERS ON MOBILE-->
-      <!-- Script to fetch the first set of articles -->
-      <script>
-      var entriesDisplayed = 0;
-      var search = "";
-      var display = true;
-      // Display the loading dots
-      $('#feed-view').append(loadingCanvas);
-      var intervalLoadId = beginLoading();
-      $.post({
-        url: "fetchEntries.php",
-        data: {
-          'selection': 51,
-          'currentDisplay': entriesDisplayed
-        },
-        dataType: 'json',
-        success: function (data) {
-          // Remove the loading dots
-          $('#loading').remove();
-          clearInterval(intervalLoadId);
-          // Display the new data
-          $('#feed-view').append(data.display);
-          if (data.isFull == 'false') {
-            display = false;
-          }
-          entriesDisplayed += 51;
-        },
-        alert: "Success!"
-      });
-    </script>
     </div><!--/row-->
   </div><!--/span-->
 </div>
@@ -106,66 +68,38 @@
 </body>
 <!-- Scripting -->
 <script>
-  var returnButtonIsDisplayed = false;
-  var cooldown = 0.8;
+// Define Varaible display buttons
+var ReturnButton = "<div class='button-holder' id='return-button'><a href='#' onclick='returnToTop()'><img class='return-button' src='assets/returnToTop.png'></a></div>";
+var loadingCanvas = "<div id='loading'><canvas id='loading-dots' width='900' height='600'>Loading...</canvas></div>";
+// Instantiate necessary global variables
+var returnButtonIsDisplayed = false;
+var cooldown = 0.8;
+var entriesDisplayed = 0;
+var search = "";
+var display = true;
+// Make initial display
+queryEntries(51);
 
-  $(document).ready( function () {
-    // Reset scroll before watching for scroll changes
-    $(this).scrollTop(0);
-    // Begin waiting for the scroll
-    $(window).scroll(function() {
-      if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150 && display == true) {
-        cooldown = 5;
-        // Display the loading dots
-        $('#feed-view').append(loadingCanvas);
-        var intervalLoadId = beginLoading();
-        $.post({
-          url: "fetchEntries.php",
-          data: {
-            'selection': 26,
-            'currentDisplay': entriesDisplayed,
-            'search': search
-          },
-          dataType: 'json',
-          success: function (data) {
-            // Remove the loading dots
-            $('#loading').remove();
-            clearInterval(intervalLoadId);
-            // Display the new data
-            $('#feed-view').append(data.display);
-            if (data.isFull == 'false') {
-              display = false;
-              console.log("stop");
-            }
-            cooldown = 0.8;
-            entriesDisplayed += 26;
-          },
-          alert: "Success!"
-        });
-      }
-      if ($(document).scrollTop() > 600 && returnButtonIsDisplayed == false) {
-        returnButtonIsDisplayed = true;
-        $(document.body).append(ReturnButton);
-      } else if ($(document).scrollTop() < 200) {
-        $('#return-button').remove();
-        returnButtonIsDisplayed = false;
-      }
-    });
-  });
-
-  var ReturnButton = "<div class='button-holder' id='return-button'><a href='#' onclick='returnToTop()'><img class='return-button' src='assets/returnToTop.png'></a></div>";
-
-
-  function returnToTop() {
-    $('html, body').animate({
-      scrollTop: '0px'}, 700);
-    $('#return-button').remove();
-    setTimeout( function() {
+$(document).ready( function () {
+  // Reset scroll before watching for scroll changes
+  $(this).scrollTop(0);
+  // Begin waiting for the scroll
+  $(window).scroll(function() {
+    // Load more entries
+    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150 && display == true) {
+      queryEntries(26, true);
+    }
+    // Display Settings for the Return to Top button
+    if ($(document).scrollTop() > 600 && returnButtonIsDisplayed == false) {
+      returnButtonIsDisplayed = true;
+      $(document.body).append(ReturnButton);
+    } else if ($(document).scrollTop() < 200) {
+      $('#return-button').remove();
       returnButtonIsDisplayed = false;
-    }, 3000);
-  }
-</script>
-<script>
+    }
+  });
+});
+// Allow the Search to begin on enter keypress
 $('#search-input').keypress(function(event) {
   if (event.keyCode == 13) {
     beginSearch();

@@ -346,9 +346,6 @@ class SiteData {
   }
 }
 
-//echo htmlspecialchars($pageInfo->imageURL); // AS String
-//echo "<img src='" . getImage($pageURL) . "' />"; // AS Image
-
 class User {
 
   public $id;
