@@ -79,7 +79,7 @@ while ($row = $result->fetch_array()) {
   $entriesFound = true;
 }
 if (!$entriesFound && $search == true) {
-  arrya_push($display, "<h2>No Entries were found matching the provided parameters.</h2>");
+  array_push($display, "<h2>No Entries were found matching the provided parameters.</h2>");
 }
 $finalDisplay = implode($display);
 $fullQuery = ($entryDisplayNumber-1 == $selectionLimit) ? 'true' : 'false';
