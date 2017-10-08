@@ -62,7 +62,7 @@
 </div>
 
 <!-- Main album view -->
-<div class="container">
+<div class="container" id='feed-content'>
   <div class="col-12 col-md-12">
     <div class="row" id="feed-view">
     <!-- PLACEHOLDER -> SMALL CIRCLE TO CALL THE SORT ORDERS ON MOBILE-->
@@ -71,24 +71,29 @@
       var entriesDisplayed = 0;
       var search = "";
       var display = true;
-      //$(document).ready(function() {
-        $.post({
-          url: "fetchEntries.php",
-          data: {
-            'selection': 51,
-            'currentDisplay': entriesDisplayed
-          },
-          dataType: 'json',
-          success: function (data) {
-            $('#feed-view').append(data.display);
-            if (data.isFull == 'false') {
-              display = false;
-            }
-            entriesDisplayed += 51;
-          },
-          alert: "Success!"
-        });
-      //});
+      // Display the loading dots
+      $('#feed-view').append(loadingCanvas);
+      var intervalLoadId = beginLoading();
+      $.post({
+        url: "fetchEntries.php",
+        data: {
+          'selection': 51,
+          'currentDisplay': entriesDisplayed
+        },
+        dataType: 'json',
+        success: function (data) {
+          // Remove the loading dots
+          $('#loading').remove();
+          clearInterval(intervalLoadId);
+          // Display the new data
+          $('#feed-view').append(data.display);
+          if (data.isFull == 'false') {
+            display = false;
+          }
+          entriesDisplayed += 51;
+        },
+        alert: "Success!"
+      });
     </script>
     </div><!--/row-->
   </div><!--/span-->
@@ -111,6 +116,9 @@
     $(window).scroll(function() {
       if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150 && display == true) {
         cooldown = 5;
+        // Display the loading dots
+        $('#feed-view').append(loadingCanvas);
+        var intervalLoadId = beginLoading();
         $.post({
           url: "fetchEntries.php",
           data: {
@@ -120,6 +128,10 @@
           },
           dataType: 'json',
           success: function (data) {
+            // Remove the loading dots
+            $('#loading').remove();
+            clearInterval(intervalLoadId);
+            // Display the new data
             $('#feed-view').append(data.display);
             if (data.isFull == 'false') {
               display = false;

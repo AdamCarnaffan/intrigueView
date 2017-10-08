@@ -4,8 +4,6 @@ A Site that uses javascript to display content has nothing to show when pulled (
 
   https://techinasia.com/talk/8-machine-learning-8-minutes
 
-Add Dots to display when entries are being loaded
-
 Currently, in the administration area, 2 feeds may share a URL
 
 PHP pages are scattered. They can be condensed to a smaller number of pages with specific external calls
