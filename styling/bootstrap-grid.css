@@ -132,7 +132,7 @@ html {
 }
 
 /* Adjust Column Containers for Mobile */
-@media (min-width: 400px) {
+@media (min-width: 20px) {
   .col-6 {
     -ms-flex: 0 0 100%;
         flex: 0 0 100%;

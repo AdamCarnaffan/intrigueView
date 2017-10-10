@@ -165,7 +165,7 @@
   width: 100px;
   height: auto;
 }
-@media (min-width: 400px) {
+@media (min-width: 20px) {
   .sidebar-hide {
     display: none;
   }
