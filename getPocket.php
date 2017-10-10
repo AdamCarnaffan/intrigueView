@@ -1,6 +1,6 @@
 <?php
-include ('dbConnect.php');
-include ('objectConstruction.php');
+include('dbConnect.php');
+require('objectConstruction.php');
 
 
 // Get the Source ID for database selection of feed
@@ -35,6 +35,7 @@ $summary = new Summary();
 
 // Check each Entry from bottom to top (Added chronologically)
 for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNumber--) {
+  start:
   // Set the $item tag as is done in a foreach loop (Pathing from RSS Feed)
   $item = $xml->channel->item[$entryNumber];
   // Convert the Date to a DateTime Object
@@ -50,6 +51,7 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     } catch (Exception $e) {
       $entryInfo->clearData();
       echo $e->getMessage() . " @ " . $item->link . "</br>";
+      goto start;
     }
     // Format Date Time for mySQL
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');

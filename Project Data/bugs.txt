@@ -19,6 +19,8 @@ Not all pages or functions support error logging
 
 OPening an article returns the page to top
 
+Getpocket goto statement
+
 TILE TEMPLATES
 
   <!-- Feature Entry-->

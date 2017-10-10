@@ -1,7 +1,7 @@
 <?php
 	// Encode the page
 	header("Content-Type: application/xml; charset=ISO-8859-1");
-	include('dbConnect.php');
+	require('dbConnect.php');
 	// Set Default Values
 	$feedSize = (isset($_GET['size'])) ? $_GET['size'] : 100;
 	$feedId = (isset($_GET['selection'])) ? $_GET['selection'] : 0;

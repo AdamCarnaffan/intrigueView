@@ -207,3 +207,11 @@ html, body {
 .loading-canvas {
   width: 100%;
 }
+.nav-input {
+  height: 2rem;
+  display: block;
+  margin: 0.3rem;
+  margin-left: 0.6rem;
+  color: black !important;
+  text-align: left !important;
+}

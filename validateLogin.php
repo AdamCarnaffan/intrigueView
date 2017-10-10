@@ -1,6 +1,6 @@
-<?php 
+<?php
 include('dbConnect.php');
-include('objectConstruction.php');
+require('objectConstruction.php');
 
 $validationError = "The username or password entered was incorrect";
 $inputUsername = $_POST['username'];

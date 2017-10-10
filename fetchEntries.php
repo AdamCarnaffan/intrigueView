@@ -1,6 +1,6 @@
 <?php
 include('dbConnect.php');
-include('objectConstruction.php');
+require('objectConstruction.php');
 
 // Take Inputs from the specific call
 $selectionLimit = $_POST['selection'];

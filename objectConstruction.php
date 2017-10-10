@@ -42,7 +42,7 @@ class Entry {
     }
     $tile .= '">';
     // Add Article URL
-    $tile .= '<a href="#" onclick="openInNewTab(\'' . $this->url . '\')" class="hover-detect"><span class="entry-url"></span></a>';
+    $tile .= '<a href="' . $this->url . '" onclick="return openInNewTab(\'' . $this->url . '\')" class="hover-detect"><span class="entry-url"></span></a>';
     // Add Article Heading
     $tile .= '<h5 class="entry-heading">' . $this->title . '</h5>';
     // Add Article Feature Image if available
