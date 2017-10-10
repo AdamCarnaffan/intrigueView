@@ -9,7 +9,7 @@
 	$feedId = (is_int($feedId)) ? $feedId : 0;
 	$feedSize = (is_int($feedSize)) ? $feedSize : '*';
 	// Build the correct Query for the Database
-	$getFeed = "SELECT title, url, date_published FROM entries WHERE visible = 1";
+	$getFeed = "SELECT title, url, date_published, feature_image FROM entries WHERE visible = 1";
 	if ($feedId == 0) {
 		$getFeed .= " ORDER BY date_published DESC";
 	} else {
@@ -45,6 +45,7 @@
 			<title>" . $row[0] . "</title>
 			<link>" . $row[1] . "</link>
 			<guid>" . $row[1] . "</guid>
+			<image>" . $row[3] . "</image>
 			<pubDate>" . $row[2] . "</pubDate>
 			</entry>";
 		}

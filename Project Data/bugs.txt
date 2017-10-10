@@ -17,6 +17,8 @@ Entries Management displays all entries in a single query (should be broken into
 
 Not all pages or functions support error logging
 
+OPening an article returns the page to top
+
 TILE TEMPLATES
 
   <!-- Feature Entry-->
