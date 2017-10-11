@@ -215,6 +215,7 @@ html, body {
   color: black !important;
   text-align: left !important;
   padding-right: 2.4rem !important;
+  margin-bottom: 0;
 }
 .inline-button {
   margin-left: -2.68rem;
