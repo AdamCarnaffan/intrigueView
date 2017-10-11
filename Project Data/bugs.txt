@@ -6,8 +6,6 @@ A Site that uses javascript to display content has nothing to show when pulled (
 
 Currently, in the administration area, 2 feeds may share a URL
 
-PHP pages are scattered. They can be condensed to a smaller number of pages with specific external calls
-
 No response is returned in the admin area
 
 No Feeds are displayed if permission for editing feeds is not ALL
@@ -20,6 +18,10 @@ Not all pages or functions support error logging
 OPening an article returns the page to top
 
 Getpocket goto statement
+
+No entries found displayed for a second query where the first was not filled
+
+The nav bar cannot be displayed on mobile
 
 TILE TEMPLATES
 

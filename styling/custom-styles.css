@@ -214,4 +214,24 @@ html, body {
   margin-left: 0.6rem;
   color: black !important;
   text-align: left !important;
+  padding-right: 2.4rem !important;
+}
+.inline-button {
+  margin-left: -2.68rem;
+  display: inline;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  background-color: #343a40;
+  color: #2888a7 !important;
+  padding-right: 0.5rem !important;
+  line-height: 0.9;
+}
+.inline-button:hover {
+  color: white !important;
+}
+.fix-li {
+  display: inline;
+}
+.hover-highlight:hover {
+  color: #2888a7 !important;
 }

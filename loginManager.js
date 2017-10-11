@@ -13,10 +13,10 @@ function validateLogin() {
   // Set username and password equal to input
   var inputUsername = document.getElementById('username-input').value;
   var inputPassword = document.getElementById('password-input').value;
-  
+
   // Reset the error message
   $('#login-error').html('');
-  
+
   if (cooldown < 5) {
     $.post({
       url: "validateLogin.php",
@@ -34,7 +34,7 @@ function validateLogin() {
   } else {
     $('#login-error').append("Please wait before attempting to login again");
   }
-  
+
   cooldown += 1;
 }
 
@@ -43,4 +43,15 @@ function reduceCooldown() {
   if (cooldown > 0) {
     cooldown -= 1;
   }
+}
+
+function logout() {
+  $.post({
+    url: "../logout.php",
+    success: function(data) {
+      location.href='../index.php';
+      console.log('logged out');
+    },
+    alert: "Success!"
+  });
 }

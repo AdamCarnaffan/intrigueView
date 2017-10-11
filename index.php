@@ -34,12 +34,25 @@
         <a class="nav-link" href="#">Browse <span class="sr-only">(current)</span></a>
       </li>
     -->
-      <li class="nav-item active">
+      <li class="nav-item active fix-li">
         <input class="feed-source-input nav-input nav-link btn" id='search-input' type="text" placeholder="Article Search">
+      </li>
+      <li class='nav-item active'>
+        <button class='feed-source-input nav-input nav-link btn btn-outline-success-blue inline-button' id='search-button' onclick='beginSearch()'>Go</button><!-- ADD ICON -->
       </li>
     </ul>
     <ul class="navbar-nav">
-      <button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href='login.html';">Login</button>
+      <?php
+        require('objectConstruction.php');
+        session_start();
+        $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
+        // Change the User display based on a logged in user
+        if (isset($user)) {
+          echo '<a class="nav-item active nav-link hover-highlight" href="login.php">Welcome back, ' . $user->name . '</a>';
+        } else {
+          echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href=\'login.php\';">Login</button>';
+        }
+       ?>
     </ul>
   </div>
 </nav>
@@ -71,7 +84,7 @@
 </body>
 <!-- Scripting -->
 <script>
-// Define Varaible display buttons
+// Define Variable display buttons
 var ReturnButton = "<div class='button-holder' id='return-button'><a href='#' onclick='returnToTop()'><img class='return-button' src='assets/returnToTop.png'></a></div>";
 var loadingCanvas = "<div id='loading'><canvas id='loading-dots' width='900' height='600'>Loading...</canvas></div>";
 // Instantiate necessary global variables

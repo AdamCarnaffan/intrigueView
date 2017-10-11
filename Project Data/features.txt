@@ -2,7 +2,6 @@ Article auto-tagging
 sort by tags
 group by tags
 filter by tags
-mobile support
 Article "feed-tile" sharing / interacting
 Article rating
 Article views
@@ -20,5 +19,3 @@ ADMINISTRATION
   support multi-exporting specific Feeds to RSS
 
 Dark Theme (#212529)
-
-Keep the User logged in following a log in

@@ -17,6 +17,7 @@ include('validateUser.php');
   <!-- Custom styles -->
   <link href="../styling/custom-styles.css" rel="stylesheet">
   <script src='../jquery-3.2.1.min.js'></script>
+  <script src='../loginManager.js'></script>
   <?php
     include('../dbConnect.php');
     include('../objectConstruction.php');
@@ -34,11 +35,17 @@ include('validateUser.php');
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-          <a class="nav-link" href="../index.html">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="../index.php">Home <span class="sr-only">(current)</span></a>
         </li>
       </ul>
       <ul class="navbar-nav">
-        <button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href='../login.html';">Login</button>
+        <?php
+          if ($user != null) {
+            echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="logout()">Logout</button>';
+          } else {
+            echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href=\'../login.php\';">Login</button>';
+          }
+         ?>
       </ul>
     </div>
   </nav>
