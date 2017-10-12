@@ -3,11 +3,11 @@
 	header("Content-Type: application/xml; charset=ISO-8859-1");
 	require('dbConnect.php');
 	// Set Default Values
-	$feedSize = (isset($_GET['size'])) ? $_GET['size'] : 100;
+	$feedSize = (isset($_GET['size'])) ? $_GET['size'] : "*";
 	$feedId = (isset($_GET['selection'])) ? $_GET['selection'] : 0;
 	// Validate the Feed Size and Id Values
-	$feedId = (is_int($feedId)) ? $feedId : 0;
-	$feedSize = (is_int($feedSize)) ? $feedSize : '*';
+	$feedId = (is_numeric($feedId)) ? $feedId : 0;
+	$feedSize = (is_numeric($feedSize)) ? $feedSize : '*';
 	// Build the correct Query for the Database
 	$getFeed = "SELECT title, url, date_published, feature_image FROM entries WHERE visible = 1";
 	if ($feedId == 0) {
@@ -44,9 +44,11 @@
 			<entry>
 			<title>" . $row[0] . "</title>
 			<link>" . $row[1] . "</link>
-			<guid>" . $row[1] . "</guid>
-			<image>" . $row[3] . "</image>
-			<pubDate>" . $row[2] . "</pubDate>
+			<guid>" . $row[1] . "</guid>";
+			if ($row[3] != null) {
+				echo "<image>" . $row[3] . "</image>";
+			}
+			echo "<pubDate>" . $row[2] . "</pubDate>
 			</entry>";
 		}
 		echo "
