@@ -89,7 +89,7 @@
 <!-- Scripting -->
 <script>
 // Define Variable display buttons
-var ReturnButton = "<div class='button-holder' id='return-button'><a href='#' onclick='returnToTop()'><img class='return-button' src='assets/returnToTop.png'></a></div>";
+var ReturnButton = "<div class='button-holder' id='return-button'><a class='return-button front' href='#' onclick='returnToTop()'><img class='return-button front' src='assets/returnToTop.png'></a></div>";
 var loadingCanvas = "<div id='loading'><canvas id='loading-dots' width='900' height='600'>Loading...</canvas></div>";
 // Instantiate necessary global variables
 var returnButtonIsDisplayed = false;
