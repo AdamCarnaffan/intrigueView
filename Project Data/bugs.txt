@@ -15,11 +15,11 @@ Entries Management displays all entries in a single query (should be broken into
 
 Not all pages or functions support error logging
 
-Getpocket goto statement
-
 'No entries found' displayed for a second query where the first was not filled
 
-The nav bar cannot be displayed on mobile
+Caret misplaced in Ios 11.1 BETA 2 Safari (too Low) for the Search Articles field
+
+Articles are added twice sometimes
 
 TILE TEMPLATES
 

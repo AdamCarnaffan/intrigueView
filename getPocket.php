@@ -50,16 +50,11 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     try {
       $entryInfo = new SiteData($item->link, $feedSelection->source, $conn);
     } catch (Exception $e) {
-      if (isset($entryInfo)) { // Only clear data if previous data exists
-        $entryInfo->clearData();
-      }
-      echo $e->getMessage() . " @ " . $item->link . "</br>";
+      $entryInfo = null;
+      echo $e->getMessage() . " @ " . $item->link . "\n";
       $error = true;
+      continue;
     }
-    continue;
-  } elseif ($error) {
-    $error = false;
-  } elseif (isset($entryInfo)) { // Continue as planned
     // Format Date Time for mySQL
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
     // MySQL Statement
@@ -73,14 +68,16 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
       array_push($summary->failuresList, $item->title);
       $summary->failureReason = $conn->error . " @ " . $item->link;
     }
-  }  
+  } elseif ($error) {
+    $error = false;
+  }
 }
 
 
 // Summary of Action
-echo $summary->entriesAdded . " entries have been added to the database, including: ";
+echo $summary->entriesAdded . " entries have been added to the database, including: \n";
 foreach ($summary->entriesList as $title) {
-  echo $title . "</br>";
+  echo $title . "\n";
 }
 // Handle for failed actions report
 if ($summary->entriesFailed > 0) {

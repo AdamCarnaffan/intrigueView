@@ -224,6 +224,7 @@ html, body {
 }
 .nav-search {
   margin-left: 0;
+  z-index: 8;
 }
 #return-button {
   border-radius: 100%;
@@ -233,6 +234,13 @@ html, body {
 .front {
   z-index: 50;
 }
+input, input:before, input:after {
+  -webkit-user-select: initial !important;
+  -khtml-user-select: initial !important;
+  -moz-user-select: initial !important;
+  -ms-user-select: initial !important;
+  user-select: initial !important;
+} 
 /* Hover effects are only applied on the desktop version of the site */
 @media (min-width: 770px) {
   .btn-outline-success-blue:hover {
