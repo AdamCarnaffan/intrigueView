@@ -21,12 +21,14 @@
   <link href="styling/bootstrap-grid.css" rel="stylesheet">
   <!-- Custom styles -->
   <link href="styling/custom-styles.css" rel="stylesheet">
-  <script src='jquery-3.2.1.min.js'></script>
+  <!-- JavaScript -->
+  <script src='js/jquery-3.2.1.min.js'></script>
+  <script src='js/bootstrap.js'></script>
 </head>
 <body class="hide-overflow">
   <!-- Fixed navbar -->
 <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
-  <a class="navbar-brand" href="#">IntrigueView</a>
+  <a class="navbar-brand" href="index.php">IntrigueView</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -66,7 +68,7 @@
 
 </body>
 <!-- Scripting -->
-<script src="loginManager.js"></script>
+<script src="js/loginManager.js"></script>
 </html>
 
 <!--
