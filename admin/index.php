@@ -16,8 +16,10 @@ include('validateUser.php');
   <link href="../styling/bootstrap-grid.css" rel="stylesheet">
   <!-- Custom styles -->
   <link href="../styling/custom-styles.css" rel="stylesheet">
-  <script src='../jquery-3.2.1.min.js'></script>
-  <script src='../loginManager.js'></script>
+  <!-- JavaScript -->
+  <script src='../js/jquery-3.2.1.min.js'></script>
+  <script src='administration.js'></script>
+  <script src='../js/loginManager.js'></script>
   <?php
     include('../dbConnect.php');
     include('../objectConstruction.php');
