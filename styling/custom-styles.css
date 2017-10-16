@@ -264,4 +264,7 @@ input, input:before, input:after {
   .hover-highlight:hover {
     color: #2888a7 !important;
   }
+  .nav-link:hover {
+    color: #2888a7 !important;
+  }
 }
