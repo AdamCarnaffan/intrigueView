@@ -19,3 +19,5 @@ ADMINISTRATION
   support multi-exporting specific Feeds to RSS
 
 Dark Theme (#212529)
+
+Export for external users (first 10)

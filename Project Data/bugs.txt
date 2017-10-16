@@ -19,6 +19,9 @@ Getpocket goto statement
 
 'No entries found' displayed for a second query where the first was not filled
 
+Duplicate entries validation needed
+    USE Custom Procedure to compare current similar urls with the current URL
+
 The nav bar cannot be displayed on mobile
 
 TILE TEMPLATES
