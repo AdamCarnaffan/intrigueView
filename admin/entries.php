@@ -23,7 +23,7 @@ include('validateUser.php');
   <?php
     include('../dbConnect.php');
     include('../objectConstruction.php');
-    session_start();
+    include('../fixSession.php');
     $user = $_SESSION['user'];
    ?>
 </head>

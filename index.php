@@ -51,7 +51,7 @@
     <ul class="navbar-nav">
       <?php
         require('objectConstruction.php');
-        session_start();
+        include('fixSession.php');
         $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
         // Change the User display based on a logged in user
         if (isset($user)) {

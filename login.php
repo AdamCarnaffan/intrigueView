@@ -1,13 +1,13 @@
+<?php
+  // Check if a user is already logged in
+  require('fixSession.php');
+  if (isset($_SESSION['user'])) {
+      header('location: admin/index.php');
+  }
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <?php
-    // Check if a user is already logged in
-    session_start();
-    if (isset($_SESSION['user'])) {
-        header('location: admin/index.php');
-    }
-  ?>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
