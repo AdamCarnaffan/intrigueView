@@ -9,6 +9,8 @@ $sourceId = $_POST['sourceId'];
 $feedSelection = new FeedInfo($sourceId, $conn);
 // Time zone info to sync with feed
 $timeZone = ('-5:00');
+// Default for the error variable used in the loop
+$error = false;
 
 /*
 RSS Feed xml attributes come from xml->[title][description][link]->attributes->ITEM PROPERTY
@@ -35,7 +37,6 @@ $summary = new Summary();
 
 // Check each Entry from bottom to top (Added chronologically)
 for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNumber--) {
-  start:
   // Set the $item tag as is done in a foreach loop (Pathing from RSS Feed)
   $item = $xml->channel->item[$entryNumber];
   // Convert the Date to a DateTime Object
@@ -49,9 +50,10 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     try {
       $entryInfo = new SiteData($item->link, $feedSelection->source, $conn);
     } catch (Exception $e) {
-      $entryInfo->clearData();
-      echo $e->getMessage() . " @ " . $item->link . "</br>";
-      goto start;
+      $entryInfo = null;
+      echo $e->getMessage() . " @ " . $item->link . "\n";
+      $error = true;
+      continue;
     }
     // Format Date Time for mySQL
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
@@ -66,13 +68,16 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
       array_push($summary->failuresList, $item->title);
       $summary->failureReason = $conn->error . " @ " . $item->link;
     }
+  } elseif ($error) {
+    $error = false;
   }
 }
 
+
 // Summary of Action
-echo $summary->entriesAdded . " entries have been added to the database, including: ";
+echo $summary->entriesAdded . " entries have been added to the database, including: \n";
 foreach ($summary->entriesList as $title) {
-  echo $title . "</br>";
+  echo $title . "\n";
 }
 // Handle for failed actions report
 if ($summary->entriesFailed > 0) {

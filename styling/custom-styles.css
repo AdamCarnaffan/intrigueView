@@ -10,12 +10,6 @@
     background-image: none;
     border-color: #2888a7;
 }
-.btn-outline-success-blue:hover {
-    color: #fff;
-    background-color: #2888a7;
-    background-image: none;
-    border-color: #2888a7;
-}
 .fix-sidebar {
   position: fixed;
   max-width: 14rem;
@@ -64,9 +58,6 @@
 .entry-heading {
   padding: 0.25rem;
 }
-.hover-detect:hover + .entry-heading {
-  color: #2888a7;
-}
 .entry-stats {
   position: relative;
   height: 2rem;
@@ -92,9 +83,6 @@
   z-index: 2;
   color: inherit;
   line-height: 2rem;
-}
-.site-info-url:hover {
-  color: #2888a7;
 }
 .feed-tile {
   border: 1px solid rgba(210,210,210,0.4);
@@ -128,7 +116,7 @@
   margin: auto;
 }
 .login-top-pad {
-  margin-top: 5rem;
+  padding-top: 5rem;
 }
 .heading-pad {
   margin-top: 0.75rem
@@ -165,16 +153,6 @@
   width: 100px;
   height: auto;
 }
-@media (min-width: 20px) {
-  .sidebar-hide {
-    display: none;
-  }
-}
-@media (min-width: 922px) {
-  .sidebar-hide {
-    display: inline;
-  }
-}
 .search-border {
   border: 1px solid black;
   border-radius: 0.5rem;
@@ -184,9 +162,6 @@
 .fix-link-color {
   color: #fff;
 }
-.fix-link-color:hover {
-  color: rgba(255,255,255,.5);
-}
 html, body {
   height: 100%;
 }
@@ -194,15 +169,17 @@ html, body {
   min-height: 100%;
 }
 .button-holder {
-  width: 2rem;
-  height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
   position: fixed;
   bottom: 3.8rem;
   right: 1rem;
 }
 .return-button {
-  width: 100%;
-  height: 100%;
+  width: 90%;
+  height: 90%;
+  z-index: 4;
+  margin: 2.5%;
 }
 .loading-canvas {
   width: 100%;
@@ -211,14 +188,18 @@ html, body {
   height: 2rem;
   display: block;
   margin: 0.3rem;
-  margin-left: 0.6rem;
   color: black !important;
   text-align: left !important;
   padding-right: 2.4rem !important;
+  padding-left: 4px !important;
   margin-bottom: 0;
 }
+.nav-input:focus {
+  outline-width: 0 !important;
+  box-shadow: 0 0 0 0 !important;
+}
 .inline-button {
-  margin-left: -2.68rem;
+  float: left;
   display: inline;
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
@@ -226,13 +207,61 @@ html, body {
   color: #2888a7 !important;
   padding-right: 0.5rem !important;
   line-height: 0.9;
-}
-.inline-button:hover {
-  color: white !important;
+  margin-left: -2.3rem;
 }
 .fix-li {
+  float: left;
+  flex: 1 1 100%;
   display: inline;
+  justify-content: space-around;
 }
-.hover-highlight:hover {
-  color: #2888a7 !important;
+.nav-navigation {
+  flex-wrap: wrap !important;
+  margin-right: 1rem !important;
+}
+.fix-ul {
+  flex-direction: row !important;
+}
+.nav-search {
+  margin-left: 0;
+  z-index: 8;
+}
+#return-button {
+  border-radius: 100%;
+  background-color: #2888a7;
+  z-index: 3;
+}
+.front {
+  z-index: 50;
+}
+input, input:before, input:after {
+  -webkit-user-select: initial !important;
+  -khtml-user-select: initial !important;
+  -moz-user-select: initial !important;
+  -ms-user-select: initial !important;
+  user-select: initial !important;
+} 
+/* Hover effects are only applied on the desktop version of the site */
+@media (min-width: 770px) {
+  .btn-outline-success-blue:hover {
+      color: #fff;
+      background-color: #2888a7;
+      background-image: none;
+      border-color: #2888a7;
+  }
+  .site-info-url:hover {
+    color: #2888a7;
+  }
+  .hover-detect:hover + .entry-heading {
+    color: #2888a7;
+  }
+  .fix-link-color:hover {
+    color: rgba(255,255,255,.5);
+  }
+  .inline-button:hover {
+    color: white !important;
+  }
+  .hover-highlight:hover {
+    color: #2888a7 !important;
+  }
 }

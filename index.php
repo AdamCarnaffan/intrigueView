@@ -14,8 +14,10 @@
   <link href="styling/bootstrap-grid.css" rel="stylesheet">
   <!-- Custom styles -->
   <link href="styling/custom-styles.css" rel="stylesheet">
-  <script src='jquery-3.2.1.min.js'></script>
-  <script src="displayManager.js"></script>
+  <!-- Javascript -->
+  <script src='js/jquery-3.2.1.min.js'></script>
+  <script src="js/displayManager.js"></script>
+  <script src='js/bootstrap.js'></script>
 </head>
 <body class="hide-overflow" onresize='resizeCanvas'>
   <!-- Fixed navbar -->
@@ -25,20 +27,22 @@
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbarCollapse">
-    <ul class="navbar-nav mr-auto">
+    <ul class="navbar-nav mr-auto nav-navigation fix-ul">
       <li class="nav-item active">
         <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
       </li>
+    </ul>
+    <ul class="navbar-nav mr-auto fix-ul">
       <!-- USED TO BROWSE FEEDS
       <li class="nav-item active">
         <a class="nav-link" href="#">Browse <span class="sr-only">(current)</span></a>
       </li>
     -->
       <li class="nav-item active fix-li">
-        <input class="feed-source-input nav-input nav-link btn" id='search-input' type="text" placeholder="Article Search">
+        <input class="feed-source-input nav-input nav-link btn nav-search" id='search-input' type="text" placeholder="Article Search">
       </li>
-      <li class='nav-item active'>
-        <button class='feed-source-input nav-input nav-link btn btn-outline-success-blue inline-button' id='search-button' onclick='beginSearch()'>Go</button><!-- ADD ICON -->
+      <li class='nav-item active fix-li'>
+        <button class='feed-source-input nav-input nav-link btn btn-outline-success-blue inline-button fix-mobile' id='search-button' onclick='beginSearch()'>Go</button><!-- ADD ICON -->
       </li>
     </ul>
     <ul class="navbar-nav">
@@ -58,7 +62,7 @@
 </nav>
 
 <!-- Left Side Sort Bar -->
-<!--<div class="sidebar-hide col-4 col-md-3 fix-sidebar round-bars search-border" id="sidebar">
+<!--<div class=" col-4 col-md-3 fix-sidebar round-bars search-border" id="sidebar">
   <div class="list-group round-bars">
     <h4>Search</h4>
     <input class="feed-source-input" id='search-input' type="text" placeholder="Search">
@@ -85,7 +89,7 @@
 <!-- Scripting -->
 <script>
 // Define Variable display buttons
-var ReturnButton = "<div class='button-holder' id='return-button'><a href='#' onclick='returnToTop()'><img class='return-button' src='assets/returnToTop.png'></a></div>";
+var ReturnButton = "<div class='button-holder' id='return-button'><a class='return-button front' href='#' onclick='returnToTop()'><img class='return-button front' src='assets/returnToTop.png'></a></div>";
 var loadingCanvas = "<div id='loading'><canvas id='loading-dots' width='900' height='600'>Loading...</canvas></div>";
 // Instantiate necessary global variables
 var returnButtonIsDisplayed = false;

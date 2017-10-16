@@ -138,8 +138,24 @@ html {
         flex: 0 0 100%;
     max-width: 100%;
   }
+  .navbar {
+    position: fixed;
+    z-index: 3;
+    width: 100%;
+  }
+  .container {
+    padding-top: 4rem;
+  }
 }
-
+/* Reset Feild properties for non-mobile devices */
+@media (min-width: 770px) {
+  .navbar {
+    position: relative;
+  }
+  .container {
+    padding-top: 0;
+  }
+}
 @media (min-width: 800px) {
   .col-6 {
     -ms-flex: 0 0 50%;
