@@ -41,7 +41,7 @@
 			$row[0] = str_replace("&nbsp;", " ", $row[0]);
 			$row[0] = str_replace("&ndash;", "-", $row[0]);
 			echo "
-			<entry>
+			<item>
 			<title>" . $row[0] . "</title>
 			<link>" . $row[1] . "</link>
 			<guid>" . $row[1] . "</guid>";
@@ -49,7 +49,7 @@
 				echo "<image>" . $row[3] . "</image>";
 			}
 			echo "<pubDate>" . $row[2] . "</pubDate>
-			</entry>";
+			</item>";
 		}
 		echo "
 		</channel>
