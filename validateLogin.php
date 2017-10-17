@@ -21,7 +21,7 @@ if ($getUser->execute()) {
     $dbPass = $row[1];
     $username = $row[2];
     if (password_verify($inputPassword, $dbPass)) {
-      session_start();
+			include('fixSession.php');
       $_SESSION['user'] = new User($userId, $conn, $username);
       echo "<script>window.location = 'admin/'</script>";
     } else {
