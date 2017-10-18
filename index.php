@@ -60,6 +60,7 @@
         if (isset($user)) {
           echo '<a class="nav-item active nav-link hover-highlight" href="login.php">Welcome back, ' . $user->name . '</a>';
         } else {
+          echo '<button class="btn btn-outline-success-blue my-2 my-sm-0 separate" onclick="location.href=\'register.php\';">Register</button>';
           echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href=\'login.php\';">Login</button>';
         }
        ?>

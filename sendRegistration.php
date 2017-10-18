@@ -37,9 +37,11 @@ function register($username, $password, $email) {
     return;
   }
   if ($conn->multi_query($submitUser)) {
-    $userId = $conn->store_result()->fetch_array()[0]; //$conn->ID AUTO INCREMENT FIX
+    $conn->next_result();
+    $userId = $conn->store_result()->fetch_row()[0];
+    include('fixSession.php');
     $_SESSION['user'] = new User($userId, $conn, $username);
-    header('location: admin/index.php');
+    echo "<script>window.location = 'index.php'</script>";
   } elseif ($conn->errno == 1062) {
     echo $conn->error;
     echo "That username is already in use";

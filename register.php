@@ -40,7 +40,7 @@
        </li>
      </ul>
      <ul class="navbar-nav">
-       <button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href='register.php';">Register</button>
+       <button class="btn btn-outline-success-blue my-2 my-sm-0 separate" onclick="location.href='register.php';">Register</button>
        <button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href='login.php';">Login</button>
      </ul>
    </div>

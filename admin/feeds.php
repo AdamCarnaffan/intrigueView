@@ -92,6 +92,8 @@ include('validateUser.php');
       // Determine which feeds the user can manage
       $showAllFeeds = false;
       $feedsList = [];
+      $feeds = [];
+      $getAllFeedIds = "SELECT feed_id FROM feeds WHERE active = 1";
       foreach ($user->permissions as $perm) {
         if ($perm->permissionId == 2) {
           if ($perm->feedId == null) {
@@ -103,11 +105,12 @@ include('validateUser.php');
         }
       }
       if ($showAllFeeds) {
-        $getAllFeedIds = "SELECT feed_id FROM feeds WHERE active = 1";
         $result = $conn->query($getAllFeedIds);
         while ($row = $result->fetch_array()) {
           array_push($feedsList, $row[0]);
         }
+      } else {
+        $result = $conn->query("SELECT feed_id FROM user_permissions WHERE userid = '$user->id'");
       }
       // Execute query and prepare results
       $feedInfos = [];
@@ -116,9 +119,10 @@ include('validateUser.php');
       }
     ?>
     <!-- EDIT FEEDS -->
-    <h5>Edit a Feed:</h5>
+    <h5>Manage External Linked Feeds:</h5>
     <table>
       <?php
+        $feedManageCount = 0;
         foreach ($feedInfos as $feed) {
           // Only display a feed that can be edited
           if ($feed->source != null) {
@@ -131,8 +135,11 @@ include('validateUser.php');
             echo "<td><button class='feed-source-input' id='deleteFeed_" . $feed->id . "' onclick='deleteFeed(" . $feed->id . ")' >Delete</button></td>";
             echo "</tr>";
           }
+          $feedManageCount++;
         }
-
+        if ($feedManageCount == 0) {
+          echo "<h7 class='vertical-center'>No Feeds to Display</h7>";
+        }
        ?>
        <!-- SAVE CHANGES BUTTON -->
     </table>
@@ -166,6 +173,7 @@ include('validateUser.php');
         $feedsList = [];
         $result = $conn->query($getAllFeedIds);
         while ($row = $result->fetch_array()) {
+          echo $row[0];
           array_push($feedsList, new FeedInfo($row[0], $conn));
         }
         foreach ($feedsList as $feed) {

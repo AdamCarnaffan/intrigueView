@@ -8,6 +8,9 @@ CREATE PROCEDURE createUser(IN username VARCHAR(255), IN hashPass TEXT, IN email
         SELECT LAST_INSERT_ID() INTO @userID FROM users LIMIT 1;
         SELECT CONCAT(username, '\'s Feed') INTO @feedTitle;
         INSERT INTO feeds (title, linked_by, isDefault) VALUES (@feedTitle, @userID, '1');
+				SELECT LAST_INSERT_ID() INTO @feedID FROM feeds LIMIT 1;
+				INSERT INTO user_permissions (user_id, permission_id, feed_id) VALUES (@userID, 2, @feedID);
+				INSERT INTO user_permissions (user_id, permission_id, feed_id) VALUES (@userID, 2, @feedID);
         SET userID = @userID;
     END//
 

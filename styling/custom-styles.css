@@ -241,7 +241,7 @@ input, input:before, input:after {
   -moz-user-select: initial !important;
   -ms-user-select: initial !important;
   user-select: initial !important;
-} 
+}
 /* Hover effects are only applied on the desktop version of the site */
 @media (min-width: 770px) {
   .btn-outline-success-blue:hover {
@@ -271,4 +271,12 @@ input, input:before, input:after {
   .nav-navigation {
     flex-direction: row !important;
   }
+}
+
+.vertical-center {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+.separate {
+  margin-right: 0.4rem;
 }

@@ -26,3 +26,5 @@ REFACTOR database
 Rename GetPocket.php as it applies to any feed with a URL
 
 Caret misplaced in Ios 11.1 BETA 2 Safari (too Low) for the Search Articles field
+
+RSS ADMIN FEED dropdown needs search
