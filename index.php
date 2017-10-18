@@ -34,13 +34,16 @@
       <li class="nav-item active">
         <a class="nav-link" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=0')">Export RSS<span class="sr-only">(current)</span></a>
       </li>
-    </ul>
-    <ul class="navbar-nav mr-auto fix-ul">
       <!-- USED TO BROWSE FEEDS
       <li class="nav-item active">
-        <a class="nav-link" href="#">Browse <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="#" title="View Popular and Interesting Public Feeds">Browse<span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="#" title="View and Modify Your Private Feed">Your Feed<span class="sr-only">(current)</span></a>
       </li>
     -->
+    </ul>
+    <ul class="navbar-nav mr-auto fix-ul">
       <li class="nav-item active fix-li">
         <input class="feed-source-input nav-input nav-link btn nav-search" id='search-input' type="text" placeholder="Article Search">
       </li>

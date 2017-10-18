@@ -4,8 +4,6 @@ A Site that uses javascript to display content has nothing to show when pulled (
 
   https://techinasia.com/talk/8-machine-learning-8-minutes
 
-Currently, in the administration area, 2 feeds may share a URL
-
 No response is returned in the admin area
 
 No Feeds are displayed if permission for editing feeds is not ALL
@@ -17,46 +15,14 @@ Not all pages or functions support error logging
 
 'No entries found' displayed for a second query where the first was not filled
 
-<<<<<<< HEAD
 Duplicate entries validation needed
     USE Custom Procedure to compare current similar urls with the current URL
 
-The nav bar cannot be displayed on mobile
-=======
+REFACTOR database
+    a New table should be created to relate an article to different feeds. The feed Id column should be removed from `entries`
+    Modify User permissions for private feeds
+    Add Public/Private column for the `feeds` table
+
+Rename GetPocket.php as it applies to any feed with a URL
+
 Caret misplaced in Ios 11.1 BETA 2 Safari (too Low) for the Search Articles field
-
-Articles are added twice sometimes
->>>>>>> d72fcdfbe522e13fd3fdee70e50871bc8cba1749
-
-TILE TEMPLATES
-
-  <!-- Feature Entry-->
-  <div class="col-12 col-lg-6 tile-wrapper">
-    <div class="feed-tile">
-      <!-- LINK TO ARTICLE HERE -->
-      <a href="http://google.ca" class="hover-detect"><span class="entry-url"></span></a>
-      <h5 class="entry-heading">Article Heading</h5>
-      <div class="image-container"><img class="image" src="https://d33ypg4xwx0n86.cloudfront.net/direct?url=https%3A%2F%2Fassets.fastcompany.com%2Fimage%2Fupload%2Fw_707%2Cf_auto%2Cq_auto%3Abest%2Cfl_lossy%2Fwp-cms%2Fuploads%2F2017%2F09%2Fp-1-what-do-you-think-of-the-iphone-x-alan-key.jpg&resize=w704"/></div>
-      <div class="entry-stats">
-        <p class="site-info">
-          <img src="http://jsfiddle.net/favicon.png" class="site-icon"/><!-- SITE ICON -->
-          <a class="site-info-url" href="https://getpocket.com/a/queue/">google.ca</a>
-        </p>
-      </div>
-    </div><!--/span-->
-  </div>
-  <!-- Regular Entry -->
-  <div class="col-6 col-lg-3 tile-wrapper">
-    <div class="feed-tile">
-      <!-- LINK TO ARTICLE HERE -->
-      <a href="http://google.ca" class="hover-detect"><span class="entry-url"></span></a>
-      <h5 class="entry-heading">Article Heading which is longer than before, therefore hopefully shrinking image</h5>
-      <div class="image-container"><img class="image" src="https://d33ypg4xwx0n86.cloudfront.net/direct?url=https%3A%2F%2Fassets.fastcompany.com%2Fimage%2Fupload%2Fw_707%2Cf_auto%2Cq_auto%3Abest%2Cfl_lossy%2Fwp-cms%2Fuploads%2F2017%2F09%2Fp-1-what-do-you-think-of-the-iphone-x-alan-key.jpg&resize=w704"/></div>
-      <div class="entry-stats">
-        <p class="site-info">
-          <img src="http://jsfiddle.net/favicon.png" class="site-icon"/><!-- SITE ICON -->
-          <a class="site-info-url" href="https://getpocket.com/a/queue/">google.ca</a>
-        </p>
-      </div>
-    </div><!--/span-->
-  </div>

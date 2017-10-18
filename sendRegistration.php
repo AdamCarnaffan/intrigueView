@@ -5,7 +5,6 @@ $username = $_POST['username'];
 $password = $_POST['password'];
 $email = $_POST['email'];
 
-$username = "loller";
 $password = "Laaaaaaaa1";
 $email = "lol";
 
@@ -18,8 +17,8 @@ function register($username, $password, $email) {
   // Hash password
   $hashedPass = password_hash($password, PASSWORD_DEFAULT);
 
-  $submitUser = "INSERT INTO users (username, password, email, default_submission_feed) VALUES ('$username', '$hashedPass', '$email', '1');
-    SELECT LAST_INSERT_ID()";
+  $submitUser = "CALL createUser('$username', '$hashedPass', '$email', @out_userID);
+                  SELECT @out_userID;";
 
   if (strlen($username) < 5) {
     echo "Your Username is too short";
@@ -37,16 +36,17 @@ function register($username, $password, $email) {
     echo "Your Password must contain a variation of letters and numbers";
     return;
   }
-  if ($result = $conn->query($submitUser)) {
-    $userId = $result->fetch_Array()[0]; //$conn->ID AUTO INCREMENT FIX
+  if ($conn->multi_query($submitUser)) {
+    $userId = $conn->store_result()->fetch_array()[0]; //$conn->ID AUTO INCREMENT FIX
     $_SESSION['user'] = new User($userId, $conn, $username);
     header('location: admin/index.php');
-  } elseif ($conn->error_no == 2) {
-    echo "That username has already been taken";
+  } elseif ($conn->errno == 1062) {
+    echo $conn->error;
+    echo "That username is already in use";
     return;
   } else {
     echo $conn->error;
-    echo "A Connection Error has occured";
+    //echo "A Connection Error has occured";
     return;
   }
 }

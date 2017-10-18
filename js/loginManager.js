@@ -46,14 +46,14 @@ function validateRegister() {
   var inputEmail = document.getElementById('email-input').value;
 
   // Reset the error message
-  $('#login-error').html('');
+  $('#register-error').html('');
 
   // Check that passwords match
   var passwordMatch = false;
   if (inputPassword == confirmPassword) {
     passwordMatch = true;
   } else {
-    $('#login-error').append("Your passwords do not match")
+    $('#register-error').append("Your passwords do not match")
   }
 
   if (cooldown < 5 && passwordMatch) {
@@ -67,12 +67,12 @@ function validateRegister() {
       },
       success: function(data) {
         // Add error message to the error message box, or navigate
-        $('#login-error').append(data);
+        $('#register-error').append(data);
       },
       alert: "Success!"
     });
-  } else if(cooldown < 5) {
-    $('#login-error').append("Please wait before attempting to login again");
+  } else if (cooldown > 5) {
+    $('#register-error').append("Please wait before attempting to login again");
   }
 
   cooldown += 1;
