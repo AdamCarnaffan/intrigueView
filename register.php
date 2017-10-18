@@ -62,7 +62,7 @@
              </br>
                <input class="form-control mr-sm-2 text-box-input input-length" id="email-input" type="text" placeholder="Email" aria-label="Email">
                <p class="user-error-message" id="register-error"></p>
-               <input class="btn btn-outline-success my-2 my-sm-0 text-box-input" type="button" onclick='validateRegistration()' value="Register">
+               <input class="btn btn-outline-success my-2 my-sm-0 text-box-input" type="button" onclick='validateRegister()' value="Register">
              </form>
            </div>
          </div><!--/span-->
