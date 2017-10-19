@@ -7,10 +7,9 @@ CREATE PROCEDURE createUser(IN username VARCHAR(255), IN hashPass TEXT, IN email
     	INSERT INTO users (username, password, email) VALUES (username, hashPass, email);
         SELECT LAST_INSERT_ID() INTO @userID FROM users LIMIT 1;
         SELECT CONCAT(username, '\'s Feed') INTO @feedTitle;
-        INSERT INTO feeds (title, linked_by, isDefault) VALUES (@feedTitle, @userID, '1');
-				SELECT LAST_INSERT_ID() INTO @feedID FROM feeds LIMIT 1;
-				INSERT INTO user_permissions (user_id, permission_id, feed_id) VALUES (@userID, 2, @feedID);
-				INSERT INTO user_permissions (user_id, permission_id, feed_id) VALUES (@userID, 2, @feedID);
+        CALL newFeed(@feedTitle, @userID, NULL, 0, 0, @feedID);
+				INSERT INTO user_permissions (userID, permissionID, feedID) VALUES (@userID, 2, @feedID);
+				INSERT INTO user_permissions (userID, permissionID, feedID) VALUES (@userID, 4, @feedID);
         SET userID = @userID;
     END//
 
@@ -19,3 +18,22 @@ CREATE PROCEDURE createUser(IN username VARCHAR(255), IN hashPass TEXT, IN email
 CALL createUser('asdasdsadsa', 'savdhasbdhajs', 'asdgasudbhdsal', @out_userID);
 
 SELECT @out_userID;
+
+
+// PROCEDURE FOR CREATING FEEDS
+
+DELIMITER //
+
+CREATE PROCEDURE newFeed(IN feedname TEXT, IN linkedBy INT, IN url VARCHAR(255), IN isExternal INT, IN isClassFeed INT, OUT feedID INT)
+	BEGIN
+		INSERT INTO feeds (linkedBy, isExternalFeed, referenceTitle) VALUES (linkedBy, isExternal, feedname);
+		SELECT LAST_INSERT_ID() INTO @feedID FROM feeds LIMIT 1;
+		IF (isExternal = 1)
+			THEN
+				INSERT INTO external_feeds (externalFeedID, url, title) VALUES (@feedID, url, feedname);
+			ELSE
+				INSERT INTO user_feeds (internalFeedID, title, isClassFeed) VALUES (@feedID, feedname, isClassFeed);
+			END IF;
+		SET feedID = @feedID;
+	END //
+		
