@@ -51,7 +51,7 @@
       <div class="row" id="feed-view">
         <div class="col-12 col-lg-6 tile-wrapper login-center">
           <div class="feed-tile login-adjust">
-            <h3 class="entry-heading heading-pad">Feed Management Login</h3>
+            <h3 class="entry-heading heading-pad">IntrigueView Login</h3>
             <form method="post" class="mt-2 mt-md-0">
               <input class="form-control mr-sm-2 text-box-input input-length" id="username-input" type="text" placeholder="Username" aria-label="Username">
             </br>

@@ -58,16 +58,15 @@ foreach ($features as $feature) {
   $pos++;
 }
 // When changing the query, remember to adjust object
-$getEntries = "SELECT feed.title, entries.title, entries.url, entries.date_published, entries.feature_image, entries.preview_text, entries.featured, site.url, site.icon FROM `entries`
-                  JOIN `feeds` AS feed ON entries.feed_id = feed.feed_id
-                  JOIN `sites` AS site ON entries.site_id = site.site_id
-                  WHERE entries.visible = 1
-                  ORDER BY entries.date_published DESC, entries.entry_id ASC
-                  LIMIT $selectionLimit OFFSET $selectionOffset";
+$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon FROM entries
+	               JOIN sites ON entries.siteID = sites.siteID
+                 WHERE entries.visible = 1
+                 ORDER BY entries.datePublished DESC, entries.entryID ASC
+                 LIMIT $selectionLimit OFFSET $selectionOffset";
 // Adjust the query if a search is present
 $search = false;
 if ($searchKey != null && strlen($searchKey) > 0) {
-  $getEntries = substr_replace($getEntries, " AND entries.title LIKE '%$searchKey%'", 361 ,1);
+  $getEntries = substr_replace($getEntries, " AND entries.title LIKE '%$searchKey%'", 230 ,1);
   $search = true;
 }
 // Prepare and query

@@ -93,7 +93,7 @@ include('validateUser.php');
       $showAllFeeds = false;
       $feedsList = [];
       $feeds = [];
-      $getAllFeedIds = "SELECT feed_id FROM feeds WHERE active = 1";
+      $getAllFeedIds = "SELECT feedID FROM feeds WHERE active = 1";
       foreach ($user->permissions as $perm) {
         if ($perm->permissionId == 2) {
           if ($perm->feedId == null) {
@@ -110,7 +110,7 @@ include('validateUser.php');
           array_push($feedsList, $row[0]);
         }
       } else {
-        $result = $conn->query("SELECT feed_id FROM user_permissions WHERE userid = '$user->id'");
+        $result = $conn->query("SELECT feedID FROM user_permissions WHERE userID = '$user->id'");
       }
       // Execute query and prepare results
       $feedInfos = [];

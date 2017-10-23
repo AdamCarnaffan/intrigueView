@@ -5,7 +5,7 @@ require('objectConstruction.php');
 
 // Get the Source ID for database selection of feed
 $sourceId = $_POST['sourceId'];
-// The Export URL (RSS Feed) from getPocket
+// The Export URL (RSS Feed) from getFeed
 $feedSelection = new FeedInfo($sourceId, $conn);
 // Time zone info to sync with feed
 $timeZone = ('-5:00');
@@ -21,7 +21,7 @@ RSS Feed xml interpretation points xml->channel->LISTOFITEMS(item)->ITEM PROPERT
 $xml = simplexml_load_file($feedSelection->source) or die("Error: Could not connect to the feed");
 
 // Get the last update time (for comparison with any articles to add)
-$getLastPub = "SELECT `date_published` FROM `entries` WHERE feed_id = '$feedSelection->id' ORDER BY `date_published` DESC LIMIT 1";
+$getLastPub = "SELECT datePublished FROM entries JOIN entry_connections AS connections ON entries.entryID = connections.entryID WHERE connections.feedID = '$feedSelection->id' ORDER BY datePublished DESC LIMIT 1";
 
 // Get the one data point in a single line and convert to a DateTime object
 // GET TIMEZONE on insert (The data entering the database will be of the same timezone as that leaving the database) --> pocket doesn't offer this offset so matching is the best way
@@ -58,8 +58,7 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     // Format Date Time for mySQL
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
     // MySQL Statement
-    $addEntry = "INSERT INTO `entries` (`feed_id`,`site_id`,`title`,`url`,`date_published`,`feature_image`,`preview_text`)
-                  VALUES ('$feedSelection->id','$entryInfo->siteId','$filteredTitle','$item->link','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis')";
+    $addEntry = "CALL newEntry('$entryInfo->siteId','$feedSelection->id', '$filteredTitle','$item->link','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis')";
     if ($conn->query($addEntry)) { // Report all succcessful entries to the user
       $summary->entriesAdded++;
       array_push($summary->entriesList, $item->title);

@@ -92,7 +92,7 @@ include('validateUser.php');
       foreach ($user->permissions as $perm) {
         if ($perm->permissionId == 4) {
           if ($perm->feedId == null) {
-            $getAllFeedIds = "SELECT feed_id FROM feeds WHERE active = 1";
+            $getAllFeedIds = "SELECT feedID FROM feeds WHERE active = 1";
           } else {
             array_push($editableFeeds, $perm->feedId);
           }

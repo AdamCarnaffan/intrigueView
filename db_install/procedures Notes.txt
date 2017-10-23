@@ -28,12 +28,23 @@ CREATE PROCEDURE newFeed(IN feedname TEXT, IN linkedBy INT, IN url VARCHAR(255),
 	BEGIN
 		INSERT INTO feeds (linkedBy, isExternalFeed, referenceTitle) VALUES (linkedBy, isExternal, feedname);
 		SELECT LAST_INSERT_ID() INTO @feedID FROM feeds LIMIT 1;
-		IF (isExternal = 1)
-			THEN
+		IF (isExternal = 1) THEN
 				INSERT INTO external_feeds (externalFeedID, url, title) VALUES (@feedID, url, feedname);
 			ELSE
 				INSERT INTO user_feeds (internalFeedID, title, isClassFeed) VALUES (@feedID, feedname, isClassFeed);
 			END IF;
 		SET feedID = @feedID;
+	END //
+		
+		
+// PROCEDURE FOR ENTERING ARTICLES
+
+DELIMITER //
+
+CREATE PROCEDURE newEntry(IN sourceSiteID INT, IN sourceFeedID INT, IN entryTitle TEXT, IN entryURL VARCHAR(255), IN pubDate DATETIME, IN imageURL TEXT, IN excerpt TEXT)
+	BEGIN
+		INSERT INTO entries (siteID, title, url, datePublished, featureImage, previewText) VALUES (sourceSiteID, entryTitle, entryURL, pubDate, imageURL, excerpt);
+		SELECT LAST_INSERT_ID() INTO @entryID FROM entries LIMIT 1;
+		INSERT INTO entry_connections (entryID, feedID) VALUES (@entryID, sourceFeedID);
 	END //
 		

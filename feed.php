@@ -9,20 +9,22 @@
 	$feedId = (is_numeric($feedId)) ? $feedId : 0;
 	$feedSize = (is_numeric($feedSize)) ? $feedSize : '*';
 	// Build the correct Query for the Database
-	$getFeed = "SELECT title, url, date_published, feature_image FROM entries WHERE visible = 1";
+	$getFeed = "SELECT title, url, datePublished, featureImage FROM entries JOIN entry_connections AS connections ON entries.entryID = connections.entryID WHERE visible = 1";
 	if ($feedId == 0) {
-		$getFeed .= " ORDER BY date_published DESC";
+		$getFeed .= " ORDER BY datePublished DESC";
 	} else {
-		$getFeed .= " AND feed_id = '$feedId' ORDER BY date_published DESC";
+		$getFeed .= " AND connections.feedID = '$feedId' ORDER BY datePublished DESC";
 	}
 	if ($feedSize != "*") {
 		$getFeed .= " LIMIT $feedSize";
+	} else {
+		$getFeed .= " LIMIT 1200";
 	}
 	// Generate Feed details
 	echo '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0">';
 	// Get the Feed Name from the database
 	if ($feedId != 0) {
-		$feedTitle = $conn->query("SELECT title FROM feeds WHERE feed_id = '$feedId'")->fetch_array()[0];
+		$feedTitle = $conn->query("SELECT referenceTitle FROM feeds WHERE feedID = '$feedId'")->fetch_array()[0];
 	} else {
 		$feedTitle = "All Feeds";
 	}

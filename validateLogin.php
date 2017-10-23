@@ -6,7 +6,7 @@ $validationError = "The username or password entered was incorrect";
 $inputUsername = $_POST['username'];
 $inputPassword = $_POST['password'];
 
-$userQuery = "SELECT user_id, password, username FROM users WHERE username = ? AND active = 1";
+$userQuery = "SELECT userID, password, username FROM users WHERE username = ? AND active = 1";
 
 if ($getUser = $conn->prepare($userQuery)) {
 	$getUser->bind_param('s', $inputUsername);
@@ -23,7 +23,8 @@ if ($getUser->execute()) {
     if (password_verify($inputPassword, $dbPass)) {
 			include('fixSession.php');
       $_SESSION['user'] = new User($userId, $conn, $username);
-      echo "<script>window.location = 'admin/'</script>";
+      echo "<script>window.location = 'index.php'</script>";
+			exit;
     } else {
       echo $validationError;
     }
@@ -33,8 +34,5 @@ if ($getUser->execute()) {
 } else {
   echo "A connection error occured";
 }
-
-
-// CREATE A USER OBJECT AND INCLUDE OBJECTS IN ALL PAGES
 
  ?>

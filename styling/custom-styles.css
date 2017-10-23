@@ -280,3 +280,31 @@ input, input:before, input:after {
 .separate {
   margin-right: 0.4rem;
 }
+.move-right {
+  text-align: right;
+  text-indent: 0.4rem;
+  padding-right: 0.4rem;
+}
+.dropdown-menu > li > a {
+  color: #2888a7;
+}
+.dropdown-menu > li > a:hover {
+  background-color: #e6e6e6;
+  text-decoration: none;
+}
+.divider {
+  border: 0.25px solid #d8d8d8;
+  height: 1px;
+}
+.dropdown-menu.show {
+  display: flex;
+  flex-direction: column;
+}
+.dropdown-menu {
+  border-radius: 0;
+}
+.dropdown-link {
+  display: block;
+  height: 100%;
+  width: 100%;
+}

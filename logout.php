@@ -1,4 +1,4 @@
 <?php
-  session_start();
+  include('fixSession.php');
   session_unset('user');
  ?>

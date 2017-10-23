@@ -13,14 +13,14 @@ class Entry {
 
   public function __construct($dataArray) {
     // Get all data from the Query. Indexes are based on position in the query
-    $this->feedName = $dataArray[0];
-    $this->title = $dataArray[1];
-    $this->url = $dataArray[2];
-    $this->image = $dataArray[4];
-    $this->synopsis = $dataArray[5];
-    $this->isFeatured = ($dataArray[6] == 1) ? true : false; // Create a boolean based on the data table output
-    $this->siteURL = $dataArray[7];
-    $this->siteIcon = $dataArray[8];
+    // $this->feedName = $dataArray[0];
+    $this->title = $dataArray[0];
+    $this->url = $dataArray[1];
+    $this->image = $dataArray[3];
+    $this->synopsis = $dataArray[4];
+    $this->isFeatured = ($dataArray[5] == 1) ? true : false; // Create a boolean based on the data table output. This boolean decides highlighting
+    $this->siteURL = $dataArray[6];
+    $this->siteIcon = $dataArray[7];
   }
 
   public function displayEntryTile($entryDisplay, $featuredTiles) {
@@ -96,7 +96,7 @@ class SiteData {
     // get the Site URL for a cross check with the database
     $this->siteURL = explode("/",$url)[2];
     // Check for the site URL in the database sites table
-    $getSiteInfo = "SELECT `icon`,`site_id` FROM `sites` WHERE `url` = '$this->siteURL'";
+    $getSiteInfo = "SELECT siteID, icon FROM sites WHERE url = '$siteURL'";
     if ($tempInfo = $dbConn->query($getSiteInfo)) { // Check that the query is successful
       $siteResult = $tempInfo->fetch_array();
       if (count($siteResult) > 0) { // Check for the return of a result
@@ -106,7 +106,7 @@ class SiteData {
         // Get the site icon from the contents
         $this->siteIcon = $this->validateImageLink($this->getSiteIconURL($this->pageContent));
         // Submit the site to the database as a new site entry
-        $insertSite = "INSERT INTO `sites` (`url`,`icon`) VALUES ('$this->siteURL','$this->siteIcon')";
+        $insertSite = "INSERT INTO sites (url, icon) VALUES ('$this->siteURL','$this->siteIcon')";
         if ($dbConn->query($insertSite)) {
           $this->siteId = $dbConn->insert_id;
         } else {
@@ -316,7 +316,7 @@ class SiteData {
     }
   }
 
-  // For when the title is not provided by pocket
+  // For when the title is not provided by the RSS Feed
   public function getTitle() {
     if (strpos($this->pageContent, "og:title") !== false) {
       // Break down the content by meta tags to look for the title tag
@@ -355,7 +355,7 @@ class User {
   public function __construct($id, $dbConn, $username) {
     $this->id = $id;
     $this->name = $username;
-    $getPerms = "SELECT permission_id, feed_id FROM user_permissions WHERE user_id = '$this->id'";
+    $getPerms = "SELECT permissionID, feedID FROM user_permissions WHERE userID = '$this->id'";
     if ($result = $dbConn->query($getPerms)) {
       while ($row = $result->fetch_array()) {
         $tempPerm = new Permission($row[0],$row[1]);
@@ -398,7 +398,7 @@ class FeedInfo {
 
   public function __construct($feedId, $dbConn) {
     $this->id = $feedId;
-    $sourceQuery = "SELECT `url`,`title` FROM `feeds` WHERE `feed_id` = '$this->id'";
+    $sourceQuery = "SELECT url, title FROM feeds WHERE feedID = '$this->id'";
     if ($result = $dbConn->query($sourceQuery)) {
       $sourceInfo = $result->fetch_array();
     } else {
