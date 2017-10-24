@@ -48,3 +48,20 @@ CREATE PROCEDURE newEntry(IN sourceSiteID INT, IN sourceFeedID INT, IN entryTitl
 		INSERT INTO entry_connections (entryID, feedID) VALUES (@entryID, sourceFeedID);
 	END //
 		
+		
+// NEW ENTRY CONNECTION PROCEDURE ON DUPLICATE
+// This procedure prevents a duplicate connection from being made
+
+DELIMITER //
+
+CREATE PROCEDURE newEntryConnection(IN entryURL VARCHAR(255), IN sourceFeedID INT, OUT duplicate INT)
+	BEGIN
+		SELECT entryID INTO @entryID FROM entries WHERE url = entryURL;
+		SELECT entryID INTO @duplicateCheck FROM entry_connections WHERE entryID = @entryID AND feedID = sourceFeedID;
+		IF (@duplicateCheck IS NULL) THEN
+			INSERT INTO entry_connections (entryID, feedID) VALUES (@entryID, sourceFeedID);
+			SET duplicate = 0;
+		ELSE 
+			SET duplicate = 1;
+		END IF;
+	END //

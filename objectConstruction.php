@@ -80,14 +80,14 @@ class SiteData {
 
   public $siteIcon;
   public $siteURL;
-  public $siteId;
-  public $feedId;
+  public $siteID;
+  public $feedID;
   public $imageURL;
   public $synopsis;
   public $pageContent;
 
-  public function __construct($url, $feedId, $dbConn) {
-    $this->feedId = $feedId; // PLACEHOLDER FOR FEED DATA SUBMISSION
+  public function __construct($url, $feedID, $dbConn) {
+    $this->feedID = $feedID; // PLACEHOLDER FOR FEED DATA SUBMISSION
     // Get the contents of the site page
     $this->pageContent = $this->getPageContents($url);
     if ($this->pageContent == null) {
@@ -96,19 +96,19 @@ class SiteData {
     // get the Site URL for a cross check with the database
     $this->siteURL = explode("/",$url)[2];
     // Check for the site URL in the database sites table
-    $getSiteInfo = "SELECT siteID, icon FROM sites WHERE url = '$siteURL'";
+    $getSiteInfo = "SELECT siteID, icon FROM sites WHERE url = '$this->siteURL'";
     if ($tempInfo = $dbConn->query($getSiteInfo)) { // Check that the query is successful
       $siteResult = $tempInfo->fetch_array();
       if (count($siteResult) > 0) { // Check for the return of a result
         $this->siteIcon = null; // If the site is already in the database, the site icon does not matter
-        $this->siteId = $siteResult['site_id'];
+        $this->siteID = $siteResult['siteID'];
       } else {
         // Get the site icon from the contents
         $this->siteIcon = $this->validateImageLink($this->getSiteIconURL($this->pageContent));
         // Submit the site to the database as a new site entry
         $insertSite = "INSERT INTO sites (url, icon) VALUES ('$this->siteURL','$this->siteIcon')";
         if ($dbConn->query($insertSite)) {
-          $this->siteId = $dbConn->insert_id;
+          $this->siteID = $dbConn->insert_id;
         } else {
           throw new Exception($dbConn->error);
         }
@@ -398,11 +398,11 @@ class FeedInfo {
 
   public function __construct($feedId, $dbConn) {
     $this->id = $feedId;
-    $sourceQuery = "SELECT url, title FROM feeds WHERE feedID = '$this->id'";
+    $sourceQuery = "SELECT url, title FROM external_feeds WHERE externalFeedID = '$this->id'";
     if ($result = $dbConn->query($sourceQuery)) {
       $sourceInfo = $result->fetch_array();
     } else {
-      throw new exception($conn->error);
+      throw new exception($dbConn->error);
     }
     $this->source = $sourceInfo['url'];
     $this->title = $sourceInfo['title'];

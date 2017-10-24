@@ -4,7 +4,8 @@ require('objectConstruction.php');
 
 
 // Get the Source ID for database selection of feed
-$sourceId = $_POST['sourceId'];
+//$sourceId = $_POST['sourceId'];
+$sourceId = 5;
 // The Export URL (RSS Feed) from getFeed
 $feedSelection = new FeedInfo($sourceId, $conn);
 // Time zone info to sync with feed
@@ -44,11 +45,17 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
   // Check if the entry is a new addition to the pocket
   if ($dateAdded > $lastUpdate) {
     // Insert the item into the database
-    // Filter title for SQL injection
-    $filteredTitle = addslashes($item->title);
     // Get the site data as an object
     try {
       $entryInfo = new SiteData($item->link, $feedSelection->source, $conn);
+      // Check for title in RSS Feed, and fetch if not present
+      if (!isset($item->title)) {
+        $entryInfo->getTitle();
+      } else {
+        $entryInfo->finalTitle = $item->title;
+      }
+      // Filter title for SQL injection
+      $entryInfo->finalTitle = addslashes($entryInfo->finalTitle);
     } catch (Exception $e) {
       $entryInfo = null;
       echo $e->getMessage() . " @ " . $item->link . "\n";
@@ -58,18 +65,34 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     // Format Date Time for mySQL
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
     // MySQL Statement
-    $addEntry = "CALL newEntry('$entryInfo->siteId','$feedSelection->id', '$filteredTitle','$item->link','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis')";
+    $addEntry = "CALL newEntry('$entryInfo->siteID','$feedSelection->id', '$entryInfo->finalTitle','$item->link','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis')";
     if ($conn->query($addEntry)) { // Report all succcessful entries to the user
       $summary->entriesAdded++;
-      array_push($summary->entriesList, $item->title);
+      array_push($summary->entriesList, $entryInfo->finalTitle);
+    } elseif ($conn->errno == 1062) {
+      // Make the Connection to the feed, instead of adding the entry
+      $connectEntry = "CALL newEntryConnection('$item->link', '$feedSelection->id')";
+      if ($conn->query($connectEntry)) {
+        $summary->entriesAdded++;
+        array_push($summary->entriesList, $entryInfo->finalTitle . " -- Duplicate Connected");
+      } elseif ($conn->errno == 1048) {
+        $summary->entriesFailed++;
+        array_push($summary->failuresList, $entryInfo->finalTitle);
+        $summary->failureReason = "The entry is not a duplicate but was treated as such" . " @ " . $item->link;
+      } else {
+        $summary->entriesFailed++;
+        array_push($summary->failuresList, $entryInfo->finalTitle);
+        $summary->failureReason = $conn->error . " @ " . $item->link;
+      }
     } else { // Keep a record of all failed additions
       $summary->entriesFailed++;
-      array_push($summary->failuresList, $item->title);
+      array_push($summary->failuresList, $entryInfo->finalTitle);
       $summary->failureReason = $conn->error . " @ " . $item->link;
     }
   } elseif ($error) {
     $error = false;
   }
+	//echo $entryInfo->siteID . " " . $entryInfo->finalTitle . " " . $item->link . " " . $dateAdded . " " . $entryInfo->imageURL . " " . $entryInfo->synopsis . "</br></br>";
 }
 
 
@@ -84,7 +107,7 @@ if ($summary->entriesFailed > 0) {
 }
 
 return $summary; // To be returned to administrative page on a forced update
-
+ 
 
 
 ?>
