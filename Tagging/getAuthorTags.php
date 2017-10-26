@@ -3,49 +3,48 @@
 class PotentialTag {
   public $tag;
   public $frequency;
-  
+
   public function __construct($index, $value) {
     $this->tag = $index;
     $this->frequency = $value;
   }
-  
+
 }
 
-function convertToTag(&$tagArray) {
-  standardizeTags($tagArray, $tagBlackList);
-  foreach ($tagArray as &$tag) {
-    $tag = new PotentialTag($tag, 1);
-  }
-}
+// Prompt a tag to be blacklisted when deleted from an entry
+$tagBlackList = ['Top Image', 'Related Video', 'Know', 'Say', 'Default']; // This will be cached from the DB on a new fetch
 
-function standardizeTags(&$arrayOfTags, $blacklist) {
-  foreach ($arrayOfTags as $key=>&$tag) {
+$tagBuilder = function (&$tagArray, $frequency) use ($tagBlackList) {
+  foreach ($tagArray as $tagKey=>&$tag) {
+    // Convert the tag to the proper output formatting (string appearance)
     $tag = strtolower($tag);
     $tag = str_replace('-', ' ', $tag);
     $letters = str_split($tag);
+    // Capitalize the first letter of each word
     foreach ($letters as $key=>&$letter) {
       $val = $key - 1;
       if ($val < 0 || $letters[$val] == null || $letters[$val] == " ") {
         $letter = strtoupper($letter);
       }
     }
+    // Put the word back together
     $tag = implode($letters);
-    if (in_array($tag, $blacklist)) {
-      unset($arrayOfTags[$key]);
+    // Remove tags that appear in the tag blacklist
+    if (in_array($tag, $tagBlackList)) {
+      unset($tagArray[$tagKey]);
     }
   }
-}
+  // Convert all remaining tags into PotentialTag objects
+  foreach ($tagArray as &$tag) {
+    $tag = new PotentialTag($tag, $frequency);
+  }
+  // Order and index submission array
+  if (count($tagArray) > 1 && $frequency == 1) {
+    $tagArray = array_values($tagArray);
+  }
+};
 
-///////////////////////////////////////////////     / \
-///      TAGS NEED TO BE VALIDATED WITH     ///    / | \
-///          WITH THE TAG BLACKLIST!        ///      |
-///////////////////////////////////////////////      |
-
-
-// Prompt a tag to be blacklisted when deleted from an entry
-$tagBlackList = ['Top Image', 'Related Video', 'Know', 'Say', 'Default']; // This will be cached from the DB on a new fetch
-
-$url = "https://www.wired.com/story/us-kaspersky-ban-evidence/";
+$url = "https://www.engadget.com/2017/10/25/new-crispr-alters-rna-gene-editing/";
 
 $content = getContentsAsUser($url);
 
@@ -53,9 +52,9 @@ $title = getTitle($content);
 $articleContent = getArticleContents($content);
 
 // Get All Tags as arrays
-$authorTags = getAuthorTags($content);
-$titleTags = getTags($title);
-$contentTags = getTags($articleContent);
+$authorTags = getAuthorTags($content); // Try to ommit author name from these tags on return
+$titleKeywords = getTags($title);
+$contentTags = getTags($articleContent);  // Preserve capitalization on acronyms (ie. DNA)
 $soughtTags = seekTags($articleContent);
 
 // Convert Content tags into weighted article tags
@@ -63,23 +62,34 @@ $articleTags = [];
 foreach ($contentTags as $tag=>$frequency) {
   // Make a fake array to use in an array based reference function
   $fakeArray = [$tag];
-  standardizeTags($fakeArray, $tagBlackList);
-  // Pass parameters into a new array, creating tags with weighting
-  array_push($articleTags, new PotentialTag($fakeArray[0], $frequency));
+  $tagBuilder($fakeArray, $frequency);
+  // Push each individual tag to the array after computation
+  if (count($fakeArray) > 0) {
+    array_push($articleTags, $fakeArray[0]);
+  }
 }
 
 // Convert Author tags to the weighted tag format
 if (count($authorTags) > 0) {
-  convertToTag($authorTags);
+  $tagBuilder($authorTags, 1);
 }
 
 // Convert title tags to the weighted tag format
-convertToTag($titleTags);
+$titleTags = [];
+foreach ($titleKeywords as $tag=>$frequency) {
+  // Make a fake array to use in an array based reference function
+  $fakeArray = [$tag];
+  $tagBuilder($fakeArray, $frequency);
+  // Push each individual tag to the array after computation
+  if (count($fakeArray) > 0) {
+    array_push($titleTags, $fakeArray[0]);
+  }
+}
 
 
 $totalTags = ['author'=>$authorTags, 'title'=>$titleTags, 'content'=>$articleTags];
 
-//print_r($totalTags);
+print_r($totalTags);
 // -----------------------------------------------
 
 
@@ -203,7 +213,7 @@ function seekTags($articleContent) {
 // Function to create tags based on frequency of word inclusion, then ommit connecting words
 function getTags($articleContent) {
   $tags = [];
-  $fillerWords = ['the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
+  $fillerWords = ['not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
   $splitContent = explode(' ', strtolower(stripPunctuation($articleContent)));
   foreach ($splitContent as &$word) {
     if (in_array($word, $fillerWords)) {
@@ -223,8 +233,12 @@ function getTags($articleContent) {
     }
   }
   arsort($tagList);
+  // Set Minimum count based on total number of tags
+  $required = count($tagList) / 10;
+  $required = ($required > 2) ? 2 : $required;
+  // Filter out tags that don't appear frequently enough
   foreach ($tagList as $tag=>$frequency) {
-    if ($frequency > 2) {
+    if ($frequency > $required) {
       $tags[$tag] = $frequency;
     }
   }
