@@ -1,7 +1,7 @@
 function openInNewTab(url) {
   var tab = window.open(url, '_blank');
   tab.focus();
-  // Add a view submision here 
+  // Add a view submision here
   return false;
 }
 
@@ -98,13 +98,16 @@ function queryEntries(selection, scroll = false) {
   // Display the loading dots
   $('#feed-view').append(loadingCanvas);
   var intervalLoadId = beginLoading();
+  // Process Tag Query String
+  var queryTagString = queryTags.join('+');
   // Send the Query
   $.post({
     url: "fetchEntries.php",
     data: {
       'selection': selection,
       'currentDisplay': entriesDisplayed,
-      'search': search
+      'search': search,
+      'tags': queryTagString
     },
     dataType: 'json',
     success: function (data) {
@@ -130,4 +133,18 @@ function returnToTop() {
   setTimeout( function() {
     returnButtonIsDisplayed = false;
   }, 3000);
+}
+
+var  queryTags = [];
+
+function clearEntryDisplay() {
+  $('#feed-view').html('');
+  entriesDisplayed = 0;
+}
+
+function addTag(tagID) {
+  queryTags.push(tagID);
+  clearEntryDisplay();
+  queryEntries(51);
+  return false;
 }

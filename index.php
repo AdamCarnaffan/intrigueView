@@ -102,7 +102,6 @@
 <div class="container" id='feed-content'>
   <div class="col-12 col-md-12">
     <div class="row" id="feed-view">
-    <!-- PLACEHOLDER -> SMALL CIRCLE TO CALL THE SORT ORDERS ON MOBILE-->
     </div><!--/row-->
   </div><!--/span-->
 </div>

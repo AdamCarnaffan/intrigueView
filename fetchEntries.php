@@ -6,6 +6,7 @@ require('objectConstruction.php');
 $selectionLimit = $_POST['selection'];
 $selectionOffset = $_POST['currentDisplay'];
 $searchKey = (isset($_POST['search']) && strlen($_POST['search']) > 0) ? $_POST['search'] : null;
+$queryTags = $_POST['tags'];
 
 // Set default values
 $entryDisplayNumber = 1; // The slot for page display in a given set
@@ -63,6 +64,12 @@ $getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries
                  WHERE entries.visible = 1
                  ORDER BY entries.datePublished DESC, entries.entryID ASC
                  LIMIT $selectionLimit OFFSET $selectionOffset";
+// Add the Tag Query
+if ($queryTags != "" && $queryTags != null) {
+  $tags = explode("+", $queryTags);
+  $finalTags = implode($queryTags, ",");
+  $getEntries .= "AND tags.tagID IN($finalTags)";
+}
 // Adjust the query if a search is present
 $search = false;
 if ($searchKey != null && strlen($searchKey) > 0) {

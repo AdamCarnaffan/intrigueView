@@ -21,6 +21,7 @@ class Entry {
     $this->isFeatured = ($dataArray[5] == 1) ? true : false; // Create a boolean based on the data table output. This boolean decides highlighting
     $this->siteURL = $dataArray[6];
     $this->siteIcon = $dataArray[7];
+    $this->tags = ['7'=>'lol', '11'=>'New', '15'=>'Next'];
   }
 
   public function displayEntryTile($entryDisplay, $featuredTiles) {
@@ -45,6 +46,12 @@ class Entry {
     $tile .= '<a href="' . $this->url . '" onclick="return openInNewTab(\'' . $this->url . '\')" class="hover-detect"><span class="entry-url"></span></a>';
     // Add Article Heading
     $tile .= '<h5 class="entry-heading">' . $this->title . '</h5>';
+    // Add Top Tags
+    $tile .= '<div class="entry-stats tag-shift">Tags: ';
+    foreach ($this->tags as $id=>$tag) {
+      $tile .= '<a class="tag" href="#" onclick="return addTag(' . $id . ')">' . $tag . '</a> ';
+    }
+    $tile .= '</div>';
     // Add Article Feature Image if available
     if ($this->image != null) {
       $tile .= '<div class="image-container"><img class="image" src="' . $this->image . '"/></div>';
