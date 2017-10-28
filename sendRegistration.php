@@ -10,15 +10,15 @@ register($username, $password, $email);
 function register($username, $password, $email) {
   // Create Query
   require('dbConnect.php');
-  // Hash password
-  $hashedPass = password_hash($password, PASSWORD_DEFAULT);
-
-  $submitUser = "CALL createUser('$username', '$hashedPass', '$email', @out_userID);
-                  SELECT @out_userID;";
 
   // Username must be at least 5 characters
   if (strlen($username) < 5) {
     echo "Your Username is too short";
+    return;
+  }
+  // Username must not include any illegal characters
+  if (preg_match("~^[\p{P}]~", $username)) {
+    echo "The username may not include any punctuation";
     return;
   }
   // Password must be at least 8 characters
@@ -36,6 +36,19 @@ function register($username, $password, $email) {
     echo "Your Password must contain a variation of letters and numbers";
     return;
   }
+
+  // Build Query
+
+  // Hash password
+  $hashedPass = password_hash($password, PASSWORD_DEFAULT);
+
+  // Escape Values
+  $username = $conn->real_escape_string($username);
+  $email = $conn->real_escape_string($email);
+
+  $submitUser = "CALL createUser('$username', '$hashedPass', '$email', @out_userID);
+                  SELECT @out_userID;";
+
   if ($conn->multi_query($submitUser)) {
     // Move to second line query (SELECT ID)
     $conn->next_result();

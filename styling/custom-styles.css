@@ -308,3 +308,6 @@ input, input:before, input:after {
   height: 100%;
   width: 100%;
 }
+.remove-scrolling {
+  min-height: 10% !important; 
+}

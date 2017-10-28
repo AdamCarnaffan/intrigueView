@@ -46,7 +46,7 @@
 </nav>
 
 <!-- Login Box (same as main album view)-->
-  <div class="container login-top-pad">
+  <div class="container login-top-pad remove-scrolling">
     <div class="col-12 col-md-10 login-centered">
       <div class="row" id="feed-view">
         <div class="col-12 col-lg-6 tile-wrapper login-center">

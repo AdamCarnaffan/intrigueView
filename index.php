@@ -16,7 +16,8 @@
   <link href="styling/custom-styles.css" rel="stylesheet">
   <!-- Javascript -->
   <script src='js/jquery-3.2.1.min.js'></script>
-  <script src="js/displayManager.js"></script>
+  <script src='js/displayManager.js'></script>
+  <script src='js/loginManager.js'></script>
   <script src='js/popper.js'></script>
   <script src='js/bootstrap.js'></script>
 </head>
@@ -73,6 +74,8 @@
               break;
             }
           }
+          echo '<li class="divider"></li>';
+          echo '<li display="block"><a class="move-right dropdown-link" href="#" onclick="return logout()">Logout</a></li>';
           echo "</ul>";
           echo "</div>";
         } else {

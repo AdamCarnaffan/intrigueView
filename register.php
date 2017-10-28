@@ -23,8 +23,9 @@
    <link href="styling/custom-styles.css" rel="stylesheet">
    <!-- JavaScript -->
    <script src='js/jquery-3.2.1.min.js'></script>
+   <script src='js/popper.js'></script>
    <script src='js/bootstrap.js'></script>
-   <script src="js/loginManager.js"></script>
+   <script src='js/loginManager.js'></script>
  </head>
  <body class="hide-overflow">
    <!-- Fixed navbar -->
@@ -47,7 +48,7 @@
  </nav>
 
  <!-- Login Box (same as main album view)-->
-   <div class="container login-top-pad">
+   <div class="container login-top-pad remove-scrolling">
      <div class="col-12 col-md-10 login-centered">
        <div class="row" id="feed-view">
          <div class="col-12 col-lg-6 tile-wrapper login-center">

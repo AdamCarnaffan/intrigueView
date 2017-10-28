@@ -95,6 +95,8 @@ class SiteData {
     }
     // get the Site URL for a cross check with the database
     $this->siteURL = explode("/",$url)[2];
+    // Remove the www subdomain if it occurs
+    $this->siteURL = str_replace("www.", "", $this->siteURL);
     // Check for the site URL in the database sites table
     $getSiteInfo = "SELECT siteID, icon FROM sites WHERE url = '$this->siteURL'";
     if ($tempInfo = $dbConn->query($getSiteInfo)) { // Check that the query is successful
@@ -255,14 +257,51 @@ class SiteData {
 
   public function getSiteIconURL($pageContents) {
     $linkTagSelection = explode("<link",$pageContents);
+    // Remove content from before the <link> tag
     array_shift($linkTagSelection);
+    // Remove the content after the close of the last />
+    $lastTagIndex = count($linkTagSelection)-1;
+    $linkTagSelection[$lastTagIndex] = explode(">", $linkTagSelection[$lastTagIndex])[0];
     foreach ($linkTagSelection as $tag) {
-      $rel = substr($tag, strpos($tag, 'rel="'), 25);
-      if (strpos($rel, "icon") !== false) {
+      if (strpos($tag, '"icon"') !== false || strpos($tag, " icon") !== false || strpos($tag, "icon ") !== false) {
         $iconURL = explode('href="', $tag)[1];
         $iconURL = explode('"', $iconURL)[0];
-        $iconURLFinal = $this->checkURLPathing($iconURL);
+        $iconURLFinal = checkURLPathing($iconURL);
         return $iconURLFinal;
+      } elseif (strpos($tag, "'icon'") !== false) { // Use the single quotation mark in the case where it is used in the rel
+        $iconURL = explode("href='", $tag)[1];
+        $iconURL = explode("'", $iconURL)[0];
+        $iconURLFinal = checkURLPathing($iconURL);
+        return $iconURLFinal;
+      }
+    }
+    // Arriving here indicated that the URL was not found in the <link> tags
+    if (strpos($pageContents, 'schema.org"') !== false && strpos($pageContents, '"logo":') !== false || strpos($pageContents, '"logo" :') !== false) {
+      // Remove whitespaces for uniformity of string searches
+      $noWhiteContent = preg_replace('/\s*/m','',$pageContents);
+      // Select the beginning position of the required section
+      $beginningPos = strpos($noWhiteContent, '"@context":"http://schema.org"');
+      $beginningPos = ($beginningPos == null) ? strpos($noWhiteContent, '"@context":"https://schema.org"') : $beginningPos;
+      // Find the end and create a string that includes only required properties
+      $contentsTrim = substr($noWhiteContent, $beginningPos, strpos($noWhiteContent,'</script>', $beginningPos) - $beginningPos);
+      // Remove the [] in cases where developers decided to throw those in
+      $noBracketing = str_replace('[','',$contentsTrim);
+      $noBracketingFinal = str_replace(']','',$noBracketing);
+      // Select each instance of ":{" --> if it is preceeded by "image", it contains the image url.
+      $nextContainsURL = false; // Define the variable to prevent exceptions
+      foreach (explode(":{",$noBracketingFinal) as $segment) {
+        if ($nextContainsURL) {
+          $honedURL = substr($segment, strpos($segment, "url"),-1);
+          // If the image is subdivided into another object, progress to that segment instead
+          if (isset(explode('"',$honedURL)[2])) {
+            $imageURL = explode('"',$honedURL)[2];
+            return $imageURL;
+          }
+        }
+        if (substr($segment, strlen($segment) - 6, 6) == '"logo"') { // Check if the last characters of a segment are the correct ones for an "image":{} property
+          // Flag the next segment as that with the URL
+          $nextContainsURL = true;
+        }
       }
     }
     return null;

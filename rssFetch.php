@@ -4,8 +4,7 @@ require('objectConstruction.php');
 
 
 // Get the Source ID for database selection of feed
-//$sourceId = $_POST['sourceId'];
-$sourceId = 5;
+$sourceId = $_POST['sourceId'];
 // The Export URL (RSS Feed) from getFeed
 $feedSelection = new FeedInfo($sourceId, $conn);
 // Time zone info to sync with feed
@@ -95,7 +94,6 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
 	//echo $entryInfo->siteID . " " . $entryInfo->finalTitle . " " . $item->link . " " . $dateAdded . " " . $entryInfo->imageURL . " " . $entryInfo->synopsis . "</br></br>";
 }
 
-
 // Summary of Action
 echo $summary->entriesAdded . " entries have been added to the database, including: \n";
 foreach ($summary->entriesList as $title) {
@@ -107,7 +105,5 @@ if ($summary->entriesFailed > 0) {
 }
 
 return $summary; // To be returned to administrative page on a forced update
- 
-
 
 ?>

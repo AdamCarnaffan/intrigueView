@@ -44,6 +44,7 @@ $tagBuilder = function (&$tagArray, $frequency) use ($tagBlackList) {
   }
 };
 
+//  ARTICLE URL
 $url = "https://www.engadget.com/2017/10/25/new-crispr-alters-rna-gene-editing/";
 
 $content = getContentsAsUser($url);
@@ -89,9 +90,10 @@ foreach ($titleKeywords as $tag=>$frequency) {
 
 $totalTags = ['author'=>$authorTags, 'title'=>$titleTags, 'content'=>$articleTags];
 
-print_r($totalTags);
-// -----------------------------------------------
+include('processTags.php');
 
+//print_r($totalTags);
+// -----------------------------------------------
 
 function stripHTMLTags($contents) {
   // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)

@@ -38,6 +38,9 @@ function validateLogin() {
   cooldown += 1;
 }
 
+// Define isRunning as a global
+var isRunning = false;
+
 function validateRegister() {
   // Set username and password equal to input
   var inputUsername = document.getElementById('username-input').value;
@@ -53,10 +56,13 @@ function validateRegister() {
   if (inputPassword == confirmPassword) {
     passwordMatch = true;
   } else {
-    $('#register-error').append("Your passwords do not match")
+    $('#register-error').html("Your passwords do not match")
   }
 
-  if (cooldown < 5 && passwordMatch) {
+  if (cooldown < 5 && passwordMatch && !isRunning) {
+    // To keep the query from being executed more than once at a time
+    isRunning = true;
+    // Query the script
     $.post({
       url: "sendRegistration.php",
       datatype: 'json',
@@ -67,12 +73,14 @@ function validateRegister() {
       },
       success: function(data) {
         // Add error message to the error message box, or navigate
-        $('#register-error').append(data);
+        $('#register-error').html(data);
+        // Reset the variable to allow a new query
+        isRunning = false;
       },
       alert: "Success!"
     });
   } else if (cooldown > 5) {
-    $('#register-error').append("Please wait before attempting to login again");
+    $('#register-error').html("Please wait before attempting to login again");
   }
 
   cooldown += 1;
@@ -87,11 +95,12 @@ function reduceCooldown() {
 
 function logout() {
   $.post({
-    url: "../logout.php",
+    url: "./logout.php",
     success: function(data) {
-      location.href='../index.php';
+      location.href='./index.php';
       console.log('logged out');
     },
     alert: "Success!"
   });
+  return false;
 }
