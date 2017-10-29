@@ -8,24 +8,10 @@ function openInNewTab(url) {
 function beginSearch() {
   // Reset Settings
   display = true;
-  $(document).scrollTop(0);
+  clearEntryDisplay();
   // Begin Search function
   search = $('#search-input').val();
-  entriesDisplayed = 0;
-  $.post({
-    url: "fetchEntries.php",
-    data: {
-      'selection': 51,
-      'currentDisplay': entriesDisplayed,
-      'search': search
-    },
-    dataType: 'json',
-    success: function (data) {
-      $('#feed-view').html(data.display);
-      entriesDisplayed = 51;
-    },
-    alert: "Success!"
-  });
+  queryEntries(51);
   return false;
 }
 
@@ -145,7 +131,36 @@ function clearEntryDisplay() {
 
 function addTag(tagID) {
   queryTags.push(tagID);
+  getTags();
   clearEntryDisplay();
   queryEntries(51);
+  return false;
+}
+
+function removeTag(tagID) {
+  // Remove the tagID from the queryTags array
+  var index = queryTags.indexOf(tagID);
+  queryTags.splice(index, 1);
+  getTags();
+  clearEntryDisplay();
+  queryEntries(51);
+  return false;
+}
+
+function getTags() {
+  // Process Tag Query String To know which should be highlighted
+  var tagString = queryTags.join('+');
+  // Empty the current Tags field
+  $('#tag-collection').html('');
+  $.post({
+    url: 'tagDisplay.php',
+    data: {
+      'tags': tagString
+    },
+    success: function(data) {
+      $('#tag-collection').html(data);
+    },
+    alert: "success!"
+  });
   return false;
 }

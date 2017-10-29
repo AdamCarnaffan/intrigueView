@@ -188,8 +188,8 @@ html, body {
 }
 .nav-input {
   height: 2rem;
-  display: block;
-  margin: 0.3rem;
+  display: inline-block;
+  margin-top: -0.3rem;
   color: black !important;
   text-align: left !important;
   padding-right: 2.4rem !important;
@@ -201,7 +201,6 @@ html, body {
   box-shadow: 0 0 0 0 !important;
 }
 .inline-button {
-  float: left;
   display: inline;
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
@@ -276,6 +275,12 @@ input, input:before, input:after {
   .tag:hover {
     color: #2888a7 !important;
   }
+  .no-underline:hover {
+    text-decoration: none;
+  }
+  .active-tag:hover {
+    color: #343a40 !important;
+  }
 }
 
 .vertical-center {
@@ -326,4 +331,52 @@ input, input:before, input:after {
   z-index: 2;
   color: black;
   text-decoration: underline;
+}
+.shortened {
+  min-height: 2rem;
+  height: 6rem;
+  background-color: #343a40;
+}
+.searching {
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+  top: 0;
+  width: 25%;
+  height: 100%;
+  border-right: 1px solid #949494;
+}
+.tagging {
+  margin-left: 0.5rem;
+  display: inline-block;
+  position: relative;
+  width: 70%;
+  height: 100%;
+}
+.filter-coloring {
+  color: #fff;
+}
+.move-heading {
+  padding-top: 8px;
+}
+.heading-inline {
+  display: inline-block;
+  position: relative;
+}
+.vertical-centering {
+  padding-top: 0.4rem;
+  display: inline-block;
+  align-items: center;
+}
+#tag-collection {
+  width: 100%;
+  height: auto;
+}
+.no-underline {
+  text-decoration: none;
+}
+.active-tag {
+  padding: 0px 2px 0px 2px;
+  background-color: #2888a7 !important;
+  border-radius: 2px;
 }

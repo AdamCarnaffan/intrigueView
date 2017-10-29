@@ -110,7 +110,7 @@ $getEntries .= " ORDER BY entries.datePublished DESC, entries.entryID ASC
 $entriesFound = false;
 $display = [];
 $entries = $conn->query($getEntries);
-echo $conn->error;
+echo $conn->error;  
 while ($row = $entries->fetch_array()) {
   $entryIDVal = $row[8];
   $getTags = "SELECT tagConn.entryID, tags.tagNAME, tags.tagID FROM entry_tags AS tagConn 
