@@ -10,8 +10,9 @@ class Entry {
   public $siteURL;
   public $siteIcon;
   public $entryDisplaySize;
+  public $tags = [];
 
-  public function __construct($dataArray) {
+  public function __construct($dataArray, $dataTags) {
     // Get all data from the Query. Indexes are based on position in the query
     // $this->feedName = $dataArray[0];
     $this->title = $dataArray[0];
@@ -21,7 +22,10 @@ class Entry {
     $this->isFeatured = ($dataArray[5] == 1) ? true : false; // Create a boolean based on the data table output. This boolean decides highlighting
     $this->siteURL = $dataArray[6];
     $this->siteIcon = $dataArray[7];
-    $this->tags = ['7'=>'lol', '11'=>'New', '15'=>'Next'];
+    // Build the tags array
+    while ($row = $dataTags->fetch_array()) {
+      $this->tags[$row[2]] = $row[1];
+    }
   }
 
   public function displayEntryTile($entryDisplay, $featuredTiles) {

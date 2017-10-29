@@ -138,6 +138,7 @@ function returnToTop() {
 var  queryTags = [];
 
 function clearEntryDisplay() {
+  $(document).scrollTop(0);
   $('#feed-view').html('');
   entriesDisplayed = 0;
 }

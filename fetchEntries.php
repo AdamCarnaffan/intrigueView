@@ -2,6 +2,10 @@
 include('dbConnect.php');
 require('objectConstruction.php');
 
+// $_POST['selection'] = 10;
+// $_POST['currentDisplay'] = 0;
+// $_POST['tags'] = [];
+
 // Take Inputs from the specific call
 $selectionLimit = $_POST['selection'];
 $selectionOffset = $_POST['currentDisplay'];
@@ -58,30 +62,62 @@ foreach ($features as $feature) {
   // move to the next position in the array
   $pos++;
 }
-// When changing the query, remember to adjust object
-$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon FROM entries
+/* QUERY EXAMPLE
+SELECT entries.entryID, entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon FROM entries
 	               JOIN sites ON entries.siteID = sites.siteID
+                 LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
+                 LEFT JOIN tags ON tagConn.tagID = tags.tagID
                  WHERE entries.visible = 1
-                 ORDER BY entries.datePublished DESC, entries.entryID ASC
-                 LIMIT $selectionLimit OFFSET $selectionOffset";
-// Add the Tag Query
-if ($queryTags != "" && $queryTags != null) {
-  $tags = explode("+", $queryTags);
-  $finalTags = implode($queryTags, ",");
-  $getEntries .= "AND tags.tagID IN($finalTags)";
-}
+                 GROUP BY entries.entryID
+				 HAVING SUM(CASE WHEN tags.tagID = 1 THEN 1 ELSE 0 END) = 1 
+         AND SUM(CASE WHEN tags.tagID = 2 THEN 1 ELSE 0 END) = 1 
+         AND SUM(CASE WHEN tags.tagID = 3 THEN 1 ELSE 0 END) = 1
+*/
+
+// When changing the query, remember to adjust object
+$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon, entries.entryID FROM entries
+	               JOIN sites ON entries.siteID = sites.siteID
+                 LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
+                 LEFT JOIN tags ON tagConn.tagID = tags.tagID
+                 WHERE entries.visible = 1";
 // Adjust the query if a search is present
 $search = false;
 if ($searchKey != null && strlen($searchKey) > 0) {
-  $getEntries = substr_replace($getEntries, " AND entries.title LIKE '%$searchKey%'", 230 ,1);
-  $search = true;
+ $getEntries .= " AND entries.title LIKE '%$searchKey%'";
+ $search = true;
 }
+// Add the GROUP BY following all WHERE Statements
+$getEntries .= " GROUP BY entries.entryID";
+// Add the Tag Query
+if ($queryTags != "" && $queryTags != null) {
+  $tags = explode("+", $queryTags);
+  $first = true;
+  foreach ($tags as $tagID) {
+    $tempCondition = "SUM(CASE WHEN tags.tagID = '$tagID' THEN 1 ELSE 0 END) = 1";
+    if ($first) {
+      $getEntries .= " HAVING " . $tempCondition;
+      // Only the first tag condition is first
+      $first = false;
+    } else {
+      $getEntries .= " AND " . $tempCondition;
+    }
+  }
+}
+// Finish the query
+$getEntries .= " ORDER BY entries.datePublished DESC, entries.entryID ASC
+                LIMIT $selectionLimit OFFSET $selectionOffset";
 // Prepare and query
 $entriesFound = false;
 $display = [];
-$result = $conn->query($getEntries);
-while ($row = $result->fetch_array()) {
-  $entry = new Entry($row);
+$entries = $conn->query($getEntries);
+echo $conn->error;
+while ($row = $entries->fetch_array()) {
+  $entryIDVal = $row[8];
+  $getTags = "SELECT tagConn.entryID, tags.tagNAME, tags.tagID FROM entry_tags AS tagConn 
+              JOIN tags ON tags.tagID = tagConn.tagID 
+              WHERE tagConn.entryID = '$entryIDVal'";
+  $tags = $conn->query($getTags);
+  $entry = new Entry($row, $tags);
   $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
   array_push($display, $tempTile);
   $entryDisplayNumber++;
