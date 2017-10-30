@@ -4,7 +4,7 @@ require('objectConstruction.php');
 
 
 // Get the Source ID for database selection of feed
-$sourceId = 7;
+$sourceId = 6;
 // The Export URL (RSS Feed) from getFeed
 $feedSelection = new FeedInfo($sourceId, $conn);
 // Time zone info to sync with feed
@@ -66,12 +66,17 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     // Format Date Time for mySQL
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
     // MySQL Statement
-    $addEntry = "CALL newEntry('$entryInfo->siteID','$feedSelection->id', '$entryInfo->finalTitle','$item->link','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis')";
-    if ($result = $conn->query($addEntry)) { // Report all succcessful entries to the user
+    $addEntry = "CALL newEntry('$entryInfo->siteID','$feedSelection->id', '$entryInfo->finalTitle','$item->link','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis', @newID);
+                  SELECT @newID";
+    if ($conn->multi_query($addEntry)) { // Report all succcessful entries to the user
+      // Cycle to second query
+      $conn->next_result();
+      $result = $conn->store_result();
       // Get the new entry's ID
       $entryID = $result->fetch_array()[0];
       // Add the tags with connections
-      foreach ($this->tags as $sortOrder=>$tag) {
+      print_r($entryInfo->tags);
+      foreach ($entryInfo->tags as $sortOrder=>$tag) {
         $addTag = "CALL addTag('$tag', '$entryID', '$sortOrder')";
         $conn->query($addTag);
       }

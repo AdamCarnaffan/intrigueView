@@ -54,6 +54,9 @@ $url = "https://www.theguardian.com/science/2017/oct/18/its-able-to-create-knowl
 
 $content = getPageContents($url);
 
+
+//echo "hey";
+
 $title = getTitle($content);
 $articleContent = getArticleContents($content);
 
@@ -117,7 +120,8 @@ function stripHTMLTags($contents) {
 
 function getPageContents($pageURL) {
   // Run a query to the page for source contents
-  $pageContents = @file_get_contents($pageURL);
+  $pageContents = file_get_contents($pageURL);
+  //echo $pageContents;
   // If the url cannot be accessed, make another attempt as a user
   if ($pageContents == null || $pageContents == false) {
     $pageContents = getContentsAsUser($pageURL);

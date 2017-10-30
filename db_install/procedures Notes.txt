@@ -35,8 +35,8 @@ CREATE PROCEDURE newFeed(IN feedname TEXT, IN linkedBy INT, IN url VARCHAR(255),
 			END IF;
 		SET feedID = @feedID;
 	END //
-		
-		
+
+
 // PROCEDURE FOR ENTERING ARTICLES
 
 DELIMITER //
@@ -46,10 +46,10 @@ CREATE PROCEDURE newEntry(IN sourceSiteID INT, IN sourceFeedID INT, IN entryTitl
 		INSERT INTO entries (siteID, title, url, datePublished, featureImage, previewText) VALUES (sourceSiteID, entryTitle, entryURL, pubDate, imageURL, excerpt);
 		SELECT LAST_INSERT_ID() INTO @entryID FROM entries LIMIT 1;
 		INSERT INTO entry_connections (entryID, feedID) VALUES (@entryID, sourceFeedID);
-		newID = @entryID;
+		SET newID = @entryID;
 	END //
-		
-		
+
+
 // NEW ENTRY CONNECTION PROCEDURE ON DUPLICATE
 // This procedure prevents a duplicate connection from being made
 
@@ -62,21 +62,21 @@ CREATE PROCEDURE newEntryConnection(IN entryURL VARCHAR(255), IN sourceFeedID IN
 		IF (@duplicateCheck IS NULL) THEN
 			INSERT INTO entry_connections (entryID, feedID) VALUES (@entryID, sourceFeedID);
 			SET duplicate = 0;
-		ELSE 
+		ELSE
 			SET duplicate = 1;
 		END IF;
 	END //
-	
+
 	// PROCEDURE FOR ADDING TAGS TO THE DATABASE
-	
+
 	DELIMITER //
-	
+
 	CREATE PROCEDURE addTag(IN newTagName VARCHAR(50), IN newEntryID INT, IN sortValue INT)
 		BEGIN
-			SELECT tagID INTO @tagID FROM tags WHERE tagName = newTagName;
-			IF (@tagID IS NULL) THEN
+			SELECT tagID INTO @thisTagID FROM tags WHERE tagName = newTagName;
+			IF (@thisTagID IS NULL) THEN
 				INSERT INTO tags (tagName) VALUES (newTagName);
-				SELECT LAST_INSERT_ID() INTO @tagID FROM tags;
+				SELECT LAST_INSERT_ID() INTO @thisTagID FROM tags;
 			END IF;
-			INSERT INTO entry_tags (entryID, tagID, sortOrder) VALUES (newEntryID, @tagID, sortValue);
+			INSERT INTO entry_tags (entryID, tagID, sortOrder) VALUES (newEntryID, @thisTagID, sortValue);
 		END //

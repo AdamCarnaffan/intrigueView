@@ -99,16 +99,16 @@ class PotentialTag {
 }
 
 Class Tag extends PotentialTag {
-  
+
   public $weight;
   public $priority;
-  
+
   public function __construct($potentialTagObject, $weighting) {
     $this->tag = $potentialTagObject->tag;
     $this->frequency = $potentialTagObject->frequency;
     $this->weight = $weighting;
   }
-  
+
   public function prioritize() {
     $this->priority = round($this->frequency*$this->weight);
   }
@@ -214,17 +214,17 @@ class SiteData {
         array_push($articleTags, $fakeArray[0]);
       }
     }
-    
+
     // Convert URL tags to the weighted tag format
     if (count($urlTags) > 0) {
       $tagBuilder($urlTags, 1);
     }
-    
+
     // Convert Author tags to the weighted tag format
     if (count($authorTags) > 0) {
       $tagBuilder($authorTags, 1);
     }
-    
+
     // Convert title tags to the weighted tag format
     $titleTags = [];
     foreach ($titleKeywords as $tag=>$frequency) {
@@ -237,7 +237,7 @@ class SiteData {
       }
     }
     // Weight the tags based on factors
-    
+
     // Author Tags --> INPUT 1
     // Content Tags --> INPUT 2
     // Title Tags --> INPUT 3
@@ -290,7 +290,7 @@ class SiteData {
     // Strip article of all other tags
     return $this->stripHTMLTags($finalContent);
   }
-  
+
   public function stripPunctuation($string) {
     $punctuation = ['?', ".", "!", ",", "-", '"', "&quot;", "]", "[", "(", ")", "'s", "&#x27;s"];
     // Replace dashes with spaces to separate words
@@ -298,7 +298,7 @@ class SiteData {
     $string = str_replace($wordConnectors, " ", $string);
     return str_replace($punctuation, "", $string);
   }
-  
+
   public function stripHTMLTags($contents) {
     // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
     $contentNoScript = preg_replace("#(<script.*?>).*?(</script>)#", " ", $contents);
@@ -307,9 +307,9 @@ class SiteData {
     // Clean additional whitespaces
     return preg_replace("#\s+#", " ", $contentNoHTML);
   }
-  
+
   // TAG FUNCTIONS
-  
+
   public function getURLTags($inputURL) {
     $noDashes = explode("-", $inputURL); // All URLs with content pertanent to the article separate these words with dashes
     $indexCountFirstWord = count(explode('/', $noDashes[0]));
@@ -319,7 +319,7 @@ class SiteData {
     $noDashes[$lastIndex] = explode('.', $noDashes[$lastIndex])[0]; // Remove the File Type should the words be the end of the URL
     return $noDashes;
   }
-  
+
   public function getTags() {
     $tags = [];
     $fillerWords = ['not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
@@ -353,7 +353,7 @@ class SiteData {
     }
     return $tags;
   }
-  
+
   public function getAuthorTags($pageContent) {
     $tags = [];
     if (strpos($pageContent, 'schema.org"') !== false && strpos($pageContent, '"keywords":') !== false || strpos($pageContent, '"keywords" :') !== false) {
@@ -378,7 +378,7 @@ class SiteData {
     }
     return $tags;
   }
-  
+
   // Tag Evaluations
   public function checkCommonality($input1, $input2, $input3, $input4) {
     $author = [];
@@ -407,7 +407,7 @@ class SiteData {
     1) Intersections with URL
     2) Intersections with Author Tags
     3) Intersections with Title
-    
+
     RULES
     -----------------
     -> All Author Tags are kept, though weighted lowly without intersections
@@ -431,7 +431,7 @@ class SiteData {
     $outURLTotal = array_intersect($outURLCont, $outURLAuth);
     $outAuthTotal = array_intersect($outAuthCont, $outAuthTitle);
     // Output Weighting
-    /* 
+    /*
     TRIPLE W/ URL --> 5
     TRIPLE W/O URL --> 2
     DOUBLE W/ URL --> 2
@@ -524,7 +524,7 @@ class SiteData {
     }
     return $tagOutput;
   }
-  
+
   public function computeWeighting($tags) {
     $prioritizedTags = [];
     foreach ($tags as &$tag) {
@@ -539,7 +539,7 @@ class SiteData {
           }
         }
       }
-    } 
+    }
     // Add a placeholder value
     array_push($prioritizedTags, 'PLACEHOLDER');
     // Sort the now prioritized tags by index descending, then re-index
@@ -549,9 +549,9 @@ class SiteData {
     unset($prioritizedTags[0]);
     return $prioritizedTags;
   }
-  
+
   // -----------------------------------------------------------
-  
+
   public function getImage($pageContent) {
     // Check for schema.org inclusion (this is used to determine compatibility)
     if (strpos($pageContent, 'schema.org"') !== false && strpos($pageContent, '"image":') !== false || strpos($pageContent, '"image" :') !== false) {
@@ -610,7 +610,7 @@ class SiteData {
 
   public function getPageContents($pageURL) {
     // Run a query to the page for source contents
-    $pageContents = @file_get_contents($pageURL);
+    $pageContents = null; //@file_get_contents($pageURL);
     // If the url cannot be accessed, make another attempt as a user
     if ($pageContents == null || $pageContents == false) {
       $pageContents = $this->getContentsAsUser($pageURL);
@@ -688,8 +688,10 @@ class SiteData {
     // Remove content from before the <link> tag
     array_shift($linkTagSelection);
     // Remove the content after the close of the last />
-    $lastTagIndex = count($linkTagSelection)-1;
-    $linkTagSelection[$lastTagIndex] = explode(">", $linkTagSelection[$lastTagIndex])[0];
+    if (count($linkTagSelection) > 0) {
+      $lastTagIndex = count($linkTagSelection)-1;
+      $linkTagSelection[$lastTagIndex] = explode(">", $linkTagSelection[$lastTagIndex])[0];
+    }
     foreach ($linkTagSelection as $tag) {
       if (strpos($tag, '"icon"') !== false || strpos($tag, " icon") !== false || strpos($tag, "icon ") !== false) {
         $iconURL = explode('href="', $tag)[1];
