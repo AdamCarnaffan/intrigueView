@@ -23,7 +23,7 @@ $conn->next_result();
 $activeTagNames = $conn->store_result();
 // Display Active Tags
 while ($row = $activeTagNames->fetch_array()) {
-  echo "<a class='filter-coloring tag no-underline active-tag' href='#' onclick='return removeTag(" . $row[0] . ")'>" . $row[1] . "</a> ";
+  echo "<a class='filter-coloring tag no-underline active-tag' href='#' onclick='return removeTag(" . $row[0] . ")'>" . $row[1] . "</a>  ";
 }
 // Display Popular Tags
 while ($row = $popTags->fetch_array()) {

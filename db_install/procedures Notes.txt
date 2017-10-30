@@ -65,3 +65,17 @@ CREATE PROCEDURE newEntryConnection(IN entryURL VARCHAR(255), IN sourceFeedID IN
 			SET duplicate = 1;
 		END IF;
 	END //
+	
+	// PROCEDURE FOR ADDING TAGS TO THE DATABASE
+	
+	DELIMITER //
+	
+	CREATE PROCEDURE addTag(IN newTagName VARCHAR(50), IN newEntryID INT, IN sortValue INT)
+		BEGIN
+			SELECT tagID INTO @tagID FROM tags WHERE tagName = newTagName;
+			IF (@tagID IS NULL) THEN
+				INSERT INTO tags (tagName) VALUES (newTagName);
+				SELECT LAST_INSERT_ID() INTO @tagID FROM tags;
+			END IF;
+			INSERT INTO entry_tags (entryID, tagID, sortOrder) VALUES (newEntryID, @tagID, sortValue);
+		END //

@@ -115,7 +115,8 @@ while ($row = $entries->fetch_array()) {
   $entryIDVal = $row[8];
   $getTags = "SELECT tagConn.entryID, tags.tagNAME, tags.tagID FROM entry_tags AS tagConn 
               JOIN tags ON tags.tagID = tagConn.tagID 
-              WHERE tagConn.entryID = '$entryIDVal'";
+              WHERE tagConn.entryID = '$entryIDVal'
+              ORDER BY sortORDER LIMIT 4"; // Only get the first 4 tags for the entry
   $tags = $conn->query($getTags);
   $entry = new Entry($row, $tags);
   $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);

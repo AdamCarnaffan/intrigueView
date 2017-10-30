@@ -17,7 +17,11 @@ $tagBlackList = ['Top Image', 'Related Video', 'Know', 'Say', 'Default']; // Thi
 $tagBuilder = function (&$tagArray, $frequency) use ($tagBlackList) {
   foreach ($tagArray as $tagKey=>&$tag) {
     // Convert the tag to the proper output formatting (string appearance)
-    $tag = strtolower($tag);
+    // Check if the second letter of a string is uppercase (indicates acronym)
+    $secondChar = str_split($tag)[1];
+    if (!in_array($secondChar, range('A','Z'))) {
+      $tag = strtolower($tag);
+    }
     $tag = str_replace('-', ' ', $tag);
     $letters = str_split($tag);
     // Capitalize the first letter of each word
@@ -45,9 +49,10 @@ $tagBuilder = function (&$tagArray, $frequency) use ($tagBlackList) {
 };
 
 //  ARTICLE URL
-$url = "https://www.engadget.com/2017/10/25/new-crispr-alters-rna-gene-editing/";
+$url = "https://www.theguardian.com/science/2017/oct/18/its-able-to-create-knowledge-itself-google-unveils-ai-learns-all-on-its-own";
+//$url = "https://nytimes.com/2017/10/18/upshot/taxibots-sensors-and-self-driving-shuttles-a-glimpse-at-an-internet-city-in-toronto.html";
 
-$content = getContentsAsUser($url);
+$content = getPageContents($url);
 
 $title = getTitle($content);
 $articleContent = getArticleContents($content);
@@ -56,6 +61,7 @@ $articleContent = getArticleContents($content);
 $authorTags = getAuthorTags($content); // Try to ommit author name from these tags on return
 $titleKeywords = getTags($title);
 $contentTags = getTags($articleContent);  // Preserve capitalization on acronyms (ie. DNA)
+$urlTags = getURLTags($url);
 $soughtTags = seekTags($articleContent);
 
 // Convert Content tags into weighted article tags
@@ -68,6 +74,11 @@ foreach ($contentTags as $tag=>$frequency) {
   if (count($fakeArray) > 0) {
     array_push($articleTags, $fakeArray[0]);
   }
+}
+
+// Convert URL tags to the weighted tag format
+if (count($urlTags) > 0) {
+  $tagBuilder($urlTags, 1);
 }
 
 // Convert Author tags to the weighted tag format
@@ -88,7 +99,7 @@ foreach ($titleKeywords as $tag=>$frequency) {
 }
 
 
-$totalTags = ['author'=>$authorTags, 'title'=>$titleTags, 'content'=>$articleTags];
+$totalTags = ['author'=>$authorTags, 'title'=>$titleTags, 'content'=>$articleTags, 'url'=>$urlTags];
 
 include('processTags.php');
 
@@ -216,9 +227,9 @@ function seekTags($articleContent) {
 function getTags($articleContent) {
   $tags = [];
   $fillerWords = ['not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
-  $splitContent = explode(' ', strtolower(stripPunctuation($articleContent)));
+  $splitContent = explode(' ', stripPunctuation($articleContent));
   foreach ($splitContent as &$word) {
-    if (in_array($word, $fillerWords)) {
+    if (in_array(strtolower($word), $fillerWords)) {
       $word = "";
     }
     // Remove quotation marks at the end of the words
@@ -281,5 +292,14 @@ function stripPunctuation($string) {
   return str_replace($punctuation, "", $string);
 }
 
+function getURLTags($inputURL) {
+  $noDashes = explode("-", $inputURL); // All URLs with content pertanent to the article separate these words with dashes
+  $indexCountFirstWord = count(explode('/', $noDashes[0]));
+  $noDashes[0] = explode('/', $noDashes[0])[$indexCountFirstWord - 1]; // Break the first word from remaining URL
+  $lastIndex = count($noDashes)-1;
+  $noDashes[$lastIndex] = explode('/', $noDashes[$lastIndex])[0]; // Break the last word from any remaining URL
+  $noDashes[$lastIndex] = explode('.', $noDashes[$lastIndex])[0]; // Remove the File Type should the words be the end of the URL
+  return $noDashes;
+}
 
 ?>
