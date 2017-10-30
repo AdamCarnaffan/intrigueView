@@ -60,7 +60,7 @@ $articleContent = getArticleContents($content);
 // Get All Tags as arrays
 $authorTags = getAuthorTags($content); // Try to ommit author name from these tags on return
 $titleKeywords = getTags($title);
-$contentTags = getTags($articleContent);  // Preserve capitalization on acronyms (ie. DNA)
+$contentTags = getTags($articleContent);
 $urlTags = getURLTags($url);
 $soughtTags = seekTags($articleContent);
 

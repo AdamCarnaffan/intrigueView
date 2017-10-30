@@ -87,6 +87,33 @@ class Entry {
 
 }
 
+class PotentialTag {
+  public $tag;
+  public $frequency;
+
+  public function __construct($index, $value) {
+    $this->tag = $index;
+    $this->frequency = $value;
+  }
+
+}
+
+Class Tag extends PotentialTag {
+  
+  public $weight;
+  public $priority;
+  
+  public function __construct($potentialTagObject, $weighting) {
+    $this->tag = $potentialTagObject->tag;
+    $this->frequency = $potentialTagObject->frequency;
+    $this->weight = $weighting;
+  }
+  
+  public function prioritize() {
+    $this->priority = round($this->frequency*$this->weight);
+  }
+}
+
 class SiteData {
 
   public $siteIcon;
@@ -96,11 +123,14 @@ class SiteData {
   public $imageURL;
   public $synopsis;
   public $pageContent;
+  public $articleContent;
+  public $tags;
 
-  public function __construct($url, $feedID, $dbConn) {
+  public function __construct($url, $feedID, $dbConn, $tagBlackList) {
     $this->feedID = $feedID; // PLACEHOLDER FOR FEED DATA SUBMISSION
     // Get the contents of the site page
     $this->pageContent = $this->getPageContents($url);
+    $this->articleContent = $this->getArticleContents();
     if ($this->pageContent == null) {
       throw new Exception("The URL is invalid or the page does not accept outside requests");
     }
@@ -133,8 +163,395 @@ class SiteData {
     $this->imageURL = $this->validateImageLink($this->getImage($this->pageContent));
     // Get an excerpt of text from the article to display if no feature image is found
     $this->synopsis = trim(addslashes($this->getExcerpt($this->pageContent)));
+    // Build tags
+    $tagBuilder = function (&$tagArray, $frequency) use ($tagBlackList) {
+      foreach ($tagArray as $tagKey=>&$tag) {
+        // Convert the tag to the proper output formatting (string appearance)
+        // Check if the second letter of a string is uppercase (indicates acronym)
+        $secondChar = str_split($tag)[1];
+        if (!in_array($secondChar, range('A','Z'))) {
+          $tag = strtolower($tag);
+        }
+        $tag = str_replace('-', ' ', $tag);
+        $letters = str_split($tag);
+        // Capitalize the first letter of each word
+        foreach ($letters as $key=>&$letter) {
+          $val = $key - 1;
+          if ($val < 0 || $letters[$val] == null || $letters[$val] == " ") {
+            $letter = strtoupper($letter);
+          }
+        }
+        // Put the word back together
+        $tag = implode($letters);
+        // Remove tags that appear in the tag blacklist
+        if (in_array($tag, $tagBlackList)) {
+          unset($tagArray[$tagKey]);
+        }
+      }
+      // Convert all remaining tags into PotentialTag objects
+      foreach ($tagArray as &$tag) {
+        $tag = new PotentialTag($tag, $frequency);
+      }
+      // Order and index submission array
+      if (count($tagArray) > 1 && $frequency == 1) {
+        $tagArray = array_values($tagArray);
+      }
+    };
+    // Call functions to build tag arrays
+    $authorTags = $this->getAuthorTags($this->pageContent); // Try to ommit author name from these tags on return
+    $titleKeywords = $this->getTags($this->getTitle());
+    $contentTags = $this->getTags($this->articleContent);
+    $urlTags = $this->getURLTags($url);
+    //$soughtTags = seekTags($articleContent);
+    // Convert all tags
+    $articleTags = [];
+    foreach ($contentTags as $tag=>$frequency) {
+      // Make a fake array to use in an array based reference function
+      $fakeArray = [$tag];
+      $tagBuilder($fakeArray, $frequency);
+      // Push each individual tag to the array after computation
+      if (count($fakeArray) > 0) {
+        array_push($articleTags, $fakeArray[0]);
+      }
+    }
+    
+    // Convert URL tags to the weighted tag format
+    if (count($urlTags) > 0) {
+      $tagBuilder($urlTags, 1);
+    }
+    
+    // Convert Author tags to the weighted tag format
+    if (count($authorTags) > 0) {
+      $tagBuilder($authorTags, 1);
+    }
+    
+    // Convert title tags to the weighted tag format
+    $titleTags = [];
+    foreach ($titleKeywords as $tag=>$frequency) {
+      // Make a fake array to use in an array based reference function
+      $fakeArray = [$tag];
+      $tagBuilder($fakeArray, $frequency);
+      // Push each individual tag to the array after computation
+      if (count($fakeArray) > 0) {
+        array_push($titleTags, $fakeArray[0]);
+      }
+    }
+    // Weight the tags based on factors
+    
+    // Author Tags --> INPUT 1
+    // Content Tags --> INPUT 2
+    // Title Tags --> INPUT 3
+    // URL Tags --> INPUT 4
+    $weightedTags = $this->checkCommonality($authorTags, $articleTags, $titleTags, $urlTags);
+    // Determine final order
+    $this->tags = $this->computeWeighting($weightedTags);
   }
 
+  public function getArticleContents() {
+    $articleContent = ['defaultClassing' => '']; // Initialize default as the value when no classes are present
+    $pTagSeparated = explode("<p", $this->pageContent);
+    foreach ($pTagSeparated as $tag) {
+      $validationChar = substr($tag, 0, 1); // Get the first following character from the HTML tag
+      if ($validationChar == ">" || $validationChar == " ") { // To validate that we're looking at a <p> tag
+        // The text within the <p></p> tags
+        $textWithClass = explode("</p>", $tag)[0];
+        // Operation to remove <p> attributes
+        $textAlone = explode('>', $textWithClass);
+        array_shift($textAlone); // To remove the text before the <p> closing tag
+        $textAlone = implode($textAlone, ">");
+        // The attributes of the <p> tag
+        $textAttr = explode(">", $textWithClass)[0];
+        // Sort into blank and filled Classes
+        if (strpos(strtolower($textAttr), "class=") !== false) {
+          $classes = substr($textAttr, strpos(strtolower($textAttr),"class="));
+          // Accept classes denoted by either single or double quoation marks
+          if (isset(explode("'", $classes)[1])) {
+            $classes = explode("'", $classes)[1];
+          } else {
+            $classes = explode('"', $classes)[1];
+          }
+          if (isset($articleContent[$classes])) {
+            $articleContent[$classes] .= $textAlone . " ";
+          } else {
+            $articleContent[$classes] = $textAlone . " ";
+          }
+        } else {
+          $articleContent['defaultClassing'] .= $textAlone . " ";
+        }
+      }
+    }
+    // Define a custom sort function that determines the difference in string length
+    function lengthSort($stringA, $stringB) {
+      return strlen($stringB) - strlen($stringA);
+    }
+    // Sort the array in terms of content length
+    usort($articleContent, 'lengthSort');
+    $finalContent = $articleContent[0];
+    // Strip article of all other tags
+    return $this->stripHTMLTags($finalContent);
+  }
+  
+  public function stripPunctuation($string) {
+    $punctuation = ['?', ".", "!", ",", "-", '"', "&quot;", "]", "[", "(", ")", "'s", "&#x27;s"];
+    // Replace dashes with spaces to separate words
+    $wordConnectors = ['—', '-'];
+    $string = str_replace($wordConnectors, " ", $string);
+    return str_replace($punctuation, "", $string);
+  }
+  
+  public function stripHTMLTags($contents) {
+    // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
+    $contentNoScript = preg_replace("#(<script.*?>).*?(</script>)#", " ", $contents);
+    // Remove html tags and formatting from the excerpt
+    $contentNoHTML = preg_replace("#\<[^\>]+\>#", " ", $contentNoScript);
+    // Clean additional whitespaces
+    return preg_replace("#\s+#", " ", $contentNoHTML);
+  }
+  
+  // TAG FUNCTIONS
+  
+  public function getURLTags($inputURL) {
+    $noDashes = explode("-", $inputURL); // All URLs with content pertanent to the article separate these words with dashes
+    $indexCountFirstWord = count(explode('/', $noDashes[0]));
+    $noDashes[0] = explode('/', $noDashes[0])[$indexCountFirstWord - 1]; // Break the first word from remaining URL
+    $lastIndex = count($noDashes)-1;
+    $noDashes[$lastIndex] = explode('/', $noDashes[$lastIndex])[0]; // Break the last word from any remaining URL
+    $noDashes[$lastIndex] = explode('.', $noDashes[$lastIndex])[0]; // Remove the File Type should the words be the end of the URL
+    return $noDashes;
+  }
+  
+  public function getTags() {
+    $tags = [];
+    $fillerWords = ['not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
+    $splitContent = explode(' ', $this->stripPunctuation($this->articleContent));
+    foreach ($splitContent as &$word) {
+      if (in_array(strtolower($word), $fillerWords)) {
+        $word = "";
+      }
+      // Remove quotation marks at the end of the words
+      $word = str_replace('&#x27;', '', $word);
+    }
+    foreach ($splitContent as $tag) {
+      // Any Tag must be longer than 1 character
+      if (strlen($tag) > 1) {
+        if (isset($tagList[$tag])) {
+          $tagList[$tag]++;
+        } else {
+          $tagList[$tag] = 1;
+        }
+      }
+    }
+    arsort($tagList);
+    // Set Minimum count based on total number of tags
+    $required = count($tagList) / 10;
+    $required = ($required > 2) ? 2 : $required;
+    // Filter out tags that don't appear frequently enough
+    foreach ($tagList as $tag=>$frequency) {
+      if ($frequency > $required) {
+        $tags[$tag] = $frequency;
+      }
+    }
+    return $tags;
+  }
+  
+  public function getAuthorTags($pageContent) {
+    $tags = [];
+    if (strpos($pageContent, 'schema.org"') !== false && strpos($pageContent, '"keywords":') !== false || strpos($pageContent, '"keywords" :') !== false) {
+      // Take out white space for uniformity
+      $noWhiteSpace = preg_replace('/\s*/m', '', $pageContent);
+      // Get the begining position of the schema
+      $startPos = strpos($noWhiteSpace, '"@context":"http://schema.org"');
+      $startPos = ($startPos == null) ? strpos($noWhiteSpace, '"@context":"https://schema.org"') : $startPos;
+      // Get the Schema information script
+      $finalContent = substr($noWhiteSpace, $startPos, strpos($noWhiteSpace, '</script>', $startPos) - $startPos);
+      // Select the Keywords tag from the schema
+      $keyWordSelect = explode('"keywords":', $pageContent)[1];
+      // Breakdown the element into a list of components
+      $tagList = explode('[', $keyWordSelect)[1];
+      $tagListFinished = explode(']', $tagList)[0];
+      $removeTagQuotes = str_replace('"', "", $tagListFinished);
+      // Explode the list into individual elements of an array
+      $initialTagArray = explode(',', $removeTagQuotes);
+      foreach ($initialTagArray as $tag) {
+        array_push($tags, trim($tag));
+      }
+    }
+    return $tags;
+  }
+  
+  // Tag Evaluations
+  public function checkCommonality($input1, $input2, $input3, $input4) {
+    $author = [];
+    $content = [];
+    $title = [];
+    $url = [];
+    // Put author tags into array, forgetting weighting
+    foreach ($input1 as $tagObject) {
+      array_push($author, $tagObject->tag);
+    }
+    // Put Content tags into array, forgetting weighting
+    foreach ($input2 as $tagObject) {
+      array_push($content, $tagObject->tag);
+    }
+    // Put Title tags into array, forgetting weighting
+    foreach ($input3 as $tagObject) {
+      array_push($title, $tagObject->tag);
+    }
+    // Put URL tags into array, forgetting weighting
+    foreach ($input4 as $tagObject) {
+      array_push($url, $tagObject->tag);
+    }
+    /*
+    PRIORITY LIST
+    -----------------
+    1) Intersections with URL
+    2) Intersections with Author Tags
+    3) Intersections with Title
+    
+    RULES
+    -----------------
+    -> All Author Tags are kept, though weighted lowly without intersections
+    -> Title Tags are ONLY kept if they intersect with another kind of tag
+    -> URL Tags are only used for this step, and are then discarded
+    -> Content Tags are kept should they intersect OR appear in a Frequency above 5
+    -> When writing intersections, CONTENT tags always go first to keep the index
+    */
+    // URL INTERSECTION
+    // Check URL-Author intersection
+    $outURLAuth = array_intersect(array_map('strtolower',$author), $url);
+    // Check URL-Content intersection
+    $outURLCont = array_intersect(array_map('strtolower',$content), $url);
+    // Don't intersect URL and Title, as they are usually the same
+    // AUTHOR INTERSECTION
+    $outAuthCont = array_intersect($content, $author);
+    $outAuthTitle = array_intersect($title, $author);
+    // TITLE INTERSECTION
+    $outTitleCont = array_intersect($content, $title);
+    // OUTPUT INTERSECTIONS
+    $outURLTotal = array_intersect($outURLCont, $outURLAuth);
+    $outAuthTotal = array_intersect($outAuthCont, $outAuthTitle);
+    // Output Weighting
+    /* 
+    TRIPLE W/ URL --> 5
+    TRIPLE W/O URL --> 2
+    DOUBLE W/ URL --> 2
+    DOUBLE W/ Auth --> 1.3
+    DOUBLE W/ Title --> 0.8
+    CONTENT FREQ TOP 10% --> 0.4
+    */
+    // Weighting Variables
+    $tripleU = 5;
+    $triple = 2;
+    $doubleU = 2;
+    $doubleA = 1.3;
+    $doubleT = 0.8;
+    $contFreq = 0.4;
+    // Process All Final Tags
+    $tagOutput = [];
+    // TRIPLE W/ URL
+    foreach ($outURLTotal as $contentIndex=>$name) {
+      array_push($tagOutput, new Tag($input2[$contentIndex], $tripleU));
+    }
+    // TRIPLE W/O URL
+    foreach ($outAuthTotal as $contentIndex=>$name) {
+      $exists = false;
+      // Check that the tag is not already added
+      foreach ($tagOutput as $tagOut) {
+        if ($tagOut->tag == $name) {
+          $exists = true;
+          break;
+        }
+      }
+      if (!$exists) {
+        array_push($tagOutput, new Tag($input2[$contentIndex], $triple));
+      }
+    }
+    // DOUBLE W/ URL
+    foreach (array_unique(array_merge($outURLAuth, $outURLCont)) as $contentIndex=>$name) {
+      $exists = false;
+      // Check that the tag is not already added
+      foreach ($tagOutput as $tagOut) {
+        if ($tagOut->tag == $name) {
+          $exists = true;
+          break;
+        }
+      }
+      if (!$exists) {
+        array_push($tagOutput, new Tag($input2[$contentIndex], $doubleU));
+      }
+    }
+    // DOUBLE W/ Author
+    foreach (array_unique(array_merge($outAuthCont, $outAuthTitle)) as $contentIndex=>$name) {
+      $exists = false;
+      // Check that the tag is not already added
+      foreach ($tagOutput as $tagOut) {
+        if ($tagOut->tag == $name) {
+          $exists = true;
+          break;
+        }
+      }
+      if (!$exists) {
+        array_push($tagOutput, new Tag($input2[$contentIndex], $doubleA));
+      }
+    }
+    // DOUBLE W/ Author
+    foreach ($outTitleCont as $contentIndex=>$name) {
+      $exists = false;
+      // Check that the tag is not already added
+      foreach ($tagOutput as $tagOut) {
+        if ($tagOut->tag == $name) {
+          $exists = true;
+          break;
+        }
+      }
+      if (!$exists) {
+        array_push($tagOutput, new Tag($input2[$contentIndex], $doubleT));
+      }
+    }
+    // TOP 10% of Content Tags
+    for ($c = 0; $c <= count($input2)*0.1; $c++) {
+      $exists = false;
+      // Check that the tag is not already added
+      foreach ($tagOutput as $tagOut) {
+        if ($tagOut->tag == $input2[$c]->tag) {
+          $exists = true;
+          break;
+        }
+      }
+      if (!$exists) {
+        array_push($tagOutput, new Tag($input2[$c], $contFreq));
+      }
+    }
+    return $tagOutput;
+  }
+  
+  public function computeWeighting($tags) {
+    $prioritizedTags = [];
+    foreach ($tags as &$tag) {
+      $tag->prioritize();
+      if (!isset($prioritizedTags[$tag->priority])) {
+        $prioritizedTags[$tag->priority] = $tag->tag;
+      } else {
+        for ($priorityCheck = $tag->priority - 1; $priorityCheck == 0; $priorityCheck--) {
+          if (!isset($prioritizedTags[$priorityCheck])) {
+            $prioritizedTags[$priorityCheck] = $tag->tag;
+            break;
+          }
+        }
+      }
+    } 
+    // Add a placeholder value
+    array_push($prioritizedTags, 'PLACEHOLDER');
+    // Sort the now prioritized tags by index descending, then re-index
+    krsort($prioritizedTags);
+    $prioritizedTags = array_values($prioritizedTags);
+    // Remove the placeholder value, now the array begins at index 1 for DB submission
+    unset($prioritizedTags[0]);
+    return $prioritizedTags;
+  }
+  
+  // -----------------------------------------------------------
+  
   public function getImage($pageContent) {
     // Check for schema.org inclusion (this is used to determine compatibility)
     if (strpos($pageContent, 'schema.org"') !== false && strpos($pageContent, '"image":') !== false || strpos($pageContent, '"image" :') !== false) {

@@ -4,7 +4,7 @@ require('objectConstruction.php');
 
 
 // Get the Source ID for database selection of feed
-$sourceId = $_POST['sourceId'];
+$sourceId = 7;
 // The Export URL (RSS Feed) from getFeed
 $feedSelection = new FeedInfo($sourceId, $conn);
 // Time zone info to sync with feed
@@ -34,6 +34,8 @@ if ($lastUpdateValue != null) {
 }
 // Entry tracking class Definition
 $summary = new Summary();
+// Fetch the tag blacklist in preperation
+$tagBlackList = ['Top Image', 'Related Video', 'Know', 'Say', 'Default']; // This will be cached from the DB on a new fetch
 
 // Check each Entry from bottom to top (Added chronologically)
 for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNumber--) {
@@ -46,7 +48,7 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     // Insert the item into the database
     // Get the site data as an object
     try {
-      $entryInfo = new SiteData($item->link, $feedSelection->source, $conn);
+      $entryInfo = new SiteData($item->link, $feedSelection->source, $conn, $tagBlackList);
       // Check for title in RSS Feed, and fetch if not present
       if (!isset($item->title)) {
         $entryInfo->getTitle();
@@ -65,7 +67,14 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
     // MySQL Statement
     $addEntry = "CALL newEntry('$entryInfo->siteID','$feedSelection->id', '$entryInfo->finalTitle','$item->link','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis')";
-    if ($conn->query($addEntry)) { // Report all succcessful entries to the user
+    if ($result = $conn->query($addEntry)) { // Report all succcessful entries to the user
+      // Get the new entry's ID
+      $entryID = $result->fetch_array()[0];
+      // Add the tags with connections
+      foreach ($this->tags as $sortOrder=>$tag) {
+        $addTag = "CALL addTag('$tag', '$entryID', '$sortOrder')";
+        $conn->query($addTag);
+      }
       $summary->entriesAdded++;
       array_push($summary->entriesList, $entryInfo->finalTitle);
     } elseif ($conn->errno == 1062) {

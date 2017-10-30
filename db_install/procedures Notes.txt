@@ -41,11 +41,12 @@ CREATE PROCEDURE newFeed(IN feedname TEXT, IN linkedBy INT, IN url VARCHAR(255),
 
 DELIMITER //
 
-CREATE PROCEDURE newEntry(IN sourceSiteID INT, IN sourceFeedID INT, IN entryTitle TEXT, IN entryURL VARCHAR(255), IN pubDate DATETIME, IN imageURL TEXT, IN excerpt TEXT)
+CREATE PROCEDURE newEntry(IN sourceSiteID INT, IN sourceFeedID INT, IN entryTitle TEXT, IN entryURL VARCHAR(255), IN pubDate DATETIME, IN imageURL TEXT, IN excerpt TEXT, OUT newID INT)
 	BEGIN
 		INSERT INTO entries (siteID, title, url, datePublished, featureImage, previewText) VALUES (sourceSiteID, entryTitle, entryURL, pubDate, imageURL, excerpt);
 		SELECT LAST_INSERT_ID() INTO @entryID FROM entries LIMIT 1;
 		INSERT INTO entry_connections (entryID, feedID) VALUES (@entryID, sourceFeedID);
+		newID = @entryID;
 	END //
 		
 		
