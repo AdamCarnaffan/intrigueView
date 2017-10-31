@@ -77,7 +77,7 @@ CREATE PROCEDURE newEntryConnection(IN entryURL VARCHAR(255), IN sourceFeedID IN
 				SELECT tagID INTO thisTagID FROM tags WHERE tagName = newTagName;
 				IF (thisTagID IS NULL) THEN
 						INSERT INTO tags (tagName) VALUES (newTagName);
-						SELECT LAST_INSERT_ID() INTO thisTagID FROM tags;
+						SELECT LAST_INSERT_ID() INTO thisTagID FROM tags LIMIT 1;
 				END IF;
 				INSERT INTO entry_tags (entryID, tagID, sortOrder) VALUES (newEntryID, thisTagID, sortValue);
 		END //

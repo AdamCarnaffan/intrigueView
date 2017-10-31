@@ -52,7 +52,7 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
       // Check for title in RSS Feed, and fetch if not present
       if (isset($item->title)) {
         $entryInfo->title = $item->title;
-      } 
+      }
       // Filter title for SQL injection
       $entryInfo->title = addslashes($entryInfo->title);
     } catch (Exception $e) {
