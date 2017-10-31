@@ -50,13 +50,11 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     try {
       $entryInfo = new SiteData($item->link, $feedSelection->source, $conn, $tagBlackList);
       // Check for title in RSS Feed, and fetch if not present
-      if (!isset($item->title)) {
-        $entryInfo->getTitle();
-      } else {
-        $entryInfo->finalTitle = $item->title;
-      }
+      if (isset($item->title)) {
+        $entryInfo->title = $item->title;
+      } 
       // Filter title for SQL injection
-      $entryInfo->finalTitle = addslashes($entryInfo->finalTitle);
+      $entryInfo->title = addslashes($entryInfo->title);
     } catch (Exception $e) {
       $entryInfo = null;
       echo $e->getMessage() . " @ " . $item->link . "\n";
@@ -66,7 +64,7 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     // Format Date Time for mySQL
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
     // MySQL Statement
-    $addEntry = "CALL newEntry('$entryInfo->siteID','$feedSelection->id', '$entryInfo->finalTitle','$item->link','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis', @newID);
+    $addEntry = "CALL newEntry('$entryInfo->siteID','$feedSelection->id', '$entryInfo->title','$item->link','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis', @newID);
                   SELECT @newID";
     if ($conn->multi_query($addEntry)) { // Report all succcessful entries to the user
       // Cycle to second query
@@ -75,31 +73,31 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
       // Get the new entry's ID
       $entryID = $result->fetch_array()[0];
       // Add the tags with connections
-      print_r($entryInfo->tags);
       foreach ($entryInfo->tags as $sortOrder=>$tag) {
         $addTag = "CALL addTag('$tag', '$entryID', '$sortOrder')";
         $conn->query($addTag);
+        echo $sortOrder . ") " . $tag . " added </br>";
       }
       $summary->entriesAdded++;
-      array_push($summary->entriesList, $entryInfo->finalTitle);
+      array_push($summary->entriesList, $entryInfo->title);
     } elseif ($conn->errno == 1062) {
       // Make the Connection to the feed, instead of adding the entry
-      $connectEntry = "CALL newEntryConnection('$item->link', '$feedSelection->id')";
+      $connectEntry = "CALL newEntryConnection('$item->link', '$feedSelection->id', @duplicate)";
       if ($conn->query($connectEntry)) {
         $summary->entriesAdded++;
-        array_push($summary->entriesList, $entryInfo->finalTitle . " -- Duplicate Connected");
+        array_push($summary->entriesList, $entryInfo->title . " -- Duplicate Connected");
       } elseif ($conn->errno == 1048) {
         $summary->entriesFailed++;
-        array_push($summary->failuresList, $entryInfo->finalTitle);
+        array_push($summary->failuresList, $entryInfo->title);
         $summary->failureReason = "The entry is not a duplicate but was treated as such" . " @ " . $item->link;
       } else {
         $summary->entriesFailed++;
-        array_push($summary->failuresList, $entryInfo->finalTitle);
+        array_push($summary->failuresList, $entryInfo->title);
         $summary->failureReason = $conn->error . " @ " . $item->link;
       }
     } else { // Keep a record of all failed additions
       $summary->entriesFailed++;
-      array_push($summary->failuresList, $entryInfo->finalTitle);
+      array_push($summary->failuresList, $entryInfo->title);
       $summary->failureReason = $conn->error . " @ " . $item->link;
     }
   } elseif ($error) {

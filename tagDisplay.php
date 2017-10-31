@@ -6,7 +6,7 @@ $tags = $_POST['tags'];
 $tagArray = explode('+', $tags);
 $activeTags = implode("','",$tagArray);
 
-$popularTagCount = 30 - count($tagArray);
+$popularTagCount = 20 - count($tagArray);
 
 $getTags = "SELECT tags.tagID, tags.tagName, COUNT(tagConn.entryID) FROM entry_tags AS tagConn
               JOIN tags ON tags.tagID = tagConn.tagID

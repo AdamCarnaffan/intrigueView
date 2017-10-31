@@ -124,16 +124,23 @@ class SiteData {
   public $synopsis;
   public $pageContent;
   public $articleContent;
+  public $title;
   public $tags;
 
   public function __construct($url, $feedID, $dbConn, $tagBlackList) {
     $this->feedID = $feedID; // PLACEHOLDER FOR FEED DATA SUBMISSION
     // Get the contents of the site page
     $this->pageContent = $this->getPageContents($url);
-    $this->articleContent = $this->getArticleContents();
     if ($this->pageContent == null) {
-      throw new Exception("The URL is invalid or the page does not accept outside requests");
+      // Try without https
+      $url = str_replace('https://', 'http://', $url);
+      $this->pageContent = $this->getPageContents($url);
+      if ($this->pageContent == null) {
+        throw new Exception("The URL is invalid or the page does not accept outside requests");
+        return;
+      }
     }
+    $this->articleContent = $this->getArticleContents();
     // get the Site URL for a cross check with the database
     $this->siteURL = explode("/",$url)[2];
     // Remove the www subdomain if it occurs
@@ -159,6 +166,8 @@ class SiteData {
     } else {
       throw new Exception($dbConn->error);
     }
+    // Get the title from the page
+    $this->title = $this->getTitle($this->pageContent);
     // Find the feature image on the page
     $this->imageURL = $this->validateImageLink($this->getImage($this->pageContent));
     // Get an excerpt of text from the article to display if no feature image is found
@@ -168,9 +177,11 @@ class SiteData {
       foreach ($tagArray as $tagKey=>&$tag) {
         // Convert the tag to the proper output formatting (string appearance)
         // Check if the second letter of a string is uppercase (indicates acronym)
-        $secondChar = str_split($tag)[1];
-        if (!in_array($secondChar, range('A','Z'))) {
-          $tag = strtolower($tag);
+        if (strlen($tag) > 1) {
+          $secondChar = str_split($tag)[1];
+          if (!in_array($secondChar, range('A','Z'))) {
+            $tag = strtolower($tag);
+          }
         }
         $tag = str_replace('-', ' ', $tag);
         $letters = str_split($tag);
@@ -199,9 +210,10 @@ class SiteData {
     };
     // Call functions to build tag arrays
     $authorTags = $this->getAuthorTags($this->pageContent); // Try to ommit author name from these tags on return
-    $titleKeywords = $this->getTags($this->getTitle());
+    $titleKeywords = $this->getTags($this->title);
     $contentTags = $this->getTags($this->articleContent);
     $urlTags = $this->getURLTags($url);
+    $siteMainURL = explode('.',$this->siteURL)[0]; // Get ONLY the main URL
     //$soughtTags = seekTags($articleContent);
     // Convert all tags
     $articleTags = [];
@@ -242,7 +254,7 @@ class SiteData {
     // Content Tags --> INPUT 2
     // Title Tags --> INPUT 3
     // URL Tags --> INPUT 4
-    $weightedTags = $this->checkCommonality($authorTags, $articleTags, $titleTags, $urlTags);
+    $weightedTags = $this->checkCommonality($authorTags, $articleTags, $titleTags, $urlTags, $siteMainURL);
     // Determine final order
     $this->tags = $this->computeWeighting($weightedTags);
   }
@@ -280,17 +292,19 @@ class SiteData {
         }
       }
     }
-    // Define a custom sort function that determines the difference in string length
-    function lengthSort($stringA, $stringB) {
-      return strlen($stringB) - strlen($stringA);
+    if (!function_exists('lengthSort')) {
+      // Define a custom sort function that determines the difference in string length
+      function lengthSort($stringA, $stringB) {
+        return strlen($stringB) - strlen($stringA);
+      }
     }
-    // Sort the array in terms of content length
+    // Sort the array in terms of content length (referenced from below)
     usort($articleContent, 'lengthSort');
     $finalContent = $articleContent[0];
     // Strip article of all other tags
     return $this->stripHTMLTags($finalContent);
   }
-
+  
   public function stripPunctuation($string) {
     $punctuation = ['?', ".", "!", ",", "-", '"', "&quot;", "]", "[", "(", ")", "'s", "&#x27;s"];
     // Replace dashes with spaces to separate words
@@ -320,20 +334,35 @@ class SiteData {
     return $noDashes;
   }
 
-  public function getTags() {
+  public function eliminateBadTags($string) {
+    if (strpos($string, '/') !== false || strpos($string, '@') !== false || strpos($string, '%') !== false || strpos($string, ';') !== false || strpos($string, ':') !== false || strpos($string, '#') !== false || strpos($string, '&') !== false) {
+      return false;
+    }
+    if (!preg_match('~[A-Za-z]~', $string)) {
+      return false;
+    }
+    return true;
+  }
+
+  public function getTags($content) {
     $tags = [];
-    $fillerWords = ['not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
-    $splitContent = explode(' ', $this->stripPunctuation($this->articleContent));
+    $fillerWords = ['should', 'best', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
+    $splitContent = explode(' ', $this->stripPunctuation($content));
     foreach ($splitContent as &$word) {
+      // Remove ALL whitespace
+      $word = str_replace("&nbsp;", "", $word);
+      $word = preg_replace('~\s+~', "", $word);
+      // Check for intersection with blacklist
       if (in_array(strtolower($word), $fillerWords)) {
         $word = "";
       }
       // Remove quotation marks at the end of the words
       $word = str_replace('&#x27;', '', $word);
     }
+    $tagList = [];
     foreach ($splitContent as $tag) {
-      // Any Tag must be longer than 1 character
-      if (strlen($tag) > 1) {
+      // Any Tag must be longer than 1 character, non-numeric and not contain any descriptive punctuation
+      if (strlen($tag) > 1 && !is_numeric($tag) && $this->eliminateBadTags($tag)) {
         if (isset($tagList[$tag])) {
           $tagList[$tag]++;
         } else {
@@ -380,11 +409,12 @@ class SiteData {
   }
 
   // Tag Evaluations
-  public function checkCommonality($input1, $input2, $input3, $input4) {
+  public function checkCommonality($input1, $input2, $input3, $input4, $siteURL) {
     $author = [];
     $content = [];
     $title = [];
     $url = [];
+    $siteURL = strtolower($siteURL);
     // Put author tags into array, forgetting weighting
     foreach ($input1 as $tagObject) {
       array_push($author, $tagObject->tag);
@@ -418,17 +448,37 @@ class SiteData {
     */
     // URL INTERSECTION
     // Check URL-Author intersection
-    $outURLAuth = array_intersect(array_map('strtolower',$author), $url);
+    $outURLAuth = array_intersect($author, $url);
+    // Get things that are in the main site URL
+    foreach($author as $tag) {
+      if (strpos(strtolower($tag), $siteURL) !== false) {
+        array_push($outURLAuth, $tag);
+      }
+    }
+    // Remove any added duplicate values 
+    $outURLAuth = array_unique($outURLAuth);
     // Check URL-Content intersection
-    $outURLCont = array_intersect(array_map('strtolower',$content), $url);
-    // Don't intersect URL and Title, as they are usually the same
+    $outURLCont = array_intersect($content, $url);
+    // Get things that are in the main site URL
+    foreach($content as $tag) {
+      if (strpos(strtolower($tag), $siteURL) !== false) {
+        array_push($outURLCont, $tag);
+      }
+    }
+    // Remove any added duplicate values 
+    $outURLCont = array_unique($outURLCont);
+    // Check URL-Title Intersection
+    $outURLTitle = array_intersect($title, $url);
     // AUTHOR INTERSECTION
     $outAuthCont = array_intersect($content, $author);
     $outAuthTitle = array_intersect($title, $author);
     // TITLE INTERSECTION
     $outTitleCont = array_intersect($content, $title);
     // OUTPUT INTERSECTIONS
-    $outURLTotal = array_intersect($outURLCont, $outURLAuth);
+    $outURLContAuth = array_intersect($outURLCont, $outURLAuth);
+    $outURLContTitle = array_intersect($outURLCont, $outTitleCont);
+    $outURLTotal = array_unique($outURLContAuth + $outURLContTitle);
+    $outURLTotal = array_unique($outURLTotal);
     $outAuthTotal = array_intersect($outAuthCont, $outAuthTitle);
     // Output Weighting
     /*
@@ -441,8 +491,9 @@ class SiteData {
     */
     // Weighting Variables
     $tripleU = 5;
+    $subjects = 3;
     $triple = 2;
-    $doubleU = 2;
+    $doubleU = 1.8;
     $doubleA = 1.3;
     $doubleT = 0.8;
     $contFreq = 0.4;
@@ -451,6 +502,21 @@ class SiteData {
     // TRIPLE W/ URL
     foreach ($outURLTotal as $contentIndex=>$name) {
       array_push($tagOutput, new Tag($input2[$contentIndex], $tripleU));
+    }
+    // Title & URL --> Article Subjects
+    foreach ($outURLTitle as $name) {
+      $exists = false;
+      // Check that the tag is not already added
+      foreach ($tagOutput as $tagOut) {
+        if ($tagOut->tag == $name) {
+          $exists = true;
+          break;
+        }
+      }
+      if (!$exists) {
+        $tempPotent = new PotentialTag($name, 1);
+        array_push($tagOutput, new Tag($tempPotent, $subjects));
+      }
     }
     // TRIPLE W/O URL
     foreach ($outAuthTotal as $contentIndex=>$name) {
@@ -467,7 +533,7 @@ class SiteData {
       }
     }
     // DOUBLE W/ URL
-    foreach (array_unique(array_merge($outURLAuth, $outURLCont)) as $contentIndex=>$name) {
+    foreach (array_unique($outURLAuth + $outURLCont) as $contentIndex=>$name) {
       $exists = false;
       // Check that the tag is not already added
       foreach ($tagOutput as $tagOut) {
@@ -481,7 +547,7 @@ class SiteData {
       }
     }
     // DOUBLE W/ Author
-    foreach (array_unique(array_merge($outAuthCont, $outAuthTitle)) as $contentIndex=>$name) {
+    foreach (array_unique($outAuthCont + $outAuthTitle) as $contentIndex=>$name) {
       $exists = false;
       // Check that the tag is not already added
       foreach ($tagOutput as $tagOut) {
@@ -509,17 +575,19 @@ class SiteData {
       }
     }
     // TOP 10% of Content Tags
-    for ($c = 0; $c <= count($input2)*0.1; $c++) {
-      $exists = false;
-      // Check that the tag is not already added
-      foreach ($tagOutput as $tagOut) {
-        if ($tagOut->tag == $input2[$c]->tag) {
-          $exists = true;
-          break;
+    if (count($input2) > 1) {
+      for ($c = 0; $c <= count($input2)*0.1; $c++) {
+        $exists = false;
+        // Check that the tag is not already added
+        foreach ($tagOutput as $tagOut) {
+          if ($tagOut->tag == $input2[$c]->tag) {
+            $exists = true;
+            break;
+          }
         }
-      }
-      if (!$exists) {
-        array_push($tagOutput, new Tag($input2[$c], $contFreq));
+        if (!$exists) {
+          array_push($tagOutput, new Tag($input2[$c], $contFreq));
+        }
       }
     }
     return $tagOutput;
@@ -532,7 +600,7 @@ class SiteData {
       if (!isset($prioritizedTags[$tag->priority])) {
         $prioritizedTags[$tag->priority] = $tag->tag;
       } else {
-        for ($priorityCheck = $tag->priority - 1; $priorityCheck == 0; $priorityCheck--) {
+        for ($priorityCheck = $tag->priority - 1; $priorityCheck >= 0; $priorityCheck--) {
           if (!isset($prioritizedTags[$priorityCheck])) {
             $prioritizedTags[$priorityCheck] = $tag->tag;
             break;
@@ -610,7 +678,7 @@ class SiteData {
 
   public function getPageContents($pageURL) {
     // Run a query to the page for source contents
-    $pageContents = null; //@file_get_contents($pageURL);
+    $pageContents = @file_get_contents($pageURL);
     // If the url cannot be accessed, make another attempt as a user
     if ($pageContents == null || $pageContents == false) {
       $pageContents = $this->getContentsAsUser($pageURL);
@@ -696,12 +764,12 @@ class SiteData {
       if (strpos($tag, '"icon"') !== false || strpos($tag, " icon") !== false || strpos($tag, "icon ") !== false) {
         $iconURL = explode('href="', $tag)[1];
         $iconURL = explode('"', $iconURL)[0];
-        $iconURLFinal = checkURLPathing($iconURL);
+        $iconURLFinal = $this->checkURLPathing($iconURL);
         return $iconURLFinal;
       } elseif (strpos($tag, "'icon'") !== false) { // Use the single quotation mark in the case where it is used in the rel
         $iconURL = explode("href='", $tag)[1];
         $iconURL = explode("'", $iconURL)[0];
-        $iconURLFinal = checkURLPathing($iconURL);
+        $iconURLFinal = $this->checkURLPathing($iconURL);
         return $iconURLFinal;
       }
     }
@@ -784,34 +852,67 @@ class SiteData {
       return $url;
     }
   }
-
-  // For when the title is not provided by the RSS Feed
-  public function getTitle() {
-    if (strpos($this->pageContent, "og:title") !== false) {
-      // Break down the content by meta tags to look for the title tag
-      $contentByMeta = explode("<meta", $this->pageContent);
-      foreach ($contentByMeta as $content) {
-        if (strpos($content, "og:title")) {
-          // Separate the title meta tag from the rest of the content
-          $contentTrim = explode("/>", $content)[0];
-          // trim for only the content property
-          $contentTag = substr($contentTrim, strpos($contentTrim, "content="));
-          // Get the title
-          // To cover outlier cases where single quotes are used in lieu
-          if (isset(explode('"', $contentTag)[1])) {
-            $finalTitle = addslashes(explode('"', $contentTag)[1]);
-          } else {
-            $finalTitle = addslashes(explode("'", $contentTag)[1]);
+  
+  public function getTitle($pageContents) {
+    // Begin by checking meta tags for the title
+    $linkTagSelection = explode("<meta",$pageContents);
+    // Remove content from before the <link> tag
+    array_shift($linkTagSelection);
+    // Remove the content after the close of the last />
+    if (count($linkTagSelection) > 0) {
+      $lastTagIndex = count($linkTagSelection)-1;
+      $linkTagSelection[$lastTagIndex] = explode("/>", $linkTagSelection[$lastTagIndex])[0];
+    }
+    foreach ($linkTagSelection as $tag) {
+      if (strpos($tag, '"og:title"') !== false) {
+        $titleStart = explode('content="', $tag)[1];
+        if (!isset(explode('content="', $tag)[1])) {
+          //echo $tag . "</br>" . $this->pageContent;
+        }
+        $titleFull = explode('"', $titleStart)[0];
+        return $titleFull;
+      } elseif (strpos($tag, "'og:title'") !== false) { // Use the single quotation mark in the case where it is used in the rel
+        $titleStart = explode("content='", $tag)[1];
+        $titleFull = explode("'", $titleStart)[0];
+        return $titleFull;
+      }
+    }
+    // Check here if a meta title is not available
+    if (strpos($pageContents, "<title>") !== false) {
+      $titleStart = explode("<title>", $pageContents)[1];
+      $titleFull = explode("</title>", $titleStart)[0];
+      return $titleFull;
+    }
+    // Arriving here indicated that the Title was not found in the <meta> tags OR <title> tags
+    if (strpos($pageContents, 'schema.org"') !== false && strpos($pageContents, '"headline":') !== false || strpos($pageContents, '"headline" :') !== false) {
+      // Remove whitespaces for uniformity of string searches
+      $noWhiteContent = preg_replace('/\s*/m','',$pageContents);
+      // Select the beginning position of the required section
+      $beginningPos = strpos($noWhiteContent, '"@context":"http://schema.org"');
+      $beginningPos = ($beginningPos == null) ? strpos($noWhiteContent, '"@context":"https://schema.org"') : $beginningPos;
+      // Find the end and create a string that includes only required properties
+      $contentsTrim = substr($noWhiteContent, $beginningPos, strpos($noWhiteContent,'</script>', $beginningPos) - $beginningPos);
+      // Remove the [] in cases where developers decided to throw those in
+      $noBracketing = str_replace('[','',$contentsTrim);
+      $noBracketingFinal = str_replace(']','',$noBracketing);
+      // Select each instance of ":{" --> if it is preceeded by "image", it contains the image url.
+      $nextContainsURL = false; // Define the variable to prevent exceptions
+      foreach (explode(":{",$noBracketingFinal) as $segment) {
+        if ($nextContainsURL) {
+          $honedURL = substr($segment, strpos($segment, "headline"),-1);
+          // If the image is subdivided into another object, progress to that segment instead
+          if (isset(explode('"',$honedURL)[2])) {
+            $imageURL = explode('"',$honedURL)[2];
+            return $imageURL;
           }
-          break;
+        }
+        if (substr($segment, strlen($segment) - 10, 10) == '"headline"') { // Check if the last characters of a segment are the correct ones for an "image":{} property
+          // Flag the next segment as that with the URL
+          $nextContainsURL = true;
         }
       }
-    } else {
-      $titleSection = explode("<title>", $this->pageContent)[1];
-      $endTitle = explode("</title>", $titleSection)[0];
-      $finalTitle = addslashes($endTitle);
     }
-    $this->title = $finalTitle;
+    return null;
   }
 }
 
