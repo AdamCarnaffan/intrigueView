@@ -52,8 +52,15 @@ class Entry {
     $tile .= '<h5 class="entry-heading">' . $this->title . '</h5>';
     // Add Top Tags
     $tile .= '<div class="entry-stats tag-shift">Tags: ';
+    // Initialize a counter
+    $c = 1;
     foreach ($this->tags as $id=>$tag) {
+      // Stop after the third tag on smaller entry tiles
+      if ($this->entryDisplaySize == 1 && $c > 3) {
+        break;
+      }
       $tile .= '<a class="tag" href="#" onclick="return addTag(' . $id . ')">' . $tag . '</a> ';
+      $c++;
     }
     $tile .= '</div>';
     // Add Article Feature Image if available
@@ -67,7 +74,7 @@ class Entry {
       }
       $tile .= '<div class="synopsis-container centered"><p class="synopsis">' . $synopsisExcerpt . '</p></div>';
     } else {
-      $tile .= '<div class="image-container"><img class="image" src="assets/tileFill.png"/></div>';
+      $tile .= '<div class="image-container"><img class="image fill-size" src="assets/tileFill.png"/></div>';
     }
     // Add Site Stats
     $tile .= '<div class="entry-stats"><p class="site-info">';
@@ -346,7 +353,7 @@ class SiteData {
 
   public function getTags($content) {
     $tags = [];
-    $fillerWords = ['should', 'best', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
+    $fillerWords = ['place', 'should', 'best', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
     $splitContent = explode(' ', $this->stripPunctuation($content));
     foreach ($splitContent as &$word) {
       // Remove ALL whitespace
@@ -371,12 +378,18 @@ class SiteData {
       }
     }
     arsort($tagList);
-    // Set Minimum count based on total number of tags
-    $required = count($tagList) / 10;
-    $required = ($required > 2) ? 2 : $required;
+    // Set Minimum count based on total number of tags IF there are more than 50 tags
+    if (count($tagList) > 30) {
+      $required = count($tagList) / 10;
+      $required = ($required > 2) ? 2 : $required;
+    } else {
+      $required = 0;
+    }
     // Filter out tags that don't appear frequently enough
     foreach ($tagList as $tag=>$frequency) {
       if ($frequency > $required) {
+        $tags[$tag] = $frequency;
+      } elseif (count($tags) < 30) { // Continue to add tags until there are 50, then stop accepting tags
         $tags[$tag] = $frequency;
       }
     }
