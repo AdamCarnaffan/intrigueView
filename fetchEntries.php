@@ -69,8 +69,8 @@ SELECT entries.entryID, entries.title, entries.url, entries.datePublished, entri
                  LEFT JOIN tags ON tagConn.tagID = tags.tagID
                  WHERE entries.visible = 1
                  GROUP BY entries.entryID
-				 HAVING SUM(CASE WHEN tags.tagID = 1 THEN 1 ELSE 0 END) = 1 
-         AND SUM(CASE WHEN tags.tagID = 2 THEN 1 ELSE 0 END) = 1 
+				 HAVING SUM(CASE WHEN tags.tagID = 1 THEN 1 ELSE 0 END) = 1
+         AND SUM(CASE WHEN tags.tagID = 2 THEN 1 ELSE 0 END) = 1
          AND SUM(CASE WHEN tags.tagID = 3 THEN 1 ELSE 0 END) = 1
 */
 
@@ -110,11 +110,11 @@ $getEntries .= " ORDER BY entries.datePublished DESC, entries.entryID ASC
 $entriesFound = false;
 $display = [];
 $entries = $conn->query($getEntries);
-echo $conn->error;  
+echo $conn->error;
 while ($row = $entries->fetch_array()) {
   $entryIDVal = $row[8];
-  $getTags = "SELECT tagConn.entryID, tags.tagNAME, tags.tagID FROM entry_tags AS tagConn 
-              JOIN tags ON tags.tagID = tagConn.tagID 
+  $getTags = "SELECT tagConn.entryID, tags.tagNAME, tags.tagID FROM entry_tags AS tagConn
+              JOIN tags ON tags.tagID = tagConn.tagID
               WHERE tagConn.entryID = '$entryIDVal'
               ORDER BY sortORDER LIMIT 4"; // Only get the first 4 tags for the entry
   $tags = $conn->query($getTags);
@@ -126,6 +126,8 @@ while ($row = $entries->fetch_array()) {
 }
 if (!$entriesFound && $search == true) {
   array_push($display, "<h2>No Entries were found matching the provided parameters.</h2>");
+} elseif (!$entriesFound) {
+  array_push($display, "<h2>This Feed does not have any entries yet.</h2>");
 }
 $finalDisplay = implode($display);
 $fullQuery = ($entryDisplayNumber-1 == $selectionLimit) ? 'true' : 'false';

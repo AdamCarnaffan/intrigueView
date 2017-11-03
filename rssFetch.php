@@ -1,6 +1,6 @@
 <?php
-include('dbConnect.php');
-require('objectConstruction.php');
+include_once('dbConnect.php');
+require_once('objectConstruction.php');
 
 
 // Get the Source ID for database selection of feed

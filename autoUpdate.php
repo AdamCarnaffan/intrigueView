@@ -1,6 +1,6 @@
-<?php 
-include('dbConnect.php');
-// Select all pcoket type feeds from the database
+<?php
+include_once('dbConnect.php');
+// Select all pocket type feeds from the database
 $getFeeds = "SELECT externalFeedID, url FROM external_feeds WHERE active = 1";
 
 $rssFeeds = [];

@@ -44,25 +44,12 @@
       </li>
     </ul>
     <ul class="navbar-nav mr-auto fix-ul">
-      <li class="nav-item active fix-li">
-        <input class="feed-source-input nav-input nav-link btn nav-search" id='search-input' type="text" placeholder="Article Search">
-      </li>
-      <li class='nav-item active fix-li'>
-        <button class='feed-source-input nav-input nav-link btn btn-outline-success-blue inline-button fix-mobile' id='search-button' onclick='beginSearch()'>Go</button><!-- ADD ICON -->
-      </li>
     </ul>
     <ul class="navbar-nav">
       <?php
         require('objectConstruction.php');
         include('fixSession.php');
         $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
-        // Navigate away if the user is not logged in
-        if ($user == null) {
-          header('location: login.php');
-        } else {
-          echo "<h1>Sorry, we're not quite ready for you here yet " . $user->name . "</h1>";
-        }
-         ?>
         // Change the User display based on a logged in user
         if (isset($user)) {
           echo "<div class='dropdown'>";
@@ -93,3 +80,14 @@
     </ul>
   </div>
 </nav>
+
+<?php
+
+// Navigate away if the user is not logged in
+if ($user == null) {
+  header('location: login.php');
+} else {
+  echo "<h1>Sorry, we're not quite ready for you here yet " . $user->name . "</h1>";
+}
+
+?>
