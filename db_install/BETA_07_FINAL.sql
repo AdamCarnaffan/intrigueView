@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Oct 19, 2017 at 03:21 AM
+-- Generation Time: Nov 01, 2017 at 03:30 AM
 -- Server version: 5.6.35
 -- PHP Version: 7.1.0
 
@@ -19,6 +19,65 @@ SET time_zone = "+00:00";
 --
 -- Database: `no_screw_ups`
 --
+
+DELIMITER $$
+--
+-- Procedures
+--
+CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `addTag` (IN `newTag` VARCHAR(50), IN `newEntryID` INT, IN `sortValue` INT)  BEGIN
+			DECLARE thisTagID INT(11) DEFAULT 0;
+            DECLARE finalTagID INT(11);
+            SELECT tagID INTO thisTagID FROM tags WHERE tagName = newTag LIMIT 1;
+			IF (thisTagID IS NULL OR thisTagID = 0) THEN
+				INSERT INTO tags (tagName) VALUES (newTag);
+				SELECT LAST_INSERT_ID() INTO finalTagID FROM tags LIMIT 1;
+            ELSE 
+            	SET finalTagID = thisTagID;
+			END IF;
+			INSERT INTO entry_tags (entryID, tagID, sortOrder) VALUES (newEntryID, finalTagID, sortValue);
+		END$$
+
+CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `createUser` (IN `username` VARCHAR(255), IN `hashPass` TEXT, IN `email` TEXT, OUT `userID` INT)  BEGIN
+    	INSERT INTO users (username, password, email) VALUES (username, hashPass, email);
+        SELECT LAST_INSERT_ID() INTO @userID FROM users LIMIT 1;
+        SELECT CONCAT(username, '\'s Feed') INTO @feedTitle;
+        CALL newFeed(@feedTitle, @userID, NULL, 0, 0, @feedID);
+				INSERT INTO user_permissions (userID, permissionID, feedID) VALUES (@userID, 2, @feedID);
+				INSERT INTO user_permissions (userID, permissionID, feedID) VALUES (@userID, 2, @feedID);
+        SET userID = @userID;
+    END$$
+
+CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `newEntry` (IN `sourceSiteID` INT, IN `sourceFeedID` INT, IN `entryTitle` TEXT, IN `entryURL` VARCHAR(255), IN `pubDate` DATETIME, IN `imageURL` TEXT, IN `excerpt` TEXT, OUT `newID` INT)  BEGIN
+		INSERT INTO entries (siteID, title, url, datePublished, featureImage, previewText) VALUES (sourceSiteID, entryTitle, entryURL, pubDate, imageURL, excerpt);
+		SELECT LAST_INSERT_ID() INTO @entryID FROM entries LIMIT 1;
+		INSERT INTO entry_connections (entryID, feedID) VALUES (@entryID, sourceFeedID);
+		SET newID = @entryID;
+	END$$
+
+CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `newEntryConnection` (IN `entryURL` VARCHAR(255), IN `sourceFeedID` INT, OUT `duplicate` INT)  BEGIN
+		SELECT entryID INTO @entryID FROM entries WHERE url = entryURL;
+		SELECT entryID INTO @duplicateCheck FROM entry_connections WHERE entryID = @entryID AND feedID = sourceFeedID;
+		IF (@duplicateCheck IS NULL) THEN
+			INSERT INTO entry_connections (entryID, feedID) VALUES (@entryID, sourceFeedID);
+			SET duplicate = 0;
+		ELSE 
+			SET duplicate = 1;
+		END IF;
+	END$$
+
+CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `newFeed` (IN `feedname` TEXT, IN `linkedBy` INT, IN `url` VARCHAR(255), IN `isExternal` INT, IN `isClassFeed` INT, OUT `feedID` INT)  BEGIN
+		INSERT INTO feeds (linkedBy, isExternalFeed, referenceTitle) VALUES (linkedBy, isExternal, feedname);
+		SELECT LAST_INSERT_ID() INTO @feedID FROM feeds LIMIT 1;
+		IF (isExternal = 1)
+			THEN
+				INSERT INTO external_feeds (externalFeedID, url, title) VALUES (@feedID, url, feedname);
+			ELSE
+				INSERT INTO user_feeds (internalFeedID, title, isClassFeed) VALUES (@feedID, feedname, isClassFeed);
+			END IF;
+		SET feedID = @feedID;
+	END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -47,6 +106,7 @@ CREATE TABLE `entries` (
 --
 
 CREATE TABLE `entry_connections` (
+  `connectionID` int(11) NOT NULL,
   `entryID` int(11) NOT NULL,
   `feedID` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -58,9 +118,10 @@ CREATE TABLE `entry_connections` (
 --
 
 CREATE TABLE `entry_tags` (
+  `relationID` int(11) NOT NULL,
   `entryID` int(11) NOT NULL,
   `tagID` int(11) NOT NULL,
-  `popularity` int(11) DEFAULT NULL
+  `sortOrder` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
@@ -72,7 +133,8 @@ CREATE TABLE `entry_tags` (
 CREATE TABLE `external_feeds` (
   `externalFeedID` int(11) NOT NULL,
   `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `title` text COLLATE utf8_unicode_ci NOT NULL
+  `title` text COLLATE utf8_unicode_ci NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
@@ -95,6 +157,7 @@ CREATE TABLE `feeds` (
 --
 
 CREATE TABLE `feed_connections` (
+  `connectionID` int(11) NOT NULL,
   `sourceFeed` int(11) NOT NULL,
   `internalFeed` int(11) NOT NULL,
   `linkedBy` int(11) DEFAULT NULL
@@ -110,6 +173,20 @@ CREATE TABLE `permissions` (
   `permissionID` int(11) NOT NULL,
   `permissionDescription` text COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `permissions`
+--
+
+INSERT INTO `permissions` (`permissionID`, `permissionDescription`) VALUES
+(1, 'Manage Users'),
+(2, 'Manage Feed'),
+(3, 'Add External Feeds'),
+(4, 'Manage Entries'),
+(5, 'Contribute to the Feed (validated)'),
+(6, 'Contribute to the Feed (instant commit)'),
+(7, 'Create Group Feed'),
+(8, 'View Administrative Panel');
 
 -- --------------------------------------------------------
 
@@ -171,7 +248,7 @@ CREATE TABLE `user_feeds` (
 CREATE TABLE `user_permissions` (
   `userID` int(11) NOT NULL,
   `permissionID` int(11) NOT NULL,
-  `feedID` int(11) NOT NULL
+  `feedID` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -190,6 +267,7 @@ ALTER TABLE `entries`
 -- Indexes for table `entry_connections`
 --
 ALTER TABLE `entry_connections`
+  ADD PRIMARY KEY (`connectionID`),
   ADD KEY `entry_id` (`entryID`),
   ADD KEY `source_id` (`feedID`);
 
@@ -197,6 +275,7 @@ ALTER TABLE `entry_connections`
 -- Indexes for table `entry_tags`
 --
 ALTER TABLE `entry_tags`
+  ADD PRIMARY KEY (`relationID`),
   ADD KEY `entry_id` (`entryID`),
   ADD KEY `tag_id` (`tagID`);
 
@@ -218,6 +297,7 @@ ALTER TABLE `feeds`
 -- Indexes for table `feed_connections`
 --
 ALTER TABLE `feed_connections`
+  ADD PRIMARY KEY (`connectionID`),
   ADD KEY `internal_feed` (`internalFeed`),
   ADD KEY `external_feed` (`sourceFeed`),
   ADD KEY `user_id` (`linkedBy`);
@@ -274,15 +354,30 @@ ALTER TABLE `user_permissions`
 ALTER TABLE `entries`
   MODIFY `entryID` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT for table `entry_connections`
+--
+ALTER TABLE `entry_connections`
+  MODIFY `connectionID` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `entry_tags`
+--
+ALTER TABLE `entry_tags`
+  MODIFY `relationID` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT for table `feeds`
 --
 ALTER TABLE `feeds`
   MODIFY `sourceID` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT for table `feed_connections`
+--
+ALTER TABLE `feed_connections`
+  MODIFY `connectionID` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `permissionID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `permissionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 --
 -- AUTO_INCREMENT for table `sites`
 --
@@ -297,7 +392,7 @@ ALTER TABLE `tags`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- Constraints for dumped tables
 --

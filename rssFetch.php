@@ -4,7 +4,9 @@ require_once('objectConstruction.php');
 
 
 // Get the Source ID for database selection of feed
-$sourceId = 6;
+$sourceId = 8;
+// IMPERSONATION FOR MIGRATION
+$feedSudoID = 6;
 // The Export URL (RSS Feed) from getFeed
 $feedSelection = new FeedInfo($sourceId, $conn);
 // Time zone info to sync with feed
@@ -16,6 +18,11 @@ $error = false;
 RSS Feed xml attributes come from xml->[title][description][link]->attributes->ITEM PROPERTY
 RSS Feed xml interpretation points xml->channel->LISTOFITEMS(item)->ITEM PROPERTY
 */
+
+// Impersonation for Sudo ID migration
+if (isset($feedSudoID)) {
+  $feedSelection->id = $feedSudoID;
+}
 
 // Generate an XML object to represent the data collected
 $xml = simplexml_load_file($feedSelection->source) or die("Error: Could not connect to the feed");

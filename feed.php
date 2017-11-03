@@ -1,6 +1,6 @@
 <?php
 	// Encode the page
-	header("Content-Type: application/xml; charset=ISO-8859-1");
+	header("Content-Type: application/xml;charset=UTF-8");
 	require('dbConnect.php');
 	// Set Default Values
 	$feedSize = (isset($_GET['size'])) ? $_GET['size'] : "*";
