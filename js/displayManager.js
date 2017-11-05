@@ -77,6 +77,23 @@ function resizeCanvas() {
     canvas.height = canvas.width*0.3;
 }
 
+function resetQueries() {
+  // Check the Tag Mode
+  if (currentTagMode != 1) {
+    currentTagMode = 1;
+    $('#and-tag').toggleClass('toggle-button-class');
+    $('#or-tag').toggleClass('toggle-button-class');
+  }
+  // Empty the search bar
+  $('#search-input').val('');
+  // Reset Tags
+  queryTags = [];
+  // Re-initialize the display
+  clearEntryDisplay();
+  queryEntries(51)
+  getTags();
+}
+
 function queryEntries(selection, scroll = false) {
   if (scroll) {
     cooldown = 5
@@ -93,7 +110,8 @@ function queryEntries(selection, scroll = false) {
       'selection': selection,
       'currentDisplay': entriesDisplayed,
       'search': search,
-      'tags': queryTagString
+      'tags': queryTagString,
+      'tagMode': currentTagMode
     },
     dataType: 'json',
     success: function (data) {
@@ -120,8 +138,6 @@ function returnToTop() {
     returnButtonIsDisplayed = false;
   }, 3000);
 }
-
-var  queryTags = [];
 
 function clearEntryDisplay() {
   $(document).scrollTop(0);
@@ -163,4 +179,20 @@ function getTags() {
     alert: "success!"
   });
   return false;
+}
+
+function changeTagMode() {
+  if (currentTagMode == 1) {
+    currentTagMode = 2;
+    $('#and-tag').toggleClass('toggle-button-class');
+    $('#or-tag').toggleClass('toggle-button-class');
+  } else {
+    currentTagMode = 1;
+    $('#or-tag').toggleClass('toggle-button-class');
+    $('#and-tag').toggleClass('toggle-button-class');
+  }
+  if (queryTags.length > 0) {
+    clearEntryDisplay();
+    queryEntries(51);
+  }
 }

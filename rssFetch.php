@@ -4,9 +4,9 @@ require_once('objectConstruction.php');
 
 
 // Get the Source ID for database selection of feed
-$sourceId = 8;
+$sourceId = 3;
 // IMPERSONATION FOR MIGRATION
-$feedSudoID = 6;
+//$feedSudoID = 6;
 // The Export URL (RSS Feed) from getFeed
 $feedSelection = new FeedInfo($sourceId, $conn);
 // Time zone info to sync with feed
@@ -41,9 +41,15 @@ if ($lastUpdateValue != null) {
 }
 // Entry tracking class Definition
 $summary = new Summary();
-// Fetch the tag blacklist in preperation
-$tagBlackList = ['Top Image', 'Related Video', 'Know', 'Say', 'Default']; // This will be cached from the DB on a new fetch
 
+// Fetch the tag blacklist in preperation
+$getBlackList = "SELECT blacklistedTag FROM tag_blacklist";
+$result = $conn->query($getBlackList);
+$tagBlackList = []; // Initialize the array
+while ($row = $result->fetch_array()) {
+  // add each tag to the array
+  array_push($tagBlackList, $row[0]);
+}
 // Check each Entry from bottom to top (Added chronologically)
 for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNumber--) {
   // Set the $item tag as is done in a foreach loop (Pathing from RSS Feed)

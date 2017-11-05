@@ -353,7 +353,7 @@ class SiteData {
 
   public function getTags($content) {
     $tags = [];
-    $fillerWords = ['place', 'should', 'best', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
+    $fillerWords = ['place', 'should', 'best', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
     $splitContent = explode(' ', $this->stripPunctuation($content));
     foreach ($splitContent as &$word) {
       // Remove ALL whitespace
@@ -765,27 +765,6 @@ class SiteData {
   }
 
   public function getSiteIconURL($pageContents) {
-    $linkTagSelection = explode("<link",$pageContents);
-    // Remove content from before the <link> tag
-    array_shift($linkTagSelection);
-    // Remove the content after the close of the last />
-    if (count($linkTagSelection) > 0) {
-      $lastTagIndex = count($linkTagSelection)-1;
-      $linkTagSelection[$lastTagIndex] = explode(">", $linkTagSelection[$lastTagIndex])[0];
-    }
-    foreach ($linkTagSelection as $tag) {
-      if (strpos($tag, '"icon"') !== false || strpos($tag, " icon") !== false || strpos($tag, "icon ") !== false) {
-        $iconURL = explode('href="', $tag)[1];
-        $iconURL = explode('"', $iconURL)[0];
-        $iconURLFinal = $this->checkURLPathing($iconURL);
-        return $iconURLFinal;
-      } elseif (strpos($tag, "'icon'") !== false) { // Use the single quotation mark in the case where it is used in the rel
-        $iconURL = explode("href='", $tag)[1];
-        $iconURL = explode("'", $iconURL)[0];
-        $iconURLFinal = $this->checkURLPathing($iconURL);
-        return $iconURLFinal;
-      }
-    }
     // Arriving here indicated that the URL was not found in the <link> tags
     if (strpos($pageContents, 'schema.org"') !== false && strpos($pageContents, '"logo":') !== false || strpos($pageContents, '"logo" :') !== false) {
       // Remove whitespaces for uniformity of string searches
@@ -813,6 +792,27 @@ class SiteData {
           // Flag the next segment as that with the URL
           $nextContainsURL = true;
         }
+      }
+    }
+    $linkTagSelection = explode("<link",$pageContents);
+    // Remove content from before the <link> tag
+    array_shift($linkTagSelection);
+    // Remove the content after the close of the last />
+    if (count($linkTagSelection) > 0) {
+      $lastTagIndex = count($linkTagSelection)-1;
+      $linkTagSelection[$lastTagIndex] = explode(">", $linkTagSelection[$lastTagIndex])[0];
+    }
+    foreach ($linkTagSelection as $tag) {
+      if (strpos($tag, '"icon"') !== false || strpos($tag, " icon") !== false || strpos($tag, "icon ") !== false) {
+        $iconURL = explode('href="', $tag)[1];
+        $iconURL = explode('"', $iconURL)[0];
+        $iconURLFinal = $this->checkURLPathing($iconURL);
+        return $iconURLFinal;
+      } elseif (strpos($tag, "'icon'") !== false) { // Use the single quotation mark in the case where it is used in the rel
+        $iconURL = explode("href='", $tag)[1];
+        $iconURL = explode("'", $iconURL)[0];
+        $iconURLFinal = $this->checkURLPathing($iconURL);
+        return $iconURLFinal;
       }
     }
     return null;

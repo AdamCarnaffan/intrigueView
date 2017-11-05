@@ -36,9 +36,13 @@
       <li class="nav-item active">
         <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="index.php">Browse<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item active">
-        <a class="nav-link" title="See Your Personalized Feed Selection" href="myFeeds.php">My Feeds<span class="sr-only">(current)</span></a>
-      </li>
+      <?php 
+      if (isset($user)) {
+        echo '<li class="nav-item active">
+          <a class="nav-link" title="See Your Personalized Feed Selection" href="myFeeds.php">My Feeds<span class="sr-only">(current)</span></a>
+        </li>';
+      }
+      ?>
       <li class="nav-item active">
         <a class="nav-link" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=0')">Export RSS<span class="sr-only">(current)</span></a>
       </li>
@@ -90,15 +94,20 @@
 <!-- Main album view -->
 <div class="container shortened">
   <div class="searching">
-    <h3 class="filter-coloring move-heading">Filter Results</h3>
+    <h3 class="filter-coloring move-heading">Filter Results
+      <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button>
+    </h3>
     <div>
       <h5 class="heading-inline filter-coloring vertical-centering">Search:</h5>
       <input class="feed-source-input nav-input btn nav-search" id='search-input' type="text" placeholder="Article Search">
-      <button class='feed-source-input nav-input btn btn-outline-success-blue inline-button fix-mobile' id='search-button' onclick='beginSearch()'>Go</button>
+      <button class='feed-source-input nav-input btn btn-outline-success-blue inline-button' id='search-button' onclick='beginSearch()'>Go</button>
     </div>
   </div>
   <div class="tagging">
-    <h3 class="filter-coloring move-heading heading-inline">Tags</h3>
+    <h3 class="filter-coloring move-heading heading-inline">Tags
+    <button id='and-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>AND</button>
+    <button id='or-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>OR</button>
+    </h3>
     <!-- TAGS POPULATED HERE -->
     <div class="filter-coloring" id="tag-collection">
     </div>
@@ -127,7 +136,11 @@ var returnButtonIsDisplayed = false;
 var cooldown = 0.8;
 var entriesDisplayed = 0;
 var search = "";
+var queryTags = [];
 var display = true;
+var currentTagMode = 1; // Defined in a global scope to use in multiple functions
+// Toggle the AND selection
+$('#and-tag').toggleClass('toggle-button-class');
 // Make initial display
 queryEntries(51);
 getTags();

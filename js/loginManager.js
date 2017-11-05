@@ -94,10 +94,16 @@ function reduceCooldown() {
 }
 
 function logout() {
+  var directory;
+  if (window.location.host == "localhost") {
+    directory = "/intrigueView";
+  } else {
+    directory = "";
+  }
   $.post({
-    url: "../logout.php",
+    url: directory + "/logout.php",
     success: function(data) {
-      location.href='../index.php';
+      location.href= directory + "/index.php";
       console.log('logged out');
     },
     alert: "Success!"

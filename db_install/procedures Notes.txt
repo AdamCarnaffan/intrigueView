@@ -88,3 +88,4 @@ TRUNCATE TABLE entries;
 TRUNCATE TABLE entry_connections;
 TRUNCATE TABLE entry_tags;
 TRUNCATE TABLE tags;
+TRUNCATE TABLE sites;

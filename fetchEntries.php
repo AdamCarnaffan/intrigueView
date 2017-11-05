@@ -11,6 +11,7 @@ $selectionLimit = $_POST['selection'];
 $selectionOffset = $_POST['currentDisplay'];
 $searchKey = (isset($_POST['search']) && strlen($_POST['search']) > 0) ? $_POST['search'] : null;
 $queryTags = $_POST['tags'];
+$tagMode = $_POST['tagMode'];
 
 // Set default values
 $entryDisplayNumber = 1; // The slot for page display in a given set
@@ -90,6 +91,12 @@ if ($searchKey != null && strlen($searchKey) > 0) {
 $getEntries .= " GROUP BY entries.entryID";
 // Add the Tag Query
 if ($queryTags != "" && $queryTags != null) {
+  // Determine query mode
+  if ($tagMode == 1) {
+    $tagQueryMode = " AND ";
+  } else {
+    $tagQueryMode = " OR ";
+  }
   $tags = explode("+", $queryTags);
   $first = true;
   foreach ($tags as $tagID) {
@@ -99,7 +106,7 @@ if ($queryTags != "" && $queryTags != null) {
       // Only the first tag condition is first
       $first = false;
     } else {
-      $getEntries .= " AND " . $tempCondition;
+      $getEntries .= $tagQueryMode . $tempCondition;
     }
   }
 }

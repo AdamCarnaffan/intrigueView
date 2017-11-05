@@ -246,6 +246,10 @@ input, input:before, input:after {
   -ms-user-select: initial !important;
   user-select: initial !important;
 }
+button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn:active:focus, .btn:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
 /* Hover effects are only applied on the desktop version of the site */
 @media (min-width: 770px) {
   .btn-outline-success-blue:hover {
@@ -374,6 +378,7 @@ input, input:before, input:after {
 #tag-collection {
   width: 100%;
   height: auto;
+  margin-top: -2px;
 }
 .no-underline {
   text-decoration: none;
@@ -382,4 +387,17 @@ input, input:before, input:after {
   padding: 0px 2px 0px 2px;
   background-color: #2888a7 !important;
   border-radius: 2px;
+}
+.fix-button-margin {
+  padding: 2px;
+  margin-right: 0;
+}
+.toggle-button-class {
+    color: #fff;
+    background-color: #2888a7;
+    background-image: none;
+    border-color: #2888a7;
+}
+.reset-button {
+  margin-top: -8px;
 }
