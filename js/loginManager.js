@@ -95,9 +95,9 @@ function reduceCooldown() {
 
 function logout() {
   $.post({
-    url: "./logout.php",
+    url: "../logout.php",
     success: function(data) {
-      location.href='./index.php';
+      location.href='../index.php';
       console.log('logged out');
     },
     alert: "Success!"

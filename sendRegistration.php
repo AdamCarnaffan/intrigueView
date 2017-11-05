@@ -22,7 +22,7 @@ function register($username, $password, $email) {
     return;
   }
   // Password must be at least 8 characters
-  if (strlen($password) < 9) {
+  if (strlen($password) < 8) {
     echo "Your Password must be at least 8 characters";
     return;
   }
@@ -33,7 +33,7 @@ function register($username, $password, $email) {
   }
   // a password needs at least 1 number and 1 capital or lowercase letter
   if (!preg_match("~[0-9]~", $password) || !preg_match("~[a-z A-Z]~", $password)) {
-    echo "Your Password must contain a variation of letters and numbers";
+    echo "Your Password must contain letters and numbers";
     return;
   }
 

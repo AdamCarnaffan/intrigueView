@@ -91,5 +91,26 @@ include('validateUser.php');
           <!-- sidebar menu end-->
       </div>
   </aside>
+  <div class='container'>
+    <h5>Change Admin Status:</h5>
+    <?php 
+    $getUsers = "SELECT users.userID, users.username, users.active FROM users 
+                  JOIN user_permissions AS perms ON users.userID = perms.userID
+                  GROUP BY perms.userID
+                  HAVING SUM(CASE WHEN perms.permissionID = 8 THEN 0 ELSE 1 END) = 1 
+                  AND users.active = 1";
+    $result = $conn->query($getUsers);
+    echo "<table>";
+    while ($row = $result->fetch_array()) {
+      echo "<tr><td>" . $row[1] . "</td><td><button onclick='setAdmin(" . $row[0] . ")'>Set Admin</button></td></tr>";
+    }
+    echo "</table>";
+     ?>
+   </select>
+   </br>
+   <div id='entriesDisplay'>
+   </div>
+  </div>
+  
 </body>
 </html>

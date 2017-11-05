@@ -70,7 +70,7 @@
           foreach ($user->permissions as $perm) {
             if ($perm->permissionId == 8) {
               echo '<li class="divider"></li>';
-              echo '<li display="block"><a class="move-right dropdown-link" href="admin/">Administration</a></li>';
+              echo '<li display="block"><a class="move-right dropdown-link" href="admin/splash.php">Administration</a></li>';
               break;
             }
           }

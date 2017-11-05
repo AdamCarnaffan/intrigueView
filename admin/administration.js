@@ -49,6 +49,19 @@ function deleteFeed(feedId) {
   }
 }
 
+function setAdmin(userID) {
+  $.post({
+    url: "setAdmin.php",
+    data: {
+      'userID': userID
+    },
+    success: function(data) {
+      console.log(data);
+    },
+    alert: "Success!"
+  });
+}
+
 function submitFeed() {
   var newName = $('#addedFeedName').val();
   var newURL = $('#addedFeedURL').val();
