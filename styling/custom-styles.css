@@ -89,7 +89,7 @@
   color: inherit;
   line-height: 2rem;
 }
-.feed-tile {
+.entry-tile {
   border: 1px solid rgba(210,210,210,0.4);
   background-color: #fafdf5;
   box-shadow: 0.05rem 0.05rem rgba(128,128,128,0.35);
@@ -250,6 +250,33 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   outline: none !important;
   box-shadow: none !important;
 }
+/* Fix Search box on mobile */
+@media (min-width: 2px) {
+  .no-top-offset {
+    padding-top: 0;
+    margin-top: 0;
+  }
+  .shortened {
+    min-height: 15rem;
+    height: auto;
+    background-color: #343a40;
+  }
+  .searching {
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    top: 0;
+    width: 100%;
+    border-bottom: 1px solid #949494;
+    padding-bottom: 0.5rem;
+  }
+  .tagging {
+    display: inline-block;
+    position: relative;
+    padding-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+}
 /* Hover effects are only applied on the desktop version of the site */
 @media (min-width: 770px) {
   .btn-outline-success-blue:hover {
@@ -287,6 +314,32 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   }
   .active-tag:hover {
     color: #343a40 !important;
+  }
+}
+
+@media (min-width: 1060px) {
+  .shortened {
+    min-height: 6rem;
+    height: 6.2rem;
+    background-color: #343a40;
+  }
+  .searching {
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    top: 0;
+    width: 25%;
+    min-width: 290px;
+    height: 100%;
+    border-right: 1px solid #949494;
+    border-bottom: 0;
+  }
+  .tagging {
+    margin-left: 0.5rem;
+    display: inline-block;
+    position: relative;
+    width: 70%;
+    height: 100%;
   }
 }
 
@@ -339,27 +392,6 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   color: black;
   text-decoration: underline;
 }
-.shortened {
-  min-height: 2rem;
-  height: 6rem;
-  background-color: #343a40;
-}
-.searching {
-  display: inline-block;
-  vertical-align: top;
-  position: relative;
-  top: 0;
-  width: 25%;
-  height: 100%;
-  border-right: 1px solid #949494;
-}
-.tagging {
-  margin-left: 0.5rem;
-  display: inline-block;
-  position: relative;
-  width: 70%;
-  height: 100%;
-}
 .filter-coloring {
   color: #fff;
 }
@@ -400,4 +432,14 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
 }
 .reset-button {
   margin-top: -8px;
+}
+.independent-background {
+  background-color: #343a40;
+  padding: 10px;
+}
+.fix-nav-button {
+  margin-left: -2rem;
+}
+.feed-tile {
+  
 }

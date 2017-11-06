@@ -91,6 +91,7 @@ if ($searchKey != null && strlen($searchKey) > 0) {
 $getEntries .= " GROUP BY entries.entryID";
 // Add the Tag Query
 if ($queryTags != "" && $queryTags != null) {
+  $tagged = true;
   // Determine query mode
   if ($tagMode == 1) {
     $tagQueryMode = " AND ";
@@ -131,7 +132,7 @@ while ($row = $entries->fetch_array()) {
   $entryDisplayNumber++;
   $entriesFound = true;
 }
-if (!$entriesFound && $search == true) {
+if (!$entriesFound && ($search == true || $tagged == true)) {
   array_push($display, "<h2>No Entries were found matching the provided parameters.</h2>");
 } elseif (!$entriesFound) {
   array_push($display, "<h2>This Feed does not have any entries yet.</h2>");

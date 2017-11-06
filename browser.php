@@ -48,12 +48,12 @@
       </li>
     </ul>
     <ul class="navbar-nav mr-auto fix-ul">
-      <!-- <li class="nav-item active fix-li">
-        <input class="feed-source-input nav-input nav-link btn nav-search" id='search-input' type="text" placeholder="Article Search">
+      <li class="nav-item active fix-li">
+        <input class="feed-source-input nav-input nav-link btn nav-search" id='search-input' type="text" placeholder="Feed Search">
       </li>
       <li class='nav-item active fix-li'>
-        <button class='feed-source-input nav-input nav-link btn btn-outline-success-blue inline-button fix-mobile' id='search-button' onclick='beginSearch()'>Go</button><!-- ADD ICON -->
-      <!--</li>-->
+        <button class='feed-source-input nav-input btn btn-outline-success-blue inline-button fix-nav-button' id='search-button' onclick='beginSearch()'>Go</button><!-- ADD ICON -->
+      </li>
     </ul>
     <ul class="navbar-nav">
       <?php
@@ -92,7 +92,7 @@
 </nav>
 
 <!-- Main album view -->
-<div class="container shortened">
+<!-- <div class="container shortened">
   <div class="searching">
     <h3 class="filter-coloring move-heading">Filter Results
       <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button>
@@ -103,18 +103,17 @@
       <button class='feed-source-input nav-input btn btn-outline-success-blue inline-button' id='search-button' onclick='beginSearch()'>Go</button>
     </div>
   </div>
-  <div class="tagging">
+    <div class="tagging">
     <h3 class="filter-coloring move-heading heading-inline">Tags
     <button id='and-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>AND</button>
     <button id='or-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>OR</button>
     </h3>
-    <!-- TAGS POPULATED HERE -->
     <div class="filter-coloring" id="tag-collection">
     </div>
   </div>
-</div>
+</div> -->
 <!-- ALL ARTICLES GO HERE -->
-<div class="container no-top-offset" id='feed-content'>
+<div class="container" id='feed-content'>
   <div class="col-12 col-md-12">
     <div class="row" id="feed-view">
     </div><!--/row-->
@@ -126,77 +125,4 @@
   <a class="fix-link-color nav-link" href="https://github.com/Thefaceofbo">By Adam Carnaffan<span class="sr-only">(current)</span></a>
 </div>
 </body>
-<!-- Scripting -->
-<script>
-// Define Variable display buttons
-var ReturnButton = "<div class='button-holder' id='return-button'><a class='return-button front' href='#' onclick='returnToTop()'><img class='return-button front' src='assets/returnToTop.png'></a></div>";
-var loadingCanvas = "<div id='loading'><canvas id='loading-dots' width='900' height='600'>Loading...</canvas></div>";
-// Instantiate necessary global variables
-var returnButtonIsDisplayed = false;
-var cooldown = 0.8;
-var entriesDisplayed = 0;
-var search = "";
-var queryTags = [];
-var display = true;
-var currentTagMode = 1; // Defined in a global scope to use in multiple functions
-// Toggle the AND selection
-$('#and-tag').toggleClass('toggle-button-class');
-// Make initial display
-queryEntries(51);
-getTags();
-
-$(document).ready( function () {
-  // Reset scroll before watching for scroll changes
-  $(this).scrollTop(0);
-  // Begin waiting for the scroll
-  $(window).scroll(function() {
-    // Load more entries
-    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150 && display == true) {
-      queryEntries(26, true);
-    }
-    // Display Settings for the Return to Top button
-    if ($(document).scrollTop() > 600 && returnButtonIsDisplayed == false) {
-      returnButtonIsDisplayed = true;
-      $(document.body).append(ReturnButton);
-    } else if ($(document).scrollTop() < 200) {
-      $('#return-button').remove();
-      returnButtonIsDisplayed = false;
-    }
-  });
-});
-// Allow the Search to begin on enter keypress
-$('#search-input').keypress(function(event) {
-  if (event.keyCode == 13) {
-    beginSearch();
-  }
-});
-</script>
 </html>
-
-<!--
-<div class="container">
-  <div class="jumbotron">
-    <h1>Navbar example</h1>
-    <p class="lead">This example is a quick exercise to illustrate how the top-aligned navbar works. As you scroll, this navbar remains in its original position and moves with the rest of the page.</p>
-  </div>
-</div>
-
-<div class="col-6 col-lg-3 tile-wrapper">
-  <div class="feed-tile">
-    <a href="http://google.ca" class="hover-detect"><span class="entry-url"></span></a>
-    <h4 class="entry-heading">Article Heading</h4>
-    <div class="image"><img src="https://hbr.org/resources/images/article_assets/2017/09/sept17-14-668999778.jpg"/></div>
-    <div class="entry-stats">
-      <p class="site-info">
-        <img src="http://jsfiddle.net/favicon.png" class="site-icon"/>
-        <a class="site-info-url" href="https://getpocket.com/a/queue/">google.ca</a>
-      </p>
-    </div>
-  </div>
-</div>
-
-<form class="form-inline mt-2 mt-md-0">
-  <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-  <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-</form>
--->

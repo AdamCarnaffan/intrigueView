@@ -40,8 +40,8 @@ class Entry {
     } else {
       $tile = '<div class="col-12 col-lg-6 tile-wrapper">';
     }
-    // Add feed tile Class
-    $tile .= '<div class="feed-tile';
+    // Add entry tile Class
+    $tile .= '<div class="entry-tile';
     if ($this->isFeatured) {
       $tile .= ' featured-tile';
     }
