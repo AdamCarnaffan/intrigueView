@@ -86,6 +86,7 @@ function resetQueries() {
   }
   // Empty the search bar
   $('#search-input').val('');
+  search = "";
   // Reset Tags
   queryTags = [];
   // Re-initialize the display
