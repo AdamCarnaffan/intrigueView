@@ -89,7 +89,7 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
       foreach ($entryInfo->tags as $sortOrder=>$tag) {
         $addTag = "CALL addTag('$tag', '$entryID', '$sortOrder')";
         $conn->query($addTag);
-        echo $sortOrder . ") " . $tag . " added </br>";
+        //echo $sortOrder . ") " . $tag . " added </br>";
       }
       $summary->entriesAdded++;
       array_push($summary->entriesList, $entryInfo->title);
