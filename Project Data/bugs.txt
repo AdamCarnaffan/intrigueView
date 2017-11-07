@@ -1,5 +1,3 @@
-Some sites don't get an icon, though one IS present on the site
-
 A Site that uses javascript to display content has nothing to show when pulled (techinasia.com). See below URL
 
   https://techinasia.com/talk/8-machine-learning-8-minutes
@@ -9,22 +7,15 @@ No response is returned in the admin area
 No Feeds are displayed if permission for editing feeds is not ALL
     This issue also exists with Entries
 
-Entries Management displays all entries in a single query (should be broken into multiple like the index)
-
+Entries Management needs pagination
 Not all pages or functions support error logging
 
 'No entries found' displayed for a second query where the first was not filled
 
-Duplicate entries validation needed
-    USE Custom Procedure to compare current similar urls with the current URL
-
-REFACTOR database
-    a New table should be created to relate an article to different feeds. The feed Id column should be removed from `entries`
-    Modify User permissions for private feeds
-    Add Public/Private column for the `feeds` table
-
-Rename GetPocket.php as it applies to any feed with a URL
-
-Caret misplaced in Ios 11.1 BETA 2 Safari (too Low) for the Search Articles field
-
 RSS ADMIN FEED dropdown needs search
+
+Higher min-height for mobile Filter
+
+Mobile Filters should be hidden by default, visible by button
+
+FeedInfo object not built well

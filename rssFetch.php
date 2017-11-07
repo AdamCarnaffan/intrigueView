@@ -4,11 +4,11 @@ require_once('objectConstruction.php');
 
 
 // Get the Source ID for database selection of feed
-$sourceId = 3;
+$sourceId = $_POST['sourceID'];
 // IMPERSONATION FOR MIGRATION
 //$feedSudoID = 6;
 // The Export URL (RSS Feed) from getFeed
-$feedSelection = new FeedInfo($sourceId, $conn);
+$feedSelection = new FeedInfo($sourceId, $conn, 1);
 // Time zone info to sync with feed
 $timeZone = ('-5:00');
 // Default for the error variable used in the loop

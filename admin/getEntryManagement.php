@@ -2,9 +2,11 @@
 include('../dbConnect.php');
 include('../objectConstruction.php');
 // Create a Data Table row for each entry to be displayed
-$feedId = $_POST['feedId'];
+$feedID = $_POST['feedID'];
 
-$getEntries = "SELECT entry_id, title, feature_image, featured FROM entries WHERE visible = 1 AND feed_id = '$feedId' ORDER BY entry_id DESC";
+$getEntries = "SELECT entries.entryID, entries.title, entries.featureImage, entries.featured, conn.feedID FROM entries 
+              LEFT JOIN entry_connections AS conn ON conn.entryID = entries.entryID
+              WHERE entries.visible = 1 AND conn.feedID = '$feedID' ORDER BY entryID DESC";
 
 // Generate table rows for each Entry
 if ($result = $conn->query($getEntries)) {

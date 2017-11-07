@@ -56,7 +56,7 @@ include('validateUser.php');
       <!-- sidebar menu start-->
       <ul class="sidebar-menu">
           <li class="active">
-              <a class="" href="index.php">
+              <a class="" href="splash.php">
                   <span>Dashboard</span>
               </a>
           </li>
@@ -93,7 +93,6 @@ include('validateUser.php');
       $showAllFeeds = false;
       $feedsList = [];
       $feeds = [];
-      $getAllFeedIds = "SELECT feedID FROM feeds WHERE active = 1";
       foreach ($user->permissions as $perm) {
         if ($perm->permissionId == 2) {
           if ($perm->feedId == null) {
@@ -104,10 +103,14 @@ include('validateUser.php');
           }
         }
       }
+      
+      $getAllFeedIds = "SELECT sourceID, isExternalFeed FROM feeds";
       if ($showAllFeeds) {
         $result = $conn->query($getAllFeedIds);
         while ($row = $result->fetch_array()) {
-          array_push($feedsList, $row[0]);
+          if ($row[1] == 1) {
+            array_push($feedsList, $row[0]);
+          }
         }
       } else {
         $result = $conn->query("SELECT feedID FROM user_permissions WHERE userID = '$user->id'");
@@ -115,7 +118,7 @@ include('validateUser.php');
       // Execute query and prepare results
       $feedInfos = [];
       foreach ($feedsList as $feedId) {
-        array_push($feedInfos, new FeedInfo($feedId, $conn));
+        array_push($feedInfos, new FeedInfo($feedId, $conn, 1));
       }
     ?>
     <!-- EDIT FEEDS -->
@@ -173,8 +176,8 @@ include('validateUser.php');
         $feedsList = [];
         $result = $conn->query($getAllFeedIds);
         while ($row = $result->fetch_array()) {
-          echo $row[0];
-          array_push($feedsList, new FeedInfo($row[0], $conn));
+          //echo $row[0];
+          array_push($feedsList, new FeedInfo($row[0], $conn, $row[1]));
         }
         foreach ($feedsList as $feed) {
           echo "<option value='" . $feed->id .  "'>" . $feed->title . "</option>";

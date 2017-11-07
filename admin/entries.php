@@ -56,7 +56,7 @@ include('validateUser.php');
       <!-- sidebar menu start-->
       <ul class="sidebar-menu">
           <li class="active">
-              <a class="" href="index.php">
+              <a class="" href="splash.php">
                   <span>Dashboard</span>
               </a>
           </li>
@@ -92,7 +92,7 @@ include('validateUser.php');
       foreach ($user->permissions as $perm) {
         if ($perm->permissionId == 4) {
           if ($perm->feedId == null) {
-            $getAllFeedIds = "SELECT feedID FROM feeds WHERE active = 1";
+            $getAllFeedIds = "SELECT sourceID, isExternalFeed FROM feeds";
           } else {
             array_push($editableFeeds, $perm->feedId);
           }
@@ -101,7 +101,7 @@ include('validateUser.php');
       $feedsList = [];
       $result = $conn->query($getAllFeedIds);
       while ($row = $result->fetch_array()) {
-        array_push($feedsList, new FeedInfo($row[0], $conn));
+        array_push($feedsList, new FeedInfo($row[0], $conn, $row[1]));
       }
       if (count($feedsList) == 0) {
         echo "<option value='null'>No Feeds Available</option>";

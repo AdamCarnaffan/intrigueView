@@ -3,11 +3,11 @@ include('../dbConnect.php');
 include('../objectConstruction.php');
 session_start();
 
-$feedId = $_POST['sourceId'];
+$feedID = $_POST['sourceID'];
 
 try {
   // Set the active status for the feed to 0
-  $deleteFeed = "UPDATE feeds SET active = 0 WHERE feedID = '$feedId'";
+  $deleteFeed = "UPDATE external_feeds SET active = 0 WHERE externalFeedID = '$feedID'";
   if (!$conn->query($deleteFeed)) {
     throw new Exception($conn->error);
   }

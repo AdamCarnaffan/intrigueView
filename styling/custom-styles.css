@@ -340,6 +340,7 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
     position: relative;
     width: 70%;
     height: 100%;
+    font-size: 0.95rem;
   }
 }
 

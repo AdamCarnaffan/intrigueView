@@ -10,9 +10,9 @@ function refreshFeed(feedId, target) {
   $(target).attr('disabled', 'disabled');
   // Query and perform the update
   $.post({
-    url: "../getPocket.php",
+    url: "../rssFetch.php",
     data: {
-      'sourceId': feedId
+      'sourceID': feedId
     },
     success: function(data) {
       if (data.error) {
@@ -34,7 +34,7 @@ function deleteFeed(feedId) {
     $.post({
       url: "deleteSourceFeed.php",
       data: {
-        'sourceId': feedId
+        'sourceID': feedId
       },
       success: function(data) {
         if (data.error) {
@@ -57,6 +57,7 @@ function setAdmin(userID) {
     },
     success: function(data) {
       console.log(data);
+      window.location.reload(true);
     },
     alert: "Success!"
   });
@@ -113,7 +114,7 @@ function getManageableEntries(button) {
     $.post({
       url: "getEntryManagement.php",
       data: {
-        'feedId': feedId
+        'feedID': feedId
       },
       success: function(data) {
         if (data.error) {
@@ -135,7 +136,7 @@ function toggleFeatureEntry(button, entryId) {
   $.post({
     url: "toggleFeatured.php",
     data: {
-      'entryId': entryId,
+      'entryID': entryId,
       'isFeatured': featureStat
     },
     success: function(data) {

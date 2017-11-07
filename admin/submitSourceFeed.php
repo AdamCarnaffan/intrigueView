@@ -11,7 +11,7 @@ try {
   // Validate the source feed link (name is already validated by this point)
   if (simplexml_load_file($url)) {
     // Submit the info to the database as a new Source
-    $newSource = "INSERT INTO feeds (title, url, linked_by) VALUES ('$name', '$url', $user->id)";
+    $newSource = "CALL newFeed('$name', '$user->id', '$url', 1, 0, @placeholder)";
     // Throw an exception if the submission fails
     if (!$conn->query($newSource)) {
       throw new Exception($conn->error);

@@ -979,15 +979,24 @@ class FeedInfo {
   public $source;
   public $id;
 
-  public function __construct($feedId, $dbConn) {
+  public function __construct($feedId, $dbConn, $isExternal) {
     $this->id = $feedId;
-    $sourceQuery = "SELECT url, title FROM external_feeds WHERE externalFeedID = '$this->id'";
+    if ($isExternal) {
+      $feedType = "external_feeds";
+      $includedFields = "url, title";
+      $idColumn = "externalFeedID";
+    } else {
+      $feedType = "user_feeds";
+      $includedFields = "title";
+      $idColumn = "internalFeedID";
+    }
+    $sourceQuery = "SELECT $includedFields FROM $feedType WHERE $idColumn = '$this->id' AND active = 1";
     if ($result = $dbConn->query($sourceQuery)) {
       $sourceInfo = $result->fetch_array();
     } else {
       throw new exception($dbConn->error);
     }
-    $this->source = $sourceInfo['url'];
+    $this->source = (isset($sourceInfo['url'])) ? $sourceInfo['url'] : null;
     $this->title = $sourceInfo['title'];
   }
 

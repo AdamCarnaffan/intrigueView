@@ -24,7 +24,7 @@
 	echo '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0">';
 	// Get the Feed Name from the database
 	if ($feedId != 0) {
-		$feedTitle = $conn->query("SELECT referenceTitle FROM feeds WHERE feedID = '$feedId'")->fetch_array()[0];
+		$feedTitle = $conn->query("SELECT referenceTitle FROM feeds WHERE sourceID = '$feedId'")->fetch_array()[0];
 	} else {
 		$feedTitle = "All Feeds";
 	}

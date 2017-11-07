@@ -30,7 +30,7 @@ include('validateUser.php');
 <body class="hide-overflow">
 
   <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
-    <a class="navbar-brand" href="#">IntrigueView</a>
+    <a class="navbar-brand" href="../index.php">IntrigueView</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -51,53 +51,47 @@ include('validateUser.php');
       </ul>
     </div>
   </nav>
-
-  <aside>
-      <div id="sidebar"  class="nav-collapse ">
-          <!-- sidebar menu start-->
-          <ul class="sidebar-menu">
-              <li class="active">
-                  <a class="" href="index.php">
-                      <span>Dashboard</span>
-                  </a>
-              </li>
-              <li class="active">
-                  <a class="" href="feeds.php">
-                      <span>Feeds</span>
-                  </a>
-              </li>
-              <li class="active">
-                  <a class="" href="entries.php">
-                      <span>Entries</span>
-                  </a>
-              </li>
-              <?php
-                foreach ($user->permissions as $perm) {
-                  if ($perm->permissionId == 1) {
-                    echo '<li class="active">
-                        <a class="" href="users.php">
-                            <span>Users</span>
-                        </a>
-                    </li>';
-                    break;
-                  }
-                }
-
-
-              ?>
-
-
-          </ul>
-          <!-- sidebar menu end-->
-      </div>
-  </aside>
+      
+  <div id="sidebar"  class="fix-sidebar">
+      <!-- sidebar menu start-->
+      <ul class="sidebar-menu">
+          <li class="active">
+              <a class="" href="splash.php">
+                  <span>Dashboard</span>
+              </a>
+          </li>
+          <li class="active">
+              <a class="" href="feeds.php">
+                  <span>Feeds</span>
+              </a>
+          </li>
+          <li class="active">
+              <a class="" href="entries.php">
+                  <span>Entries</span>
+              </a>
+          </li>
+          <?php
+            foreach ($user->permissions as $perm) {
+              if ($perm->permissionId == 1) {
+                echo '<li class="active">
+                    <a class="" href="users.php">
+                        <span>Users</span>
+                    </a>
+                </li>';
+                break;
+              }
+            }
+          ?>
+      </ul>
+      <!-- sidebar menu end-->
+  </div>
   <div class='container'>
     <h5>Change Admin Status:</h5>
     <?php 
     $getUsers = "SELECT users.userID, users.username, users.active FROM users 
                   JOIN user_permissions AS perms ON users.userID = perms.userID
-                  GROUP BY perms.userID
-                  HAVING SUM(CASE WHEN perms.permissionID = 8 THEN 0 ELSE 1 END) = 1 
+                  GROUP BY users.userID
+                  HAVING SUM(CASE WHEN perms.permissionID = 8 THEN 1 ELSE 0 END) = 0 
                   AND users.active = 1";
     $result = $conn->query($getUsers);
     echo "<table>";

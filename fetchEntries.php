@@ -5,8 +5,10 @@ require('objectConstruction.php');
 // $_POST['selection'] = 10;
 // $_POST['currentDisplay'] = 0;
 // $_POST['tags'] = [];
+// $_POST['tagMode'] = 0;
 
 // Take Inputs from the specific call
+$selectedFeed = 3; // Currently Set to display Thompson's pocket in Featured
 $selectionLimit = $_POST['selection'];
 $selectionOffset = $_POST['currentDisplay'];
 $searchKey = (isset($_POST['search']) && strlen($_POST['search']) > 0) ? $_POST['search'] : null;
@@ -76,11 +78,11 @@ SELECT entries.entryID, entries.title, entries.url, entries.datePublished, entri
 */
 
 // When changing the query, remember to adjust object
-$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon, entries.entryID FROM entries
+$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon, entries.entryID, entries.visible, conn.feedID FROM entries
 	               JOIN sites ON entries.siteID = sites.siteID
+                 JOIN entry_connections AS conn ON entries.entryID = conn.entryID
                  LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
-                 LEFT JOIN tags ON tagConn.tagID = tags.tagID
-                 WHERE entries.visible = 1";
+                 LEFT JOIN tags ON tagConn.tagID = tags.tagID";
 // Adjust the query if a search is present
 $search = false;
 if ($searchKey != null && strlen($searchKey) > 0) {
@@ -90,6 +92,7 @@ if ($searchKey != null && strlen($searchKey) > 0) {
 // Add the GROUP BY following all WHERE Statements
 $getEntries .= " GROUP BY entries.entryID";
 // Add the Tag Query
+$addedTag = false;
 if ($queryTags != "" && $queryTags != null) {
   $tagged = true;
   // Determine query mode
@@ -99,20 +102,27 @@ if ($queryTags != "" && $queryTags != null) {
     $tagQueryMode = " OR ";
   }
   $tags = explode("+", $queryTags);
-  $first = true;
   foreach ($tags as $tagID) {
     $tempCondition = "SUM(CASE WHEN tags.tagID = '$tagID' THEN 1 ELSE 0 END) = 1";
-    if ($first) {
+    if (!$addedTag) {
       $getEntries .= " HAVING " . $tempCondition;
       // Only the first tag condition is first
-      $first = false;
+      $addedTag = true;
     } else {
       $getEntries .= $tagQueryMode . $tempCondition;
     }
   }
 }
+if (!$addedTag) {
+  $getEntries .= " HAVING ";
+} else {
+  $getEntries .= " AND ";
+}
+
 // Finish the query
-$getEntries .= " ORDER BY entries.datePublished DESC, entries.entryID ASC
+
+$getEntries .= "entries.visible = 1 AND conn.feedID = '$selectedFeed'
+                ORDER BY entries.datePublished DESC, entries.entryID ASC
                 LIMIT $selectionLimit OFFSET $selectionOffset";
 // Prepare and query
 $entriesFound = false;
