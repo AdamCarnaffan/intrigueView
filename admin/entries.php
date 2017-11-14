@@ -92,7 +92,11 @@ include('validateUser.php');
       foreach ($user->permissions as $perm) {
         if ($perm->permissionId == 4) {
           if ($perm->feedId == null) {
-            $getAllFeedIds = "SELECT sourceID, isExternalFeed FROM feeds";
+            $getAllFeedIds = "SELECT sourceID, isExternalFeed FROM feeds
+                                LEFT JOIN user_feeds AS intern ON feeds.sourceID = intern.internalFeedID
+                                LEFT JOIN external_feeds AS extern ON feeds.sourceID = extern.externalFeedID
+                                WHERE extern.active = 1 OR intern.active = 1
+                                ORDER BY sourceID";
           } else {
             array_push($editableFeeds, $perm->feedId);
           }
