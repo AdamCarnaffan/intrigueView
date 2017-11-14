@@ -4,8 +4,8 @@ include('../objectConstruction.php');
 session_start();
 
 $user = $_SESSION['user'];
-$name = $_POST['name'];
-$url = $_POST['url'];
+$name = $conn->real_escape_string($_POST['name']);
+$url = $conn->real_escape_string($_POST['url']);
 
 try {
   // Validate the source feed link (name is already validated by this point)

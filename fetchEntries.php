@@ -6,9 +6,10 @@ require('objectConstruction.php');
 // $_POST['currentDisplay'] = 0;
 // $_POST['tags'] = [];
 // $_POST['tagMode'] = 0;
+// $_POST['search'] = "";
 
 // Take Inputs from the specific call
-$selectedFeed = 3; // Currently Set to display Thompson's pocket in Featured
+$selectedFeed = 2; // Currently Set to display Thompson's pocket in Featured
 $selectionLimit = $_POST['selection'];
 $selectionOffset = $_POST['currentDisplay'];
 $searchKey = (isset($_POST['search']) && strlen($_POST['search']) > 0) ? $_POST['search'] : null;
@@ -19,6 +20,7 @@ $tagMode = $_POST['tagMode'];
 $entryDisplayNumber = 1; // The slot for page display in a given set
 $features = [1];
 $tiles = $selectionLimit; // Assumes all are single tiles
+$tagged = false;
 // Calculate features array
 for ($c = 1; $c <= round($selectionLimit / 25); $c++) { // Number of feature cycles
   array_push($features, $c*19);
@@ -86,7 +88,7 @@ $getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries
 // Adjust the query if a search is present
 $search = false;
 if ($searchKey != null && strlen($searchKey) > 0) {
- $getEntries .= " AND entries.title LIKE '%$searchKey%'";
+ $getEntries .= " WHERE entries.title LIKE '%$searchKey%'";
  $search = true;
 }
 // Add the GROUP BY following all WHERE Statements

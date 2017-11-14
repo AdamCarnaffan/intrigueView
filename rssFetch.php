@@ -61,13 +61,22 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
     // Insert the item into the database
     // Get the site data as an object
     try {
+      // Remove the /amp from site links where applicable
+      if (strpos($item->link, "wired.com") !== false || strpos($item->link, "engadget.com") !== false) {
+        // remove amp at the end of the URL
+        if (strpos($item->link, "/amp") == strlen($item->link) - 4) {
+          $item->link = str_replace("/amp", "", $item->link);
+        }
+        // Replace an amp in the middle with a single slash
+        $item->link = str_replace("/amp/", "/", $item->link);
+      }
       $entryInfo = new SiteData($item->link, $feedSelection->source, $conn, $tagBlackList);
       // Check for title in RSS Feed, and fetch if not present
       if (isset($item->title)) {
         $entryInfo->title = $item->title;
       }
       // Filter title for SQL injection
-      $entryInfo->title = addslashes($entryInfo->title);
+      $entryInfo->title = $conn->real_escape_string($entryInfo->title);
     } catch (Exception $e) {
       $entryInfo = null;
       echo $e->getMessage() . " @ " . $item->link . "\n";

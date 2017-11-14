@@ -10,7 +10,7 @@ while ($row = $result->fetch_array()) {
 }
 
 foreach ($rssFeeds as $feed) {
-  $_POST['sourceId'] = $feed;
+  $_POST['sourceID'] = $feed;
   include('rssFetch.php');
 }
 
