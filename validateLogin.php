@@ -6,7 +6,7 @@ $validationError = "The username or password entered was incorrect";
 $inputUsername = $_POST['username'];
 $inputPassword = $_POST['password'];
 
-$userQuery = "SELECT userID, password, username, feedID FROM users WHERE username = ? AND active = 1";
+$userQuery = "SELECT userID, password, username, userFeedID FROM users WHERE username = ? AND active = 1";
 
 if ($getUser = $conn->prepare($userQuery)) {
 	$getUser->bind_param('s', $inputUsername);

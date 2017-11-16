@@ -311,7 +311,7 @@ class SiteData {
     // Strip article of all other tags
     return $this->stripHTMLTags($finalContent);
   }
-  
+
   public function stripPunctuation($string) {
     $punctuation = ['?', ".", "!", ",", "-", '"', "&quot;", "]", "[", "(", ")", "'s", "&#x27;s"];
     // Replace dashes with spaces to separate words
@@ -323,7 +323,7 @@ class SiteData {
   public function stripHTMLTags($contents) {
     // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
     $contentNoScript = preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", " ", $contents);
-    // Remove Styling info 
+    // Remove Styling info
     $contentNoStyling = preg_replace("/<style\b[^>]*>(.*?)<\/style>/is", " ", $contentNoScript);
     // Remove html tags and formatting from the excerpt
     $contentNoHTML = preg_replace("#\<[^\>]+\>#", " ", $contentNoStyling);
@@ -470,7 +470,7 @@ class SiteData {
         array_push($outURLAuth, $tag);
       }
     }
-    // Remove any added duplicate values 
+    // Remove any added duplicate values
     $outURLAuth = array_unique($outURLAuth);
     // Check URL-Content intersection
     $outURLCont = array_intersect($content, $url);
@@ -480,7 +480,7 @@ class SiteData {
         array_push($outURLCont, $tag);
       }
     }
-    // Remove any added duplicate values 
+    // Remove any added duplicate values
     $outURLCont = array_unique($outURLCont);
     // Check URL-Title Intersection
     $outURLTitle = array_intersect($title, $url);
@@ -867,7 +867,7 @@ class SiteData {
       return $url;
     }
   }
-  
+
   public function getTitle($pageContents) {
     // Begin by checking meta tags for the title
     $linkTagSelection = explode("<meta",$pageContents);
@@ -943,11 +943,11 @@ class User {
     $this->feed = $userData['feedID']; // The user's personal Feed ID
     $this->getPerms($dbConn);
   }
-  
+
   public function getPerms($conn) {
     $this->permissions = []; // Reset the permissions array for refresh
     $getPerms = "SELECT permissionID, feedID FROM user_permissions WHERE userID = '$this->id'";
-    if ($result = $dbConn->query($getPerms)) {
+    if ($result = $conn->query($getPerms)) {
       while ($row = $result->fetch_array()) {
         $tempPerm = new Permission($row[0],$row[1]);
         array_push($this->permissions, $tempPerm);

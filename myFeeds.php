@@ -7,7 +7,7 @@
   <meta name="author" content="Adam Carnaffan">
   <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
 
-  <title>Intrigue View Beta 0.6</title>
+  <title>Intrigue View Beta 0.8</title>
 
   <!-- Bootstrap core CSS -->
   <link href="styling/bootstrap.min.css" rel="stylesheet">
@@ -79,3 +79,87 @@
     </ul>
   </div>
 </nav>
+
+
+<!-- Main album view -->
+<div class="container shortened">
+  <div class="searching">
+    <h3 class="filter-coloring move-heading">Filter Results
+      <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button>
+    </h3>
+    <div>
+      <h5 class="heading-inline filter-coloring vertical-centering">Search:</h5>
+      <input class="feed-source-input nav-input btn nav-search" id='search-input' type="text" placeholder="Article Search">
+      <button class='feed-source-input nav-input btn btn-outline-success-blue inline-button' id='search-button' onclick='beginSearch()'>Go</button>
+    </div>
+  </div>
+  <div class="tagging">
+    <h3 class="filter-coloring move-heading heading-inline">Tags
+    <button id='and-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>AND</button>
+    <button id='or-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>OR</button>
+    </h3>
+    <!-- TAGS POPULATED HERE -->
+    <div class="filter-coloring" id="tag-collection">
+    </div>
+  </div>
+</div>
+<!-- ALL ARTICLES GO HERE -->
+<div class="container no-top-offset" id='feed-content'>
+  <div class="col-12 col-md-12">
+    <div class="row" id="feed-view">
+    </div><!--/row-->
+  </div><!--/span-->
+</div>
+
+<!-- Bottom Bar -->
+<div class="navbar-dark navbar bg-dark">
+  <a class="fix-link-color nav-link" href="https://github.com/Thefaceofbo">By Adam Carnaffan<span class="sr-only">(current)</span></a>
+</div>
+</body>
+<!-- Scripting -->
+<script>
+// Define Variable display buttons
+var ReturnButton = "<div class='button-holder' id='return-button'><a class='return-button front' href='#' onclick='returnToTop()'><img class='return-button front' src='assets/returnToTop.png'></a></div>";
+var loadingCanvas = "<div id='loading'><canvas id='loading-dots' width='900' height='600'>Loading...</canvas></div>";
+// Instantiate necessary global variables
+var returnButtonIsDisplayed = false;
+var cooldown = 0.8;
+var entriesDisplayed = 0;
+var search = "";
+var queryTags = [];
+var display = true;
+var currentTagMode = 1; // Defined in a global scope to use in multiple functions
+// Toggle the AND selection
+$('#and-tag').toggleClass('toggle-button-class');
+// Make initial display
+queryEntries(51);
+getTags();
+
+$(document).ready( function () {
+  // Reset scroll before watching for scroll changes
+  $(this).scrollTop(0);
+  // Begin waiting for the scroll
+  $(window).scroll(function() {
+    // Load more entries
+    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150 && display == true) {
+      queryEntries(26, true);
+    }
+    // Display Settings for the Return to Top button
+    if ($(document).scrollTop() > 600 && returnButtonIsDisplayed == false) {
+      returnButtonIsDisplayed = true;
+      $(document.body).append(ReturnButton);
+    } else if ($(document).scrollTop() < 200) {
+      $('#return-button').remove();
+      returnButtonIsDisplayed = false;
+    }
+  });
+});
+// Allow the Search to begin on enter keypress
+$('#search-input').keypress(function(event) {
+  if (event.keyCode == 13) {
+    beginSearch();
+  }
+});
+</script>
+
+</html>
