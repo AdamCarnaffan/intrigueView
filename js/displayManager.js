@@ -127,7 +127,16 @@ function queryEntries(selection, scroll = false) {
       cooldown = 0.8;
       entriesDisplayed += selection;
     },
-    alert: "Success!"
+    error: function() {
+      // Remove the loading dots
+      $('#loading').remove();
+      clearInterval(intervalLoadId);
+      // Display the new data
+      $('#feed-view').append("<h5>An Error occured displaying the feed</h5>");
+      cooldown = 8;
+    },
+    alert: "Success!",
+    timeout: 10000 // 10 Second Timeout
   });
 }
 

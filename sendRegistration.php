@@ -16,9 +16,24 @@ function register($username, $password, $email) {
     echo "Your Username is too short";
     return;
   }
+  // Username may not be more than 20 Characters
+  if (strlen($username) > 20) {
+    echo "Your Username is too long";
+    return;
+  }
   // Username must not include any illegal characters
-  if (preg_match("~^[\p{P}]~", $username)) {
-    echo "The username may not include any punctuation";
+  if (preg_match("~[\p{P}<>[^_]]~", $username)) {
+    echo "Your Username may not include any punctuation";
+    return;
+  }
+  // Username must include a letter of the greek alphabet
+  if (!preg_match("~[A-Za-z]~", $username)) {
+    echo "Your Username must include a letter";
+    return;
+  }
+  // Username must BEGIN with a letter
+  if (!preg_match("~^[A-Za-z]~", $username)) {
+    echo "Your Username must begin with a letter";
     return;
   }
   // Password must be at least 8 characters
@@ -47,16 +62,19 @@ function register($username, $password, $email) {
   $email = $conn->real_escape_string($email);
 
   $submitUser = "CALL createUser('$username', '$hashedPass', '$email', @out_userID);
-                  SELECT @out_userID;";
+                  SELECT username, userFeedID, userID FROM users WHERE userID = @out_userID;";
 
   if ($conn->multi_query($submitUser)) {
     // Move to second line query (SELECT ID)
     $conn->next_result();
-    // Get ID
-    $userId = $conn->store_result()->fetch_row()[0];
+    // Get DataPackage for User Construction
+    $data = $conn->store_result()->fetch_row();
+    $dataPackage['id'] = $data[2];
+    $dataPackage['username'] = $data[0];
+    $dataPackage['feedID'] = $data[1];
     // Begin a session and insert user data
     include('fixSession.php');
-    $_SESSION['user'] = new User($userId, $conn, $username);
+    $_SESSION['user'] = new User($dataPackage, $conn);
     // Navigate to the home screen, now logged in
     echo "<script>window.location = 'index.php'</script>";
     return;

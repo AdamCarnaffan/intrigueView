@@ -73,21 +73,9 @@
           echo "</ul>";
           echo "</div>";
         } else {
-          echo '<button class="btn btn-outline-success-blue my-2 my-sm-0 separate" onclick="location.href=\'register.php\';">Register</button>';
-          echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href=\'login.php\';">Login</button>';
+          header('location: login.php');
         }
        ?>
     </ul>
   </div>
 </nav>
-
-<?php
-
-// Navigate away if the user is not logged in
-if ($user == null) {
-  header('location: login.php');
-} else {
-  echo "<h1>Sorry, we're not quite ready for you here yet " . $user->name . "</h1>";
-}
-
-?>

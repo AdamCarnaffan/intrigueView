@@ -5,12 +5,12 @@ DELIMITER //
 CREATE PROCEDURE createUser(IN username VARCHAR(255), IN hashPass TEXT, IN email TEXT, OUT userID INT)
 	BEGIN
     	INSERT INTO users (username, password, email) VALUES (username, hashPass, email);
-        SELECT LAST_INSERT_ID() INTO @userID FROM users LIMIT 1;
-        SELECT CONCAT(username, '\'s Feed') INTO @feedTitle;
-        CALL newFeed(@feedTitle, @userID, NULL, 0, 0, @feedID);
-				INSERT INTO user_permissions (userID, permissionID, feedID) VALUES (@userID, 2, @feedID);
-				INSERT INTO user_permissions (userID, permissionID, feedID) VALUES (@userID, 4, @feedID);
-        SET userID = @userID;
+        SELECT LAST_INSERT_ID() INTO @v_userID FROM users LIMIT 1;
+        SELECT CONCAT(username, '\'s Feed') INTO @v_feedTitle;
+        CALL newFeed(@v_feedTitle, @v_userID, NULL, 0, 0, @v_feedID);
+				UPDATE users SET userFeedID = @v_feedID WHERE users.userID = @v_userID;
+				INSERT INTO user_permissions (userID, permissionID, feedID) VALUES (@v_userID, 2, @v_feedID), (@v_userID, 4, @v_feedID);
+        SET userID = @v_userID;
     END//
 
 // PROCEDURE CALL

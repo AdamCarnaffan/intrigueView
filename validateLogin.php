@@ -6,7 +6,7 @@ $validationError = "The username or password entered was incorrect";
 $inputUsername = $_POST['username'];
 $inputPassword = $_POST['password'];
 
-$userQuery = "SELECT userID, password, username FROM users WHERE username = ? AND active = 1";
+$userQuery = "SELECT userID, password, username, feedID FROM users WHERE username = ? AND active = 1";
 
 if ($getUser = $conn->prepare($userQuery)) {
 	$getUser->bind_param('s', $inputUsername);
@@ -17,12 +17,13 @@ if ($getUser = $conn->prepare($userQuery)) {
 if ($getUser->execute()) {
   $row = $getUser->get_result()->fetch_array();
   if (count($row) > 0) {
-    $userId = $row[0];
+    $dataPackage['id'] = $row[0];
     $dbPass = $row[1];
-    $username = $row[2];
-    if (password_verify($inputPassword, $dbPass)) {
+    $dataPackage['username'] = $row[2];
+		$dataPackage['feedID'] = $row[3];
+     if (password_verify($inputPassword, $dbPass)) {
 			include('fixSession.php');
-      $_SESSION['user'] = new User($userId, $conn, $username);
+      $_SESSION['user'] = new User($dataPackage, $conn);
       echo "<script>window.location = 'index.php'</script>";
 			exit;
     } else {
