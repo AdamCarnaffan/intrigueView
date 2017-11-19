@@ -11,7 +11,7 @@ function beginSearch() {
   clearEntryDisplay();
   // Begin Search function
   search = $('#search-input').val();
-  queryEntries(51);
+  queryEntries(51, feedSelection);
   return false;
 }
 
@@ -91,19 +91,21 @@ function resetQueries() {
   queryTags = [];
   // Re-initialize the display
   clearEntryDisplay();
-  queryEntries(51)
+  queryEntries(51, feedSelection)
   getTags();
 }
 
-function queryEntries(selection, scroll = false) {
+function queryEntries(selection, feeds, scroll = false) {
   if (scroll) {
-    cooldown = 5
+    cooldown = true
   }
   // Display the loading dots
   $('#feed-view').append(loadingCanvas);
   var intervalLoadId = beginLoading();
   // Process Tag Query String
   var queryTagString = queryTags.join('+');
+  // Process the Feed List
+  var feedIDList = feeds.join('+');
   // Send the Query
   $.post({
     url: "fetchEntries.php",
@@ -112,7 +114,8 @@ function queryEntries(selection, scroll = false) {
       'currentDisplay': entriesDisplayed,
       'search': search,
       'tags': queryTagString,
-      'tagMode': currentTagMode
+      'tagMode': currentTagMode,
+      'feedsList': feedIDList
     },
     dataType: 'json',
     success: function (data) {
@@ -124,7 +127,7 @@ function queryEntries(selection, scroll = false) {
       if (data.isFull == 'false') {
         display = false;
       }
-      cooldown = 0.8;
+      cooldown = false;
       entriesDisplayed += selection;
     },
     error: function() {
@@ -133,7 +136,7 @@ function queryEntries(selection, scroll = false) {
       clearInterval(intervalLoadId);
       // Display the new data
       $('#feed-view').append("<h5>An Error occured displaying the feed</h5>");
-      cooldown = 8;
+      cooldown = true;
     },
     alert: "Success!",
     timeout: 10000 // 10 Second Timeout
@@ -159,7 +162,7 @@ function addTag(tagID) {
   queryTags.push(tagID);
   getTags();
   clearEntryDisplay();
-  queryEntries(51);
+  queryEntries(51, feedSelection);
   return false;
 }
 
@@ -169,7 +172,7 @@ function removeTag(tagID) {
   queryTags.splice(index, 1);
   getTags();
   clearEntryDisplay();
-  queryEntries(51);
+  queryEntries(51, feedSelection);
   return false;
 }
 
@@ -203,6 +206,36 @@ function changeTagMode() {
   }
   if (queryTags.length > 0) {
     clearEntryDisplay();
-    queryEntries(51);
+    queryEntries(51, feedSelection);
   }
+}
+
+function setActiveFeed(myFeedMode, clickedButtonObject) {
+  // Set the active feed if it differs, then complete a new query
+  toggleFeedButton(clickedButtonObject);
+}
+
+function toggleFeedButton(thisButton) {
+  $('#feed-selectors').children('div').each(function() {
+    if ($(this).find('button').hasClass('toggle-button-class')) {
+      $(this).find('button').toggleClass('toggle-button-class');
+    }
+  });
+  $(thisButton).toggleClass('toggle-button-class');
+}
+
+function saveEntry(thisLink, entryID) {
+  $.post({
+    url: 'connectEntry.php',
+    data: {
+      'entryID': entryID
+    },
+    success: function() {
+      $(thisLink).replaceWith("<div class='context-display'><span class='fa fa-check fa-context-style-added'></span></div>");
+    },
+    error: function() {
+      console.log("An error has occured");
+    }
+  });
+  return false;
 }

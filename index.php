@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php 
+require('objectConstruction.php');
+include('fixSession.php');
+$user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
+?>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -12,6 +17,8 @@
   <!-- Bootstrap core CSS -->
   <link href="styling/bootstrap.min.css" rel="stylesheet">
   <link href="styling/bootstrap-grid.css" rel="stylesheet">
+  <!-- Iconography CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <!-- Custom styles -->
   <link href="styling/custom-styles.css" rel="stylesheet">
   <!-- Javascript -->
@@ -33,9 +40,9 @@
       <li class="nav-item active">
         <a class="nav-link" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item active">
+      <!-- <li class="nav-item active">
         <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browser.php">Browse<span class="sr-only">(current)</span></a>
-      </li>
+      </li> -->
       <?php 
       if (isset($user)) {
         echo '<li class="nav-item active">
@@ -57,9 +64,6 @@
     </ul>
     <ul class="navbar-nav">
       <?php
-        require('objectConstruction.php');
-        include('fixSession.php');
-        $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
         // Change the User display based on a logged in user
         if (isset($user)) {
           echo "<div class='dropdown'>";
@@ -138,11 +142,12 @@ var entriesDisplayed = 0;
 var search = "";
 var queryTags = [];
 var display = true;
+var feedSelection = [23];
 var currentTagMode = 1; // Defined in a global scope to use in multiple functions
 // Toggle the AND selection
 $('#and-tag').toggleClass('toggle-button-class');
 // Make initial display
-queryEntries(51);
+queryEntries(51, feedSelection, true);
 getTags();
 
 $(document).ready( function () {
@@ -152,7 +157,7 @@ $(document).ready( function () {
   $(window).scroll(function() {
     // Load more entries
     if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150 && display == true) {
-      queryEntries(26, true);
+      queryEntries(26, feedSelection, true);
     }
     // Display Settings for the Return to Top button
     if ($(document).scrollTop() > 600 && returnButtonIsDisplayed == false) {

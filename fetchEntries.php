@@ -7,14 +7,17 @@ require('objectConstruction.php');
 // $_POST['tags'] = [];
 // $_POST['tagMode'] = 0;
 // $_POST['search'] = "";
+// $_POST['feedsList'] = "23";
+$_POST['context'] = "public";
 
 // Take Inputs from the specific call
-$selectedFeed = 2; // Currently Set to display Thompson's pocket in Featured
+$selectedFeed = str_replace('+', ',', $_POST['feedsList']); // Currently Set to display Thompson's pocket in Featured
 $selectionLimit = $_POST['selection'];
 $selectionOffset = $_POST['currentDisplay'];
 $searchKey = (isset($_POST['search']) && strlen($_POST['search']) > 0) ? $_POST['search'] : null;
 $queryTags = $_POST['tags'];
 $tagMode = $_POST['tagMode'];
+$context = $_POST['context'];
 
 // Set default values
 $entryDisplayNumber = 1; // The slot for page display in a given set
@@ -78,11 +81,24 @@ SELECT entries.entryID, entries.title, entries.url, entries.datePublished, entri
          AND SUM(CASE WHEN tags.tagID = 2 THEN 1 ELSE 0 END) = 1
          AND SUM(CASE WHEN tags.tagID = 3 THEN 1 ELSE 0 END) = 1
 */
-
+// Get Feed IDs of the origin feeds
+$getFeeds = "SELECT sourceFeed FROM feed_connections WHERE internalFeed IN('$selectedFeed')";
+$feedsListReturn = $conn->query($getFeeds);
+// Break down the feed selection list
+$selectedFeedArray = explode(',', $selectedFeed);
+// add to the list
+while ($row = $feedsListReturn->fetch_array()) {
+  // Add all connected feeds to the selection list
+  array_push($selectedFeedArray, $row[0]);
+}
+// Make sure the array does not have any duplicates
+array_unique($selectedFeedArray);
+// Consolidate the array for query
+$selectedFeedList = implode("','", $selectedFeedArray);
 // When changing the query, remember to adjust object
-$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon, entries.entryID, entries.visible, conn.feedID FROM entries
+$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon, entries.entryID, entries.visible, entryConn.feedID FROM entries
 	               JOIN sites ON entries.siteID = sites.siteID
-                 JOIN entry_connections AS conn ON entries.entryID = conn.entryID
+                 JOIN entry_connections AS Entryconn ON entries.entryID = Entryconn.entryID
                  LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
                  LEFT JOIN tags ON tagConn.tagID = tags.tagID";
 // Adjust the query if a search is present
@@ -123,14 +139,15 @@ if (!$addedTag) {
 
 // Finish the query
 
-$getEntries .= "entries.visible = 1 AND conn.feedID = '$selectedFeed'
-                ORDER BY entries.datePublished DESC, entries.entryID ASC
+$getEntries .= "entries.visible = 1 AND 
+                SUM(CASE WHEN entryConn.feedID IN('$selectedFeedList') THEN 1 ELSE 0 END) > 0
+                ORDER BY entryConn.dateConnected DESC, entries.entryID ASC
                 LIMIT $selectionLimit OFFSET $selectionOffset";
 // Prepare and query
 $entriesFound = false;
 $display = [];
 $entries = $conn->query($getEntries);
-echo $conn->error;
+//echo $conn->error;
 while ($row = $entries->fetch_array()) {
   $entryIDVal = $row[8];
   $getTags = "SELECT tagConn.entryID, tags.tagNAME, tags.tagID FROM entry_tags AS tagConn
@@ -138,16 +155,16 @@ while ($row = $entries->fetch_array()) {
               WHERE tagConn.entryID = '$entryIDVal'
               ORDER BY sortORDER LIMIT 4"; // Only get the first 4 tags for the entry
   $tags = $conn->query($getTags);
-  $entry = new Entry($row, $tags);
+  $entry = new Entry($row, $tags, $context);
   $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
   array_push($display, $tempTile);
   $entryDisplayNumber++;
   $entriesFound = true;
 }
 if (!$entriesFound && ($search == true || $tagged == true)) {
-  array_push($display, "<h2>No Entries were found matching the provided parameters.</h2>");
+  array_push($display, "<h4>No Entries were found matching the provided parameters.</h4>");
 } elseif (!$entriesFound) {
-  array_push($display, "<h2>This Feed does not have any entries yet.</h2>");
+  array_push($display, "<h4>This Feed does not have any entries yet. Check out the <a href='feedBuilder.php'>Feed Builder</a> to find out how to add your own!</h4>");
 }
 $finalDisplay = implode($display);
 $fullQuery = ($entryDisplayNumber-1 == $selectionLimit) ? 'true' : 'false';

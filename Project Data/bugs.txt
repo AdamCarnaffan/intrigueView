@@ -8,7 +8,10 @@ No Feeds are displayed if permission for editing feeds is not ALL
     This issue also exists with Entries
 
 Entries Management needs pagination
+
 Not all pages or functions support error logging
+
+Search not working for tags
 
 'No entries found' displayed for a second query where the first was not filled
 

@@ -33,9 +33,9 @@
       <li class="nav-item active">
         <a class="nav-link" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item active">
+      <!-- <li class="nav-item active">
         <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="index.php">Browse<span class="sr-only">(current)</span></a>
-      </li>
+      </li> -->
       <li class="nav-item active">
         <a class="nav-link" title="See Your Personalized Feed Selection" href="myFeeds.php">My Feeds<span class="sr-only">(current)</span></a>
       </li>
@@ -82,7 +82,25 @@
 
 
 <!-- Main album view -->
-<div class="container shortened">
+<div class="container subscriptions-view" id="feed-selectors">
+  <div class="first-button feeds-button-container">
+    <button id='default-active-feed' class="feed-button btn btn-outline-success-blue toggle-button-class" onclick="setActiveFeed('All', this)">All</button>
+  </div>
+  <div class="feeds-button-container">
+    <button class="feed-button btn btn-outline-success-blue" onclick="setActiveFeed('Saved', this)">Saved</button>
+  </div>
+  <div class="feeds-button-container">
+    <button class="feed-button btn btn-outline-success-blue" onclick="setActiveFeed('Sub', this)">Subscriptions</button>
+  </div>
+  <div class="feeds-button-container">
+    <button class="feed-button btn btn-outline-success-blue" onclick="setActiveFeed('Faves', this)">Favourites</button>
+  </div>
+  <div class="feeds-button-container">
+    <button class="feed-button btn btn-outline-success-blue" onclick="setActiveFeed('Cat', this)">Categories</button>
+  </div>
+</div>
+
+<div class="container shortened">  
   <div class="searching">
     <h3 class="filter-coloring move-heading">Filter Results
       <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button>
@@ -128,11 +146,13 @@ var entriesDisplayed = 0;
 var search = "";
 var queryTags = [];
 var display = true;
+var feedSelection = [<?php echo $user->feed; ?>];
 var currentTagMode = 1; // Defined in a global scope to use in multiple functions
 // Toggle the AND selection
 $('#and-tag').toggleClass('toggle-button-class');
 // Make initial display
-queryEntries(51);
+setActiveFeed('All', $('#default-active-feed'));
+queryEntries(51, feedSelection, true);
 getTags();
 
 $(document).ready( function () {
@@ -142,7 +162,7 @@ $(document).ready( function () {
   $(window).scroll(function() {
     // Load more entries
     if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150 && display == true) {
-      queryEntries(26, true);
+      queryEntries(26, feedSelection, true);
     }
     // Display Settings for the Return to Top button
     if ($(document).scrollTop() > 600 && returnButtonIsDisplayed == false) {

@@ -10,6 +10,7 @@ CREATE PROCEDURE createUser(IN username VARCHAR(255), IN hashPass TEXT, IN email
         CALL newFeed(@v_feedTitle, @v_userID, NULL, 0, 0, @v_feedID);
 				UPDATE users SET userFeedID = @v_feedID WHERE users.userID = @v_userID;
 				INSERT INTO user_permissions (userID, permissionID, feedID) VALUES (@v_userID, 2, @v_feedID), (@v_userID, 4, @v_feedID);
+				INSERT INTO user_subscriptions (userID, internalFeedID) VALUES (@v_userID, @v_feedID);
         SET userID = @v_userID;
     END//
 

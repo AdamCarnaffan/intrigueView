@@ -3,6 +3,7 @@
 class Entry {
 
   public $feedName;
+  public $id;
   public $title;
   public $url;
   public $image;
@@ -10,9 +11,10 @@ class Entry {
   public $siteURL;
   public $siteIcon;
   public $entryDisplaySize;
+  public $contextMenu;
   public $tags = [];
 
-  public function __construct($dataArray, $dataTags) {
+  public function __construct($dataArray, $dataTags, $displayContext) {
     // Get all data from the Query. Indexes are based on position in the query
     // $this->feedName = $dataArray[0];
     $this->title = $dataArray[0];
@@ -22,9 +24,15 @@ class Entry {
     $this->isFeatured = ($dataArray[5] == 1) ? true : false; // Create a boolean based on the data table output. This boolean decides highlighting
     $this->siteURL = $dataArray[6];
     $this->siteIcon = $dataArray[7];
+    $this->id = $dataArray[8];
     // Build the tags array
     while ($row = $dataTags->fetch_array()) {
       $this->tags[$row[2]] = $row[1];
+    }
+    if ($displayContext == "Saved") {
+      $this->contextMenu = "X FOR REMOVING";
+    } else {
+      $this->contextMenu = "<a href='#' class='context-display' onclick='return saveEntry(this, " . $this->id . ")'><span class='fa fa-plus fa-context-style'></span></a>";
     }
   }
 
@@ -77,7 +85,7 @@ class Entry {
       $tile .= '<div class="image-container"><img class="image fill-size" src="assets/tileFill.png"/></div>';
     }
     // Add Site Stats
-    $tile .= '<div class="entry-stats"><p class="site-info">';
+    $tile .= '<div class="entry-stats">';
     // Site Icon
     if ($this->siteIcon != null) { // Handle cases where site icons haven't fetched properly or don't exist
       $tile .= '<img src="' . $this->siteIcon . '" class="site-icon"/>';
@@ -86,9 +94,11 @@ class Entry {
     $linkedURL = "http://" . $this->siteURL;
     $tile .= '<a class="site-info-url" href="' . $linkedURL . '">';
     // Site URL (visual)
-    $tile .= $this->siteURL;
+    $tile .= $this->siteURL . '</a>';
+    // Context Display
+    $tile .= $this->contextMenu;
     // Close all required tags
-    $tile .= '</a></p></div></div></div>';
+    $tile .= '</div></div></div>';
     return $tile;
   }
 
@@ -936,12 +946,15 @@ class User {
   public $id;
   public $name;
   public $permissions = [];
+  public $feed;
+  public $subscriptions;
 
   public function __construct($userData, $dbConn) {
     $this->id = $userData['id'];
     $this->name = $userData['username'];
     $this->feed = $userData['feedID']; // The user's personal Feed ID
     $this->getPerms($dbConn);
+    $this->getSubs($dbConn);
   }
 
   public function getPerms($conn) {
@@ -952,6 +965,21 @@ class User {
         $tempPerm = new Permission($row[0],$row[1]);
         array_push($this->permissions, $tempPerm);
       }
+    }
+  }
+  
+  public function getSubs($conn) {
+    $this->subscriptions = []; // Reset the subscriptions available in myFeed
+    $getComps = "SELECT internalFeedID FROM user_subscriptions WHERE userID = '$this->id'";
+    if ($result = $conn->query($getComps)) {
+      while ($row = $result->fetch_array()) {
+        // Push all subscriptions to an array
+        array_push($this->subscriptions, $row[0]);
+      }
+      // Remove the user's Feed from subscriptions
+      $userFeedIndex = array_search($this->feed, $this->subscriptions);
+      unset($this->subscriptions[$userFeedIndex]);
+      $this->subscriptions = array_values($this->subscriptions);
     }
   }
 

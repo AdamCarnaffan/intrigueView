@@ -68,12 +68,14 @@
   height: 2rem;
   bottom: 0;
   right: 0;
+  display: inline-flex;
 }
 .site-icon {
-  vertical-align: middle;
-  padding-left: 0.8rem;
+  padding-left: 0.2rem;
   height: 1.125rem;
-  width: 1.925rem;
+  width: 1.3rem;
+  align-self: center;
+  display: inline-flex;
 }
 .site-info {
   color: black;
@@ -87,7 +89,8 @@
   position: relative;
   z-index: 2;
   color: inherit;
-  line-height: 2rem;
+  display: inline-flex;
+  align-self: center;
 }
 .entry-tile {
   border: 1px solid rgba(210,210,210,0.4);
@@ -392,6 +395,7 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   z-index: 2;
   color: black;
   text-decoration: underline;
+  margin-left: 0.15rem;
 }
 .filter-coloring {
   color: #fff;
@@ -443,4 +447,53 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
 }
 .feed-tile {
   
+}
+.subscriptions-view {
+  min-height: 3.5rem !important;
+  max-height: 3.5rem;
+  overflow-y: hidden;
+}
+.feeds-button-container {
+  width: 15%;
+  height: 2.6rem;
+  margin-right: 4%;
+  position: relative;
+  display: inline-flex;
+}
+.first-button {
+  margin-left: 2.9%;
+}
+.feed-button {
+  font-size: 1.6rem;
+  width: 100%;
+  border-radius: 20px;
+  line-height: 0px !important;
+}
+.context-display {
+  height: 2rem;
+  width: 2rem;
+  display: inline-flex;
+  margin-left: auto;
+  margin-right: -0.4rem;
+}
+.context-display:hover {
+  text-decoration: none;
+}
+.fa-context-style {
+  font-size: 1.5rem;
+  display: inline-flex;
+  align-self: center;
+  z-index: 2;
+  color: #afafaf;
+}
+.fa-context-style:hover {
+  text-decoration: none;
+  color: #2888a7;
+}
+.fa-context-style-added {
+  font-size: 1.5rem;
+  display: inline-flex;
+  align-self: center;
+  z-index: 2;
+  color: #2888a7 !important;
 }
