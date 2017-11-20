@@ -104,6 +104,53 @@ class Entry {
 
 }
 
+class FeedDisplay {
+  
+  public $name;
+  public $id;
+  public $size;
+  public $updateRate;
+  public $description;
+  public $imagePath;
+  public $author;
+  public $categories = [];
+  
+  public function __construct($dataPackage, $dbConn) {
+    
+    $this->getCategories($dbConn);
+  }
+  
+  public function getCategories($dbConn) {
+    
+  }
+  
+  public function generateTile() {
+    /* EXAMPLE
+    <div class='feed-tile'>
+      <div class='feed-tile-image-container'>
+        <img class='feed-tile-image' src='https://beebom-redkapmedia.netdna-ssl.com/wp-content/uploads/2016/01/Reverse-Image-Search-Engines-Apps-And-Its-Uses-2016.jpg'>
+      </div>
+      <div class='feed-tile-info'>
+        <a href="viewFeed.php?feedID=2" onclick='return selectFeed(2)' class='hover-detect'><span class='entry-url'></span></a>
+        <h4 class='feed-tile-title'>This is the name of the feed</h4>
+        <p class='feed-tile-desc'>This is the feed descrption, it's kinda long and whatever, but ya know....</p>
+        <div class='feed-tile-footer'>
+          <b>Categories: </b>
+          <a class='tag' href='#' onclick='return false'>Cat1</a>
+          <a class='tag' href='#' onclick='return false'>Cat2</a>
+          <a class='tag' href='#' onclick='return false'>Cat3</a>
+          <a class='context-display' href='#' onclick='return false'><span class='fa fa-plus fa-context-style'></span></a>
+        </div>
+      </div>
+    </div>
+    */
+    $tile = "<div class='feed-tile'>";
+    
+    return $tile;
+  }
+  
+}
+
 class PotentialTag {
   public $tag;
   public $frequency;

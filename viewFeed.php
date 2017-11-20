@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php 
+require('objectConstruction.php');
+include('fixSession.php');
+$user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
+?>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -7,11 +12,13 @@
   <meta name="author" content="Adam Carnaffan">
   <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
 
-  <title>Intrigue View Beta 0.8</title>
+  <title>Intrigue View Beta 0.7</title>
 
   <!-- Bootstrap core CSS -->
   <link href="styling/bootstrap.min.css" rel="stylesheet">
   <link href="styling/bootstrap-grid.css" rel="stylesheet">
+  <!-- Iconography CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <!-- Custom styles -->
   <link href="styling/custom-styles.css" rel="stylesheet">
   <!-- Javascript -->
@@ -34,22 +41,29 @@
         <a class="nav-link" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
       </li>
       <!-- <li class="nav-item active">
-        <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="index.php">Browse<span class="sr-only">(current)</span></a>
+        <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browser.php">Browse<span class="sr-only">(current)</span></a>
       </li> -->
-      <li class="nav-item active">
-        <a class="nav-link" title="See Your Personalized Feed Selection" href="myFeeds.php">My Feeds<span class="sr-only">(current)</span></a>
-      </li>
+      <?php 
+      if (isset($user)) {
+        echo '<li class="nav-item active">
+          <a class="nav-link" title="See Your Personalized Feed Selection" href="myFeeds.php">My Feeds<span class="sr-only">(current)</span></a>
+        </li>';
+      }
+      ?>
       <li class="nav-item active">
         <a class="nav-link" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=0')">Export RSS<span class="sr-only">(current)</span></a>
       </li>
     </ul>
     <ul class="navbar-nav mr-auto fix-ul">
+      <!-- <li class="nav-item active fix-li">
+        <input class="feed-source-input nav-input nav-link btn nav-search" id='search-input' type="text" placeholder="Article Search">
+      </li>
+      <li class='nav-item active fix-li'>
+        <button class='feed-source-input nav-input nav-link btn btn-outline-success-blue inline-button fix-mobile' id='search-button' onclick='beginSearch()'>Go</button><!-- ADD ICON -->
+      <!--</li>-->
     </ul>
     <ul class="navbar-nav">
       <?php
-        require('objectConstruction.php');
-        include('fixSession.php');
-        $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
         // Change the User display based on a logged in user
         if (isset($user)) {
           echo "<div class='dropdown'>";
@@ -64,7 +78,7 @@
           foreach ($user->permissions as $perm) {
             if ($perm->permissionId == 8) {
               echo '<li class="divider"></li>';
-              echo '<li display="block"><a class="move-right dropdown-link" href="admin/">Administration</a></li>';
+              echo '<li display="block"><a class="move-right dropdown-link" href="admin/splash.php">Administration</a></li>';
               break;
             }
           }
@@ -73,34 +87,16 @@
           echo "</ul>";
           echo "</div>";
         } else {
-          header('location: login.php');
+          echo '<button class="btn btn-outline-success-blue my-2 my-sm-0 separate" onclick="location.href=\'register.php\';">Register</button>';
+          echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href=\'login.php\';">Login</button>';
         }
        ?>
     </ul>
   </div>
 </nav>
 
-
 <!-- Main album view -->
-<div class="container subscriptions-view" id="feed-selectors">
-  <div class="first-button feeds-button-container">
-    <button id='default-active-feed' class="feed-button btn btn-outline-success-blue toggle-button-class" onclick="setActiveFeed('Comps', this)">Compilations</button>
-  </div>
-  <div class="feeds-button-container">
-    <button class="feed-button btn btn-outline-success-blue" onclick="setActiveFeed('Saved', this)">Saved</button>
-  </div>
-  <div class="feeds-button-container">
-    <button class="feed-button btn btn-outline-success-blue" onclick="setActiveFeed('Sub', this)">Subscriptions</button>
-  </div>
-  <div class="feeds-button-container">
-    <button class="feed-button btn btn-outline-success-blue" onclick="setActiveFeed('Faves', this)">Favourites</button>
-  </div>
-  <div class="feeds-button-container">
-    <button class="feed-button btn btn-outline-success-blue" onclick="setActiveFeed('Cat', this)">Categories</button>
-  </div>
-</div>
-
-<div class="container shortened">  
+<div class="container shortened">
   <div class="searching">
     <h3 class="filter-coloring move-heading">Filter Results
       <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button>
@@ -146,20 +142,11 @@ var entriesDisplayed = 0;
 var search = "";
 var queryTags = [];
 var display = true;
+var feedSelection = [<?php echo $_GET['feedID'] ?>];
 var currentTagMode = 1; // Defined in a global scope to use in multiple functions
-// Define different feed selections
-var feedSelection = [<?php echo $user->feed; ?>]; // Default feed selection is the user's feed
-var selectionOptions = {
-  comps: 4,
-  saved: <?php echo $user->feed ?>,
-  subs: 4, // This is all of the sub-feeds connected to the compilations
-  favs: 4, // This is the current feed, though only where isFavourite = 1
-  cats: 4 // This is a list of categories for the sub-feeds. All related sub-feeds are displayed
-};
 // Toggle the AND selection
 $('#and-tag').toggleClass('toggle-button-class');
 // Make initial display
-setActiveFeed('All', $('#default-active-feed'));
 queryEntries(51, feedSelection, true);
 getTags();
 
@@ -189,5 +176,32 @@ $('#search-input').keypress(function(event) {
   }
 });
 </script>
-
 </html>
+
+<!--
+<div class="container">
+  <div class="jumbotron">
+    <h1>Navbar example</h1>
+    <p class="lead">This example is a quick exercise to illustrate how the top-aligned navbar works. As you scroll, this navbar remains in its original position and moves with the rest of the page.</p>
+  </div>
+</div>
+
+<div class="col-6 col-lg-3 tile-wrapper">
+  <div class="feed-tile">
+    <a href="http://google.ca" class="hover-detect"><span class="entry-url"></span></a>
+    <h4 class="entry-heading">Article Heading</h4>
+    <div class="image"><img src="https://hbr.org/resources/images/article_assets/2017/09/sept17-14-668999778.jpg"/></div>
+    <div class="entry-stats">
+      <p class="site-info">
+        <img src="http://jsfiddle.net/favicon.png" class="site-icon"/>
+        <a class="site-info-url" href="https://getpocket.com/a/queue/">google.ca</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<form class="form-inline mt-2 mt-md-0">
+  <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+  <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+</form>
+-->

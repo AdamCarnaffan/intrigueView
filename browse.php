@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php 
+require('objectConstruction.php');
+include('fixSession.php');
+$user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
+?>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -7,11 +12,13 @@
   <meta name="author" content="Adam Carnaffan">
   <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
 
-  <title>Intrigue View Beta 0.6</title>
+  <title>Intrigue View Beta 0.7</title>
 
   <!-- Bootstrap core CSS -->
   <link href="styling/bootstrap.min.css" rel="stylesheet">
   <link href="styling/bootstrap-grid.css" rel="stylesheet">
+  <!-- Iconography CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <!-- Custom styles -->
   <link href="styling/custom-styles.css" rel="stylesheet">
   <!-- Javascript -->
@@ -33,9 +40,9 @@
       <li class="nav-item active">
         <a class="nav-link" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item active">
+      <!-- <li class="nav-item active">
         <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browser.php">Browse<span class="sr-only">(current)</span></a>
-      </li>
+      </li> -->
       <?php 
       if (isset($user)) {
         echo '<li class="nav-item active">
@@ -48,18 +55,15 @@
       </li>
     </ul>
     <ul class="navbar-nav mr-auto fix-ul">
-      <li class="nav-item active fix-li">
-        <input class="feed-source-input nav-input nav-link btn nav-search" id='search-input' type="text" placeholder="Feed Search">
+      <!-- <li class="nav-item active fix-li">
+        <input class="feed-source-input nav-input nav-link btn nav-search" id='search-input' type="text" placeholder="Article Search">
       </li>
       <li class='nav-item active fix-li'>
-        <button class='feed-source-input nav-input btn btn-outline-success-blue inline-button fix-nav-button' id='search-button' onclick='beginSearch()'>Go</button><!-- ADD ICON -->
-      </li>
+        <button class='feed-source-input nav-input nav-link btn btn-outline-success-blue inline-button fix-mobile' id='search-button' onclick='beginSearch()'>Go</button><!-- ADD ICON -->
+      <!--</li>-->
     </ul>
     <ul class="navbar-nav">
       <?php
-        require('objectConstruction.php');
-        include('fixSession.php');
-        $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
         // Change the User display based on a logged in user
         if (isset($user)) {
           echo "<div class='dropdown'>";
@@ -92,31 +96,31 @@
 </nav>
 
 <!-- Main album view -->
-<!-- <div class="container shortened">
-  <div class="searching">
-    <h3 class="filter-coloring move-heading">Filter Results
-      <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button>
-    </h3>
-    <div>
-      <h5 class="heading-inline filter-coloring vertical-centering">Search:</h5>
-      <input class="feed-source-input nav-input btn nav-search" id='search-input' type="text" placeholder="Article Search">
-      <button class='feed-source-input nav-input btn btn-outline-success-blue inline-button' id='search-button' onclick='beginSearch()'>Go</button>
-    </div>
-  </div>
-    <div class="tagging">
-    <h3 class="filter-coloring move-heading heading-inline">Tags
-    <button id='and-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>AND</button>
-    <button id='or-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>OR</button>
-    </h3>
-    <div class="filter-coloring" id="tag-collection">
-    </div>
-  </div>
-</div> -->
 <!-- ALL ARTICLES GO HERE -->
-<div class="container" id='feed-content'>
-  <div class="col-12 col-md-12">
+<div class="container no-top-offset" id='feed-content'>
+  <div class="col-12 col-md-12" id="content-display">
     <div class="row" id="feed-view">
-    </div><!--/row-->
+      <h3 class='feed-tile-align'>Browse Feeds to Find Content of Interest</h3>
+      
+      <div class='feed-tile'>
+        <div class='feed-tile-image-container'>
+          <img class='feed-tile-image' src='https://beebom-redkapmedia.netdna-ssl.com/wp-content/uploads/2016/01/Reverse-Image-Search-Engines-Apps-And-Its-Uses-2016.jpg'>
+        </div>
+        <div class='feed-tile-info'>
+          <a href="viewFeed.php?feedID=2" onclick='return selectFeed(2)' class='hover-detect'><span class='entry-url'></span></a>
+          <h4 class='feed-tile-title'>This is the name of the feed</h4>
+          <p class='feed-tile-desc'>This is the feed descrption, it's kinda long and whatever, but ya know....</p>
+          <div class='feed-tile-footer'>
+            <b>Categories: </b>
+            <a class='tag' href='#' onclick='return false'>Cat1</a>
+            <a class='tag' href='#' onclick='return false'>Cat2</a>
+            <a class='tag' href='#' onclick='return false'>Cat3</a>
+            <a class='context-display' href='#' onclick='return false'><span class='fa fa-plus fa-context-style'></span></a>
+          </div>
+        </div>
+      </div>
+      
+    </div>
   </div><!--/span-->
 </div>
 
@@ -125,4 +129,26 @@
   <a class="fix-link-color nav-link" href="https://github.com/Thefaceofbo">By Adam Carnaffan<span class="sr-only">(current)</span></a>
 </div>
 </body>
+<!-- Scripting -->
+<script>
+// Define Variable display buttons
+var ReturnButton = "<div class='button-holder' id='return-button'><a class='return-button front' href='#' onclick='returnToTop()'><img class='return-button front' src='assets/returnToTop.png'></a></div>";
+var loadingCanvas = "<div id='loading'><canvas id='loading-dots' width='900' height='600'>Loading...</canvas></div>";
+// Instantiate necessary global variables
+var returnButtonIsDisplayed = false;
+var cooldown = 0.8;
+var entriesDisplayed = 0;
+var search = "";
+var queryTags = [];
+var display = true;
+var feedSelection = [];
+var currentTagMode = 1; // Defined in a global scope to use in multiple functions
+
+if (feedSelection.length < 1) {
+  //queryFeeds();
+} else {
+  queryEntries(51, feedSelection, true);
+}
+
+</script>
 </html>

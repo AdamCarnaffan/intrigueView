@@ -294,6 +294,9 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   .hover-detect:hover + .entry-heading {
     color: #2888a7;
   }
+  .hover-detect:hover + .feed-tile-title {
+    color: #2888a7 !important;
+  }
   .fix-link-color:hover {
     color: rgba(255,255,255,.5);
   }
@@ -445,9 +448,6 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
 .fix-nav-button {
   margin-left: -2rem;
 }
-.feed-tile {
-  
-}
 .subscriptions-view {
   min-height: 3.5rem !important;
   max-height: 3.5rem;
@@ -496,4 +496,56 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   align-self: center;
   z-index: 2;
   color: #2888a7 !important;
+}
+.feed-tile {
+  margin-left: 20%;
+  width: 60%;
+  display: inline-flex;
+  height: 10rem;
+  position: relative;
+  border: 1px solid rgba(210,210,210,0.4);
+  background-color: #fafdf5;
+  box-shadow: 0.05rem 0.05rem rgba(128,128,128,0.35);
+}
+.feed-tile-image-container {
+  height: 10rem;
+  width: 10rem;
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(0,0,0,0.9);
+}
+.feed-tile-image {
+  height: 100%;
+  width: auto;
+  position: absolute;
+  display: block;
+  margin: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.feed-tile-title {
+  margin-left: 0.8rem;
+  margin-top: 0.3rem;
+}
+.feed-tile-desc {
+  margin-left: 0.8rem;
+  flex-grow: 10
+}
+.feed-tile-info {
+  display: inline-flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  flex-grow: 100;
+}
+.feed-tile-align {
+  margin-left: 26%;
+}
+.feed-tile-footer {
+  display: inline-flex;
+  min-height: 1.5rem;
+  align-items: center;
+  display: inline-flex;
+  text-align: center;
+  margin-left: 0.8rem;
+  margin-bottom: 0.1rem;
 }

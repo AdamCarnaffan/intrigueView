@@ -73,7 +73,7 @@ function beginLoading() { // Display a loading bar in the generated Canvas
 
 function resizeCanvas() {
     canvas = document.getElementById('loading-dots');
-    canvas.width = document.getElementById('feed-content').offsetWidth;
+    canvas.width = document.getElementById('feed-view').offsetWidth;
     canvas.height = canvas.width*0.3;
 }
 
@@ -93,6 +93,12 @@ function resetQueries() {
   clearEntryDisplay();
   queryEntries(51, feedSelection)
   getTags();
+}
+
+function queryFeeds(categoryID = 0) {
+  // Display the loading dots
+  $('#feed-view').append(loadingCanvas);
+  var intervalLoadId = beginLoading();
 }
 
 function queryEntries(selection, feeds, scroll = false) {
@@ -212,6 +218,7 @@ function changeTagMode() {
 
 function setActiveFeed(myFeedMode, clickedButtonObject) {
   // Set the active feed if it differs, then complete a new query
+  
   toggleFeedButton(clickedButtonObject);
 }
 
