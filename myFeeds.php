@@ -82,7 +82,7 @@
 
 
 <!-- Main album view -->
-<div class="container subscriptions-view" id="feed-selectors">
+<!-- <div class="container subscriptions-view" id="feed-selectors">
   <div class="first-button feeds-button-container">
     <button id='default-active-feed' class="feed-button btn btn-outline-success-blue toggle-button-class" onclick="setActiveFeed('Comps', this)">Compilations</button>
   </div>
@@ -98,9 +98,9 @@
   <div class="feeds-button-container">
     <button class="feed-button btn btn-outline-success-blue" onclick="setActiveFeed('Cat', this)">Categories</button>
   </div>
-</div>
+</div> -->
 
-<div class="container shortened">  
+<div class="container shortened">
   <div class="searching">
     <h3 class="filter-coloring move-heading">Filter Results
       <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button>

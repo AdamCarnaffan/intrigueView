@@ -99,6 +99,22 @@ function queryFeeds(categoryID = 0) {
   // Display the loading dots
   $('#feed-view').append(loadingCanvas);
   var intervalLoadId = beginLoading();
+  // Send the Query
+  $.post({
+    url: 'fetchFeeds.php',
+    data: {
+      'page': 1
+    },
+    success: function(data) {
+      // Remove the loading dots
+      $('#loading').remove();
+      clearInterval(intervalLoadId);
+      $('#feed-view').append(data);
+    },
+    error: function() {
+      console.log('An error has occured loading the feeds');
+    }
+  });
 }
 
 function queryEntries(selection, feeds, scroll = false) {
@@ -218,7 +234,7 @@ function changeTagMode() {
 
 function setActiveFeed(myFeedMode, clickedButtonObject) {
   // Set the active feed if it differs, then complete a new query
-  
+
   toggleFeedButton(clickedButtonObject);
 }
 

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<?php 
+<?php
 require('objectConstruction.php');
 include('fixSession.php');
 $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
@@ -43,7 +43,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
       <!-- <li class="nav-item active">
         <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browser.php">Browse<span class="sr-only">(current)</span></a>
       </li> -->
-      <?php 
+      <?php
       if (isset($user)) {
         echo '<li class="nav-item active">
           <a class="nav-link" title="See Your Personalized Feed Selection" href="myFeeds.php">My Feeds<span class="sr-only">(current)</span></a>
@@ -101,25 +101,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
   <div class="col-12 col-md-12" id="content-display">
     <div class="row" id="feed-view">
       <h3 class='feed-tile-align'>Browse Feeds to Find Content of Interest</h3>
-      
-      <div class='feed-tile'>
-        <div class='feed-tile-image-container'>
-          <img class='feed-tile-image' src='https://beebom-redkapmedia.netdna-ssl.com/wp-content/uploads/2016/01/Reverse-Image-Search-Engines-Apps-And-Its-Uses-2016.jpg'>
-        </div>
-        <div class='feed-tile-info'>
-          <a href="viewFeed.php?feedID=2" onclick='return selectFeed(2)' class='hover-detect'><span class='entry-url'></span></a>
-          <h4 class='feed-tile-title'>This is the name of the feed</h4>
-          <p class='feed-tile-desc'>This is the feed descrption, it's kinda long and whatever, but ya know....</p>
-          <div class='feed-tile-footer'>
-            <b>Categories: </b>
-            <a class='tag' href='#' onclick='return false'>Cat1</a>
-            <a class='tag' href='#' onclick='return false'>Cat2</a>
-            <a class='tag' href='#' onclick='return false'>Cat3</a>
-            <a class='context-display' href='#' onclick='return false'><span class='fa fa-plus fa-context-style'></span></a>
-          </div>
-        </div>
-      </div>
-      
+      <!-- FEEDS POPULATE HERE FIRST -->
     </div>
   </div><!--/span-->
 </div>
@@ -145,7 +127,7 @@ var feedSelection = [];
 var currentTagMode = 1; // Defined in a global scope to use in multiple functions
 
 if (feedSelection.length < 1) {
-  //queryFeeds();
+  queryFeeds();
 } else {
   queryEntries(51, feedSelection, true);
 }

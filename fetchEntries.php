@@ -70,17 +70,17 @@ foreach ($features as $feature) {
   // move to the next position in the array
   $pos++;
 }
-/* QUERY EXAMPLE
-SELECT entries.entryID, entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon FROM entries
-	               JOIN sites ON entries.siteID = sites.siteID
-                 LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
-                 LEFT JOIN tags ON tagConn.tagID = tags.tagID
-                 WHERE entries.visible = 1
-                 GROUP BY entries.entryID
-				 HAVING SUM(CASE WHEN tags.tagID = 1 THEN 1 ELSE 0 END) = 1
-         AND SUM(CASE WHEN tags.tagID = 2 THEN 1 ELSE 0 END) = 1
-         AND SUM(CASE WHEN tags.tagID = 3 THEN 1 ELSE 0 END) = 1
-*/
+
+// Check for feed access
+$checkPrivate = "SELECT isPrivate, internalFeedID FROM user_feeds WHERE internalFeedID IN('$selectedFeed')";
+
+$securityReturn = $conn->query($checkPrivate);
+while ($secure = $securityReturn->fetch_array()) {
+  if ($secure[0] == 1) {
+    
+  }
+}
+
 // Get Feed IDs of the origin feeds
 $getFeeds = "SELECT sourceFeed FROM feed_connections WHERE internalFeed IN('$selectedFeed')";
 $feedsListReturn = $conn->query($getFeeds);
@@ -139,7 +139,7 @@ if (!$addedTag) {
 
 // Finish the query
 
-$getEntries .= "entries.visible = 1 AND 
+$getEntries .= "entries.visible = 1 AND
                 SUM(CASE WHEN entryConn.feedID IN('$selectedFeedList') THEN 1 ELSE 0 END) > 0
                 ORDER BY entryConn.dateConnected DESC, entries.entryID ASC
                 LIMIT $selectionLimit OFFSET $selectionOffset";

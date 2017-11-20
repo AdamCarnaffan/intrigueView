@@ -105,7 +105,7 @@ class Entry {
 }
 
 class FeedDisplay {
-  
+
   public $name;
   public $id;
   public $size;
@@ -114,16 +114,30 @@ class FeedDisplay {
   public $imagePath;
   public $author;
   public $categories = [];
-  
+
   public function __construct($dataPackage, $dbConn) {
-    
+    $this->id = $dataPackage[0];
+    $this->author = $dataPackage[1];
+    $this->name = $dataPackage[2];
+    $this->imagePath = $dataPackage[3];
+    $this->description = $dataPackage[4];
+    $this->size = $dataPackage[5];
     $this->getCategories($dbConn);
   }
-  
+
   public function getCategories($dbConn) {
-    
+    $getCatsQuery = "SELECT categories.categoryID, categories.label FROM feed_categories AS catConn
+                      JOIN categories ON categories.categoryID = catConn.categoryID
+                      WHERE catConn.feedID = '$this->id'";
+    $categoriesReturned = $dbConn->query($getCatsQuery);
+    while ($catSelected = $categoriesReturned->fetch_array()) {
+      $this->categories[$row[0]] = $row[1];
+    }
+    if (count($this->categories) < 1) {
+      array_push($this->categories, "Unsorted");
+    }
   }
-  
+
   public function generateTile() {
     /* EXAMPLE
     <div class='feed-tile'>
@@ -144,11 +158,31 @@ class FeedDisplay {
       </div>
     </div>
     */
-    $tile = "<div class='feed-tile'>";
-    
+    $tile = "<div class='feed-tile'><div class='feed-tile-image-container'>";
+    // Add the image
+    $tile .= "<img class='feed-tile-image' src='" . $this->imagePath . "'></div>";
+    // Begin feed info divider
+    $tile .= "<div class='feed-tile-info'>";
+    // Feed Reference
+    $tile .= "<a href='viewFeed.php?feedID=" . $this->id . "' onclick='return selectFeed(" . $this->id . ")' class='hover-detect'><span class='entry-url'></span></a>";
+    // Feed Title
+    $tile .= "<h4 class='feed-tile-title'>" . $this->name . "</h4>";
+    // Feed Description
+    $tile .= "<p class='feed-tile-desc'>" . $this->description . "</p>";
+    // Begin feed footer divider
+    $tile .= "<div class='feed-tile-footer'>";
+    // Generate Categories
+    $tile .= "<b>Categories: </b>";
+    foreach ($this->categories as $catID=>$category) {
+      $tile .= "<a class='tag' href='#' onclick='return sortByCategory(" . $catID . ")'>" . $category . "</a>";
+    }
+    // Place the Subscription button
+    $tile .= "<a class='context-display' href='#' onclick='return false'><span class='fa fa-plus fa-context-style'></span></a>";
+    // Close all divs
+    $tile .= "</div></div></div>";
     return $tile;
   }
-  
+
 }
 
 class PotentialTag {
@@ -412,7 +446,7 @@ class SiteData {
 
   public function getTags($content) {
     $tags = [];
-    $fillerWords = ['Doesn’t', 'who', 'now', 'most', 'place', 'should', 'best', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
+    $fillerWords = ['after', 'doesn’t', 'who', 'now', 'most', 'place', 'should', 'best', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
     $splitContent = explode(' ', $this->stripPunctuation($content));
     foreach ($splitContent as &$word) {
       // Remove ALL whitespace
@@ -1014,7 +1048,7 @@ class User {
       }
     }
   }
-  
+
   public function getSubs($conn) {
     $this->subscriptions = []; // Reset the subscriptions available in myFeed
     $getComps = "SELECT internalFeedID FROM user_subscriptions WHERE userID = '$this->id'";

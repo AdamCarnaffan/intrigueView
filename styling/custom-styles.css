@@ -127,13 +127,13 @@
   padding-top: 5rem;
 }
 .heading-pad {
-  margin-top: 0.75rem
+  margin-bottom: 1.2rem;
 }
 .text-box-input {
   margin-left: 0.5rem;
 }
 .input-length {
-  width: 65%;
+  width: 80%;
 }
 .user-error-message {
   font-size: 1rem;
@@ -145,8 +145,10 @@
   color: red;
 }
 .login-adjust {
-  height: auto;
+  height: auto !important;
+  width: 80% !important;
   padding: 1rem;
+  flex-direction: column;
 }
 .featured-tile {
   box-shadow: 0.25rem 0.25rem 0.3rem rgba(40,136,167,0.6);
@@ -499,6 +501,7 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
 }
 .feed-tile {
   margin-left: 20%;
+  margin-top: 0.6rem;
   width: 60%;
   display: inline-flex;
   height: 10rem;
