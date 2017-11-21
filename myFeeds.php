@@ -79,7 +79,14 @@
     </ul>
   </div>
 </nav>
-
+<!-- Sticky Bar for feed selection -->
+<div id='feed-selection-bar' class='sticky-top'>
+  <a id='default-active-feed' class="feed-selector" href='#' onclick="return setActiveFeed('Comps', this)">Compilations</a>
+  <a class="feed-selector" href='#' onclick="return setActiveFeed('Saved', this)">Saved</a>
+  <a class="feed-selector" href='#' onclick="return setActiveFeed('Sub', this)">Subscriptions</a>
+  <a class="feed-selector" href='#' onclick="return setActiveFeed('Faves', this)">Favourites</a>
+  <a class="feed-selector" href='#' onclick="return setActiveFeed('Cat', this)">Categories</a>
+</div>
 
 <!-- Main album view -->
 <!-- <div class="container subscriptions-view" id="feed-selectors">

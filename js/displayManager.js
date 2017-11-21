@@ -236,15 +236,16 @@ function setActiveFeed(myFeedMode, clickedButtonObject) {
   // Set the active feed if it differs, then complete a new query
 
   toggleFeedButton(clickedButtonObject);
+  return false;
 }
 
 function toggleFeedButton(thisButton) {
-  $('#feed-selectors').children('div').each(function() {
-    if ($(this).find('button').hasClass('toggle-button-class')) {
-      $(this).find('button').toggleClass('toggle-button-class');
+  $('#feed-selection-bar').children('a').each(function() {
+    if ($(this).hasClass('feed-selector-selected')) {
+      $(this).toggleClass('feed-selector-selected');
     }
   });
-  $(thisButton).toggleClass('toggle-button-class');
+  $(thisButton).toggleClass('feed-selector-selected');
 }
 
 function saveEntry(thisLink, entryID) {

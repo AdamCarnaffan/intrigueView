@@ -450,27 +450,6 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
 .fix-nav-button {
   margin-left: -2rem;
 }
-.subscriptions-view {
-  min-height: 3.5rem !important;
-  max-height: 3.5rem;
-  overflow-y: hidden;
-}
-.feeds-button-container {
-  width: 15%;
-  height: 2.6rem;
-  margin-right: 4%;
-  position: relative;
-  display: inline-flex;
-}
-.first-button {
-  margin-left: 2.9%;
-}
-.feed-button {
-  font-size: 1.6rem;
-  width: 100%;
-  border-radius: 20px;
-  line-height: 0px !important;
-}
 .context-display {
   height: 2rem;
   width: 2rem;
@@ -551,4 +530,26 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   text-align: center;
   margin-left: 0.8rem;
   margin-bottom: 0.1rem;
+}
+.sticky-top {
+  margin-top: -1rem;
+  position: sticky;
+  width: 100%;
+  height: 2rem;
+  background-color: #efefef;
+}
+.feed-selector {
+  font-size: 1.3rem;
+  width: 10rem;
+  line-height: auto;
+  margin-left: 1rem;
+  color: #343a40;
+}
+.feed-selector:hover {
+  text-decoration: none;
+  color: #2888a7;
+}
+.feed-selector-selected {
+  font-weight: bold;
+  color: #2888a7;
 }
