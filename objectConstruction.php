@@ -164,7 +164,7 @@ class FeedDisplay {
     // Begin feed info divider
     $tile .= "<div class='feed-tile-info'>";
     // Feed Reference
-    $tile .= "<a href='viewFeed.php?feedID=" . $this->id . "' onclick='return selectFeed(" . $this->id . ")' class='hover-detect'><span class='entry-url'></span></a>";
+    $tile .= "<a href='viewFeed.php?feedID=" . $this->id . "' onclick='return selectFeed(this, " . $this->id . ")' class='hover-detect'><span class='entry-url'></span></a>";
     // Feed Title
     $tile .= "<h4 class='feed-tile-title'>" . $this->name . "</h4>";
     // Feed Description

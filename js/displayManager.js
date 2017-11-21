@@ -248,6 +248,26 @@ function toggleFeedButton(thisButton) {
   $(thisButton).toggleClass('feed-selector-selected');
 }
 
+function selectFeed(feedTileLink, feedID) {
+  feedSelection = [feedID];
+  var tile = $(feedTileLink).parent().parent();
+  tile.hide("slide", {direction: "left", distance: 1000}, 700);
+  setTimeout(function() {
+    clearEntryDisplay();
+    renderTagging();
+    queryEntries(51, feedSelection);
+  }, 650);
+  return false;
+}
+
+function renderTagging() {
+  $('#navigator').after(taggingDisplay);
+  // Toggle the AND selection
+  $('#and-tag').toggleClass('toggle-button-class');
+  getTags();
+  return false;
+}
+
 function saveEntry(thisLink, entryID) {
   $.post({
     url: 'connectEntry.php',

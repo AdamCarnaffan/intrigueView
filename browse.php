@@ -23,6 +23,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
   <link href="styling/custom-styles.css" rel="stylesheet">
   <!-- Javascript -->
   <script src='js/jquery-3.2.1.min.js'></script>
+  <script src='js/jqueryUI.min.js'></script>
   <script src='js/displayManager.js'></script>
   <script src='js/loginManager.js'></script>
   <script src='js/popper.js'></script>
@@ -30,7 +31,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
 </head>
 <body class="hide-overflow" onresize='resizeCanvas'>
   <!-- Fixed navbar -->
-<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+<nav id='navigator' class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
   <a class="navbar-brand" href="index.php">IntrigueView</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -116,6 +117,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
 // Define Variable display buttons
 var ReturnButton = "<div class='button-holder' id='return-button'><a class='return-button front' href='#' onclick='returnToTop()'><img class='return-button front' src='assets/returnToTop.png'></a></div>";
 var loadingCanvas = "<div id='loading'><canvas id='loading-dots' width='900' height='600'>Loading...</canvas></div>";
+var taggingDisplay = "\n<div class='container shortened'>\n<div class='searching'>\n<h3 class='filter-coloring move-heading'>Filter Results\n<button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button></h3>\n<div><h5 class='heading-inline filter-coloring vertical-centering'>Search:</h5>\n<input class='feed-source-input nav-input btn nav-search' id='search-input' type='text' placeholder='Article Search'>\n<button class='feed-source-input nav-input btn btn-outline-success-blue inline-button' id='search-button' onclick='beginSearch()'>Go</button></div></div><div class='tagging'><h3 class='filter-coloring move-heading heading-inline'>Tags\n<button id='and-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>AND</button>\n<button id='or-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>OR</button></h3><!-- TAGS POPULATED HERE --><div class='filter-coloring' id='tag-collection'></div></div></div>";
 // Instantiate necessary global variables
 var returnButtonIsDisplayed = false;
 var cooldown = 0.8;
