@@ -526,7 +526,6 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   display: inline-flex;
   min-height: 1.5rem;
   align-items: center;
-  display: inline-flex;
   text-align: center;
   margin-left: 0.8rem;
   margin-bottom: 0.1rem;
