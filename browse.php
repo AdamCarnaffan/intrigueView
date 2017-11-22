@@ -12,7 +12,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
   <meta name="author" content="Adam Carnaffan">
   <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
 
-  <title>Intrigue View Beta 0.7</title>
+  <title>Intrigue View Beta 0.8</title>
 
   <!-- Bootstrap core CSS -->
   <link href="styling/bootstrap.min.css" rel="stylesheet">
@@ -41,9 +41,9 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
       <li class="nav-item active">
         <a class="nav-link" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
       </li>
-      <!-- <li class="nav-item active">
-        <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browser.php">Browse<span class="sr-only">(current)</span></a>
-      </li> -->
+      <li class="nav-item active">
+        <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
+      </li>
       <?php
       if (isset($user)) {
         echo '<li class="nav-item active">
@@ -52,7 +52,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
       }
       ?>
       <li class="nav-item active">
-        <a class="nav-link" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=0')">Export RSS<span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=' + feedSelection.join('+'))">Export RSS<span class="sr-only">(current)</span></a>
       </li>
     </ul>
     <ul class="navbar-nav mr-auto fix-ul">
