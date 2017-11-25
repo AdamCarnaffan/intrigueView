@@ -177,7 +177,7 @@ class FeedDisplay {
       $tile .= "<a class='tag' href='#' onclick='return sortByCategory(" . $catID . ")'>" . $category . "</a>";
     }
     // Place the Subscription button
-    $tile .= "<a class='context-display' href='#' onclick='return false'><span class='fa fa-plus fa-context-style'></span></a>";
+    $tile .= "<a class='context-display' href='#' onclick='return saveFeed(this, " . $this->id . ")'><span class='fa fa-plus fa-context-style'></span></a>";
     // Close all divs
     $tile .= "</div></div></div>";
     return $tile;

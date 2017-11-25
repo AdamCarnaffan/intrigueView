@@ -6,14 +6,14 @@ include('fixSession.php');
 // $_POST['entryID'] = 20;
 
 $user = $_SESSION['user'];
-$targetEntry = $_POST['entryID'];
+$targetFeed = $_POST['feedID'];
 
-$checkDuplicate = "SELECT connectionID FROM entry_connections WHERE entryID = '$targetEntry' AND feedID = '$user->feed'";
+$checkDuplicate = "SELECT sourceFeed FROM feed_connections WHERE sourceFeed = '$targetFeed' AND internalFeed = '$user->feed'";
 
 $duplicates = (count($conn->query($checkDuplicate)->fetch_array()) > 0) ? true : false;
 
 if (!$duplicates) {
-  $addConnection = "INSERT INTO entry_connections (entryID, feedID, linkedBy) VALUES ('$targetEntry', '$user->feed', '$user->id')";
+  $addConnection = "INSERT INTO feed_connections (sourceFeed, internalFeed, linkedBy) VALUES ('$targetFeed', '$user->feed', '$user->id')";
   $conn->query($addConnection);
 } else {
   throw new Exception("This entry already exists in your feed");

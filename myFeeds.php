@@ -112,7 +112,7 @@
     <h3 class="filter-coloring move-heading">Filter Results
       <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button>
     </h3>
-    <div>
+    <div class='search-field'>
       <h5 class="heading-inline filter-coloring vertical-centering">Search:</h5>
       <input class="feed-source-input nav-input btn nav-search" id='search-input' type="text" placeholder="Article Search">
       <button class='feed-source-input nav-input btn btn-outline-success-blue inline-button' id='search-button' onclick='beginSearch()'>Go</button>

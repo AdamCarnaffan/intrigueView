@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<?php 
+<?php
 require('objectConstruction.php');
 include('fixSession.php');
 $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
@@ -43,7 +43,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
       <li class="nav-item active">
         <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
       </li>
-      <?php 
+      <?php
       if (isset($user)) {
         echo '<li class="nav-item active">
           <a class="nav-link" title="See Your Personalized Feed Selection" href="myFeeds.php">My Feeds<span class="sr-only">(current)</span></a>
@@ -89,16 +89,26 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
   </div>
 </nav>
 
+<!-- Browser Navigation Buttons -->
+<div class='nav-button'>
+  <a href='#'><span class='entry-url'></span></a>
+  < Back
+</div>
+<div class='nav-button second-absolute-button'>
+  <a href='#'><span class='entry-url'></span></a>
+  Add to My Feed
+</div>
+
 <!-- Main album view -->
 <div class="container shortened">
   <div class="searching">
     <h3 class="filter-coloring move-heading">Filter Results
       <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button>
     </h3>
-    <div>
+    <div class='search-field'>
       <h5 class="heading-inline filter-coloring vertical-centering">Search:</h5>
-      <input class="feed-source-input nav-input btn nav-search" id='search-input' type="text" placeholder="Article Search">
-      <button class='feed-source-input nav-input btn btn-outline-success-blue inline-button' id='search-button' onclick='beginSearch()'>Go</button>
+      <input class="nav-input btn nav-search" id='search-input' type="text" placeholder="Article Search">
+      <button class='nav-input btn btn-outline-success-blue inline-button' id='search-button' onclick='beginSearch()'>Go</button>
     </div>
   </div>
   <div class="tagging">

@@ -283,3 +283,20 @@ function saveEntry(thisLink, entryID) {
   });
   return false;
 }
+
+function saveFeed(thisLink, feedID) {
+  $.post({
+    url: 'connectFeed.php',
+    data: {
+      'feedID': feedID
+    },
+    success: function() {
+      $(thisLink).replaceWith("<div class='context-display'><span class='fa fa-check fa-context-style-added'></span></div>");
+      console.log(thisLink);
+    },
+    error: function() {
+      console.log("An error has occured");
+    }
+  });
+  return false;
+}
