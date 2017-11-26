@@ -9,6 +9,13 @@ $sourceID = $_POST['sourceID'];
 //$feedSudoID = 6;
 // The Export URL (RSS Feed) from getFeed
 $feedSelection = new FeedInfo($sourceID, $conn, 1);
+if ($feedSelection->busy) {
+  echo "The feed is currently being fetched and as such is unavailable";
+  return;
+} elseif ($feedSelection->isExternal) {
+  $busyFeed = "UPDATE external_feeds SET busy = 1 WHERE externalFeedID = '$feedSelection->id'";
+  $conn->query($busyFeed);
+}
 // Time zone info to sync with feed
 $timeZone = ('-5:00');
 // Default for the error variable used in the loop
@@ -136,6 +143,11 @@ foreach ($summary->entriesList as $title) {
 // Handle for failed actions report
 if ($summary->entriesFailed > 0) {
   echo $summary->entriesFailed . " entries failed to be added to the database table due to: '" . $summary->failureReason . "'";
+}
+
+if ($feedSelection->isExternal) {
+  $releaseFeed = "UPDATE external_feeds SET busy = 0 WHERE externalFeedID = '$feedSelection->id'";
+  $conn->query($releaseFeed);
 }
 
 return $summary; // To be returned to administrative page on a forced update

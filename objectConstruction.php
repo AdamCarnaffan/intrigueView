@@ -1098,13 +1098,16 @@ class FeedInfo {
   public $title;
   public $source;
   public $id;
+  public $busy;
+  public $isExternal = false;
 
   public function __construct($feedId, $dbConn, $isExternal) {
     $this->id = $feedId;
     if ($isExternal) {
       $feedType = "external_feeds";
-      $includedFields = "url, title";
+      $includedFields = "url, title, busy";
       $idColumn = "externalFeedID";
+      $this->isExternal = true;
     } else {
       $feedType = "user_feeds";
       $includedFields = "title";
@@ -1118,6 +1121,7 @@ class FeedInfo {
     }
     $this->source = (isset($sourceInfo['url'])) ? $sourceInfo['url'] : null;
     $this->title = $sourceInfo['title'];
+    $this->busy = (isset($sourceInfo['busy'])) ? $sourceInfo['busy'] : 0;
   }
 
 }
