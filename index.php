@@ -12,7 +12,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
   <meta name="author" content="Adam Carnaffan">
   <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
 
-  <title>Intrigue View Beta 0.7</title>
+  <title>Intrigue View Beta 0.8</title>
 
   <!-- Bootstrap core CSS -->
   <link href="styling/bootstrap.min.css" rel="stylesheet">
@@ -30,7 +30,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
 </head>
 <body class="hide-overflow" onresize='resizeCanvas'>
   <!-- Fixed navbar -->
-<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4 dropdown-ontop">
   <a class="navbar-brand" href="index.php">IntrigueView</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -56,7 +56,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
     </ul>
     <ul class="navbar-nav mr-auto fix-ul">
     </ul>
-    <ul class="navbar-nav">
+    <ul class="navbar-nav dropdown-ontop">
       <?php
         // Change the User display based on a logged in user
         if (isset($user)) {
@@ -89,18 +89,8 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
   </div>
 </nav>
 
-<!-- Browser Navigation Buttons -->
-<div class='nav-button'>
-  <a href='#'><span class='entry-url'></span></a>
-  < Back
-</div>
-<div class='nav-button second-absolute-button'>
-  <a href='#'><span class='entry-url'></span></a>
-  Add to My Feed
-</div>
-
 <!-- Main album view -->
-<div class="container shortened">
+<div id='filter-display' class="container shortened">
   <div class="searching">
     <h3 class="filter-coloring move-heading">Filter Results
       <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button>

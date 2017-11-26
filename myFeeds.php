@@ -23,7 +23,7 @@
 </head>
 <body class="hide-overflow" onresize='resizeCanvas'>
   <!-- Fixed navbar -->
-<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4 dropdown-ontop">
   <a class="navbar-brand" href="index.php">IntrigueView</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -52,7 +52,7 @@
         $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
         // Change the User display based on a logged in user
         if (isset($user)) {
-          echo "<div class='dropdown'>";
+          echo "<div class='dropdown dropdown-ontop'>";
           echo '<a class="nav-item active nav-link hover-highlight dropdown-toggle" href="#" data-toggle="dropdown">Welcome back, ' . $user->name . '</a>';
           echo '<ul class="dropdown-menu dropdown-menu-right dropdown-align">';
           echo '<li display="block"><a class="move-right dropdown-link" href="profile.php">My Profile</a></li>';
@@ -64,7 +64,7 @@
           foreach ($user->permissions as $perm) {
             if ($perm->permissionId == 8) {
               echo '<li class="divider"></li>';
-              echo '<li display="block"><a class="move-right dropdown-link" href="admin/">Administration</a></li>';
+              echo '<li display="block"><a class="move-right dropdown-link" href="admin/splash.php">Administration</a></li>';
               break;
             }
           }

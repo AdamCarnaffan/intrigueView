@@ -174,6 +174,15 @@ function returnToTop() {
   }, 3000);
 }
 
+function showBrowsePanel() {
+  clearEntryDisplay();
+  toggleTagging();
+  toggleBrowseNavigation();
+  $('#feed-view').html("<h3 class='feed-tile-align'>Browse Feeds to Find Content of Interest</h3>");
+  queryFeeds();
+  return false;
+}
+
 function clearEntryDisplay() {
   $(document).scrollTop(0);
   $('#feed-view').html('');
@@ -254,18 +263,32 @@ function selectFeed(feedTileLink, feedID) {
   tile.hide("slide", {direction: "left", distance: 1000}, 700);
   setTimeout(function() {
     clearEntryDisplay();
-    renderTagging();
+    toggleTagging();
     queryEntries(51, feedSelection);
+    toggleBrowseNavigation();
   }, 650);
   return false;
 }
 
-function renderTagging() {
-  $('#navigator').after(taggingDisplay);
-  // Toggle the AND selection
-  $('#and-tag').toggleClass('toggle-button-class');
-  getTags();
-  return false;
+function toggleTagging() {
+  if ($('#filter-display').length) {
+    $('#filter-display').remove();
+  } else {
+    $('#navigator').after(taggingDisplay);
+    // Toggle the AND selection
+    $('#and-tag').toggleClass('toggle-button-class');
+    getTags();
+  }
+  return;
+}
+
+function toggleBrowseNavigation() {
+  if ($('#browse-nav').length) {
+    $('#browse-nav').remove();
+  } else {
+    $('#navigator').after(browseButtons);
+  }
+  return;
 }
 
 function saveEntry(thisLink, entryID) {
@@ -284,15 +307,18 @@ function saveEntry(thisLink, entryID) {
   return false;
 }
 
-function saveFeed(thisLink, feedID) {
+function saveFeed(thisLink, feedID, isIcon = true) {
   $.post({
     url: 'connectFeed.php',
     data: {
       'feedID': feedID
     },
     success: function() {
-      $(thisLink).replaceWith("<div class='context-display'><span class='fa fa-check fa-context-style-added'></span></div>");
-      console.log(thisLink);
+      if (isIcon) {
+        $(thisLink).replaceWith("<div class='context-display'><span class='fa fa-check fa-context-style-added'></span></div>");
+      } else {
+        $(thisLink).parent().css("background-color", "#009600");
+      }
     },
     error: function() {
       console.log("An error has occured");

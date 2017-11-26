@@ -9,7 +9,7 @@ include('validateUser.php');
   <meta name="author" content="Adam Carnaffan">
   <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
 
-  <title>Intrigue View 1.0</title>
+  <title>Intrigue View 0.8</title>
 
   <!-- Bootstrap core CSS -->
   <link href="../styling/bootstrap.min.css" rel="stylesheet">
@@ -158,6 +158,10 @@ include('validateUser.php');
           echo "<table><tr><td><b>New Feed Name</b></td><td><b>Feed Source URL</b></td></tr><tr>";
           echo "<td><input class='feed-source-input' id='addedFeedName' type='text' name='newFeedName' placeholder='New Feed Name'/></td>
                 <td><input class='feed-source-input feed-url' id='addedFeedURL' type='text' name='newURL' placeholder='Source URL'/></td></tr>";
+          echo "<tr><td><b>Image Link</b></td></tr><tr>";
+          echo "<td colspan=2><input class='feed-source-input feed-url' id='addedFeedImage' type='text' name='newImg' placeholder='Feed Image URL'></td></tr>";
+          echo "<tr><td><b>Description</b></td></tr><tr>";
+          echo "<td colspan=2><textarea id='addedFeedDesc' name='newDesc' cols='62' rows='6' placeholder='Feed Description'></textarea></td></tr>";
           echo "</table></br>";
           echo "<button class='feed-source-input' id='submitNewFeed' onclick='submitFeed()'>Submit</button>";
           break;

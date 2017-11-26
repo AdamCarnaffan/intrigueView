@@ -66,25 +66,45 @@ function setAdmin(userID) {
 function submitFeed() {
   var newName = $('#addedFeedName').val();
   var newURL = $('#addedFeedURL').val();
+  var newImage = $('#addedFeedImage').val();
+  var newDesc = $('#addedFeedDesc').val();
   // Validate the source name
   if (newName.length < 4) {
     alert("The Source Name is not long enough");
     return false;
+  }
+  // Validate the image url, then notify if none is present
+  if (newImage.length < 4) {
+    if (!confirm("The Image URL is not required, though one is recommended. Continue regardless?")) {
+      return;
+    }
+  }
+  // Check for a description
+  if (newDesc.length < 2) {
+    alert("A short description is required to proceed");
+    return;
   }
   // Begin pushing the new Feed to the Database
   $.post({
     url: "submitSourceFeed.php",
     data: {
       'name': newName,
-      'url': newURL
+      'url': newURL,
+      'image': newImage,
+      'desc': newDesc
     },
+    dataType: 'json',
     success: function(data) {
       if (data.error) {
         // Log the error to console
         console.log(data.error.msg);
       } else {
+        //console.log(data.id);
+        refreshFeed(data.id, null);
+        // ADD PLEASE WAIT OVERLAY
+        // console.log(data.id);
         window.location.reload(true);
-        console.log(data);
+        // console.log(data.id);
       }
     },
     alert: "Success!"
