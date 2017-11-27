@@ -99,13 +99,16 @@ function submitFeed() {
         // Log the error to console
         console.log(data.error.msg);
       } else {
-        //console.log(data.id);
+        console.log('Feed Added, retreiving Data');
         refreshFeed(data.id, null);
         // ADD PLEASE WAIT OVERLAY
         // console.log(data.id);
         window.location.reload(true);
         // console.log(data.id);
       }
+    },
+    error: function(data) {
+      console.log(data.responseText);
     },
     alert: "Success!"
   });
