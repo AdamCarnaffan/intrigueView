@@ -1,6 +1,6 @@
 <?php
 require('dbConnect.php');
-include('objectconstruction.php');
+include('objectConstruction.php');
 include('fixSession.php');
 
 // $_POST['entryID'] = 20;
