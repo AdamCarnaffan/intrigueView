@@ -119,7 +119,7 @@ function queryFeeds(categoryID = 0) {
 
 function queryEntries(selection, feeds, scroll = false) {
   if (scroll) {
-    cooldown = true
+    scrollCooldown = 5
   }
   // Display the loading dots
   $('#feed-view').append(loadingCanvas);
@@ -149,7 +149,7 @@ function queryEntries(selection, feeds, scroll = false) {
       if (data.isFull == 'false') {
         display = false;
       }
-      cooldown = false;
+      scrollCooldown = 0.8;
       entriesDisplayed += selection;
     },
     error: function() {
@@ -158,7 +158,6 @@ function queryEntries(selection, feeds, scroll = false) {
       clearInterval(intervalLoadId);
       // Display the new data
       $('#feed-view').append("<h5>An Error occured displaying the feed</h5>");
-      cooldown = true;
     },
     alert: "Success!",
     timeout: 10000 // 10 Second Timeout

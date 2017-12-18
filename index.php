@@ -131,12 +131,12 @@ var ReturnButton = "<div class='button-holder' id='return-button'><a class='retu
 var loadingCanvas = "<div id='loading'><canvas id='loading-dots' width='900' height='600'>Loading...</canvas></div>";
 // Instantiate necessary global variables
 var returnButtonIsDisplayed = false;
-var cooldown = 0.8;
+var scrollCooldown = 0.8;
 var entriesDisplayed = 0;
 var search = "";
 var queryTags = [];
 var display = true;
-var feedSelection = [23];
+var feedSelection = [35];
 var currentTagMode = 1; // Defined in a global scope to use in multiple functions
 // Toggle the AND selection
 $('#and-tag').toggleClass('toggle-button-class');
@@ -150,7 +150,7 @@ $(document).ready( function () {
   // Begin waiting for the scroll
   $(window).scroll(function() {
     // Load more entries
-    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 500 && display == true) {
+    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > scrollCooldown && entriesDisplayed < 500 && display == true) {
       queryEntries(26, feedSelection, true);
     }
     // Display Settings for the Return to Top button
