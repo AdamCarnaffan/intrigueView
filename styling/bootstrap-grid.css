@@ -28,19 +28,19 @@ html {
 
 @media (min-width: 768px) {
   .container {
-    max-width: 820px;
+    max-width: 75%;
   }
 }
 
 @media (min-width: 992px) {
   .container {
-    max-width: 1060px;
+    max-width: 75%;
   }
 }
 
 @media (min-width: 1200px) {
   .container {
-    max-width: 1240px;
+    max-width: 75%;
   }
 }
 

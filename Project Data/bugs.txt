@@ -24,3 +24,5 @@ Mobile Filters should be hidden by default, visible by button
 FeedInfo object not built well
 
 Take pluralization out of tags
+
+Allow multi-word tags where phrases are used repeatedly (Net Neutrality)

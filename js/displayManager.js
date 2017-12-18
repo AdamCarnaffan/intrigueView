@@ -266,8 +266,14 @@ function selectFeed(feedTileLink, feedID) {
   setTimeout(function() {
     clearEntryDisplay();
     toggleTagging();
+    leftMarginSpace = $('#filter-display').css('margin-left');
+    var leftMarginVal = leftMarginSpace.replace("px", "");
+    if (leftMarginVal > 200) {
+      toggleBrowseNavigation();
+    } else {
+      toggleBrowseNavigation("column");
+    }
     queryEntries(51, feedSelection);
-    toggleBrowseNavigation();
   }, 650);
   return false;
 }
@@ -284,11 +290,15 @@ function toggleTagging() {
   return;
 }
 
-function toggleBrowseNavigation() {
+function toggleBrowseNavigation(orientation = "row") {
   if ($('#browse-nav').length) {
     $('#browse-nav').remove();
   } else {
     $('#navigator').after(browseButtons);
+  }
+  if (orientation == "column") {
+    $('#save-feed-button').css("top", '7rem');
+    $('#save-feed-button').css("left", '1rem');
   }
   return;
 }
