@@ -146,5 +146,31 @@ if (feedSelection.length < 1) {
   selectFeed(null, feedSelection);
 }
 
+$(document).ready( function () {
+  // Reset scroll before watching for scroll changes
+  $(this).scrollTop(0);
+  // Begin waiting for the scroll
+  $(window).scroll(function() {
+    // Load more entries
+    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > scrollCooldown && entriesDisplayed < 500 && display == true) {
+      queryEntries(26, feedSelection, true);
+    }
+    // Display Settings for the Return to Top button
+    if ($(document).scrollTop() > 600 && returnButtonIsDisplayed == false) {
+      returnButtonIsDisplayed = true;
+      $(document.body).append(ReturnButton);
+    } else if ($(document).scrollTop() < 200) {
+      $('#return-button').remove();
+      returnButtonIsDisplayed = false;
+    }
+  });
+});
+// Allow the Search to begin on enter keypress
+$('#search-input').keypress(function(event) {
+  if (event.keyCode == 13) {
+    beginSearch();
+  }
+});
+
 </script>
 </html>
