@@ -16,6 +16,15 @@ Idea: The feature takes tag data submitted and uses the data to find related art
 
 3) Check for match between fetched article and original data (validation)
 
+
+
+Grab all entries simultaneously into a temporary table
+process the entries all together
+insert the relevant ones and discard those that don't apply
+Generate 5 user recommendations for each user on the hour every hour
+Generate 10 feed recommendations every day for each feed (external and non-personal only)
+Display the user's recommended entries in their personal feed, and in a recommendations browser page
+
 */
 
 
