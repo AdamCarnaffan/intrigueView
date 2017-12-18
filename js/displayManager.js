@@ -180,6 +180,8 @@ function showBrowsePanel() {
   toggleTagging();
   toggleBrowseNavigation();
   $('#feed-view').html("<h3 class='feed-tile-align'>Browse Feeds to Find Content of Interest</h3>");
+  feedSelection = [];
+  viewingFeed = false;
   queryFeeds();
   return false;
 }
@@ -259,6 +261,7 @@ function toggleFeedButton(thisButton) {
 }
 
 function selectFeed(feedTileLink, feedID) {
+  viewingFeed = true;
   feedSelection = [feedID];
   sessionStorage.setItem("selectedFeeds", feedSelection); // Save the current feed selected to a local session
   var tile = $(feedTileLink).parent().parent();

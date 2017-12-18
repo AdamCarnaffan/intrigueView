@@ -124,6 +124,7 @@ var cooldown = 0.8;
 var entriesDisplayed = 0;
 var search = "";
 var leftMarginSpace = 0;
+var viewingFeed = false;
 var queryTags = [];
 var display = true;
 var feedSelection = [];
@@ -153,7 +154,7 @@ $(document).ready( function () {
   // Begin waiting for the scroll
   $(window).scroll(function() {
     // Load more entries
-    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > scrollCooldown && entriesDisplayed < 500 && display == true) {
+    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > scrollCooldown && entriesDisplayed < 500 && display == true && viewingFeed) {
       queryEntries(26, feedSelection, true);
     }
     // Display Settings for the Return to Top button

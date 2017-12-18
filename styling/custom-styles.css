@@ -289,6 +289,16 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
     padding-bottom: 0.5rem;
     font-size: 1.1rem;
   }
+  #save-feed-button {
+    display: none;
+  }
+  #browse-nav {
+    position: fixed;
+    bottom: 6rem;
+    top: auto;
+    z-index: 3;
+    width: 6rem;
+  }
 }
 /* Hover effects are only applied on the desktop version of the site */
 @media (min-width: 770px) {
