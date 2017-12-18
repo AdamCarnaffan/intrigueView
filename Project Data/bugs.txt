@@ -22,3 +22,5 @@ Higher min-height for mobile Filter
 Mobile Filters should be hidden by default, visible by button
 
 FeedInfo object not built well
+
+Take pluralization out of tags

@@ -150,7 +150,7 @@ $(document).ready( function () {
   // Begin waiting for the scroll
   $(window).scroll(function() {
     // Load more entries
-    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150 && display == true) {
+    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 500 && display == true) {
       queryEntries(26, feedSelection, true);
     }
     // Display Settings for the Return to Top button

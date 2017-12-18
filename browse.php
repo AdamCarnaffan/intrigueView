@@ -101,7 +101,6 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
 <div class="container no-top-offset" id='feed-content'>
   <div class="col-12 col-md-12" id="content-display">
     <div class="row" id="feed-view">
-      <h3 class='feed-tile-align'>Browse Feeds to Find Content of Interest</h3>
       <!-- FEEDS POPULATE HERE FIRST -->
     </div>
   </div><!--/span-->
@@ -129,10 +128,22 @@ var display = true;
 var feedSelection = [];
 var currentTagMode = 1; // Defined in a global scope to use in multiple functions
 
+// Check for local feedselection storage
+if (feedSelection.length == 0) {
+  try {
+    if (sessionStorage.getItem("selectedFeeds") != "" && sessionStorage.getItem("selectedFeeds") != null) {
+      feedSelection.push(sessionStorage.getItem("selectedFeeds"));
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 if (feedSelection.length < 1) {
+  $('#feed-view').html("<h3 class='feed-tile-align'>Browse Feeds to Find Content of Interest</h3>");
   queryFeeds();
 } else {
-  queryEntries(51, feedSelection, true);
+  selectFeed(null, feedSelection);
 }
 
 </script>

@@ -175,6 +175,8 @@ function returnToTop() {
 }
 
 function showBrowsePanel() {
+  var nullVar = null;
+  sessionStorage.removeItem("selectedFeeds"); // clear the browse data storage
   clearEntryDisplay();
   toggleTagging();
   toggleBrowseNavigation();
@@ -259,6 +261,7 @@ function toggleFeedButton(thisButton) {
 
 function selectFeed(feedTileLink, feedID) {
   feedSelection = [feedID];
+  sessionStorage.setItem("selectedFeeds", feedSelection); // Save the current feed selected to a local session
   var tile = $(feedTileLink).parent().parent();
   tile.hide("slide", {direction: "left", distance: 1000}, 700);
   setTimeout(function() {
