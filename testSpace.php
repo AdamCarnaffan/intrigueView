@@ -1,26 +1,97 @@
-<?php 
+<?php
 
-class Item {
-  
-  public $link;
-  
-  public function __construct() {}  
-}
+$url = "https://dzone.com/articles/ai-and-machine-learning-trends-for-2018-what-to-ex";
+$content = getPageContents($url);
+$excerpt = getArticleContents($content);
+echo $excerpt;
 
-$item = new Item;
-
-$item->link = "https://wired.com/story/hackers-say-broke-face-id-security/amp";
-
-// Remove the /amp from site links where applicable
-if (strpos($item->link, "wired.com") !== false || strpos($item->link, "engadget.com") !== false) {
-  // remove amp at the end of the URL
-  if (strpos($item->link, "/amp") == strlen($item->link) - 4) {
-    $item->link = str_replace("/amp", "", $item->link);
+function getArticleContents($input) {
+  $articleContent = ['defaultClassing' => '']; // Initialize default as the value when no classes are present
+  $pTagSeparated = explode("<p", $input);
+  foreach ($pTagSeparated as $tag) {
+    $validationChar = substr($tag, 0, 1); // Get the first following character from the HTML tag
+    if ($validationChar == ">" || $validationChar == " ") { // To validate that we're looking at a <p> tag
+      // The text within the <p></p> tags
+      $textWithClass = explode("</p>", $tag)[0];
+      // Operation to remove <p> attributes
+      $textAlone = explode('>', $textWithClass);
+      array_shift($textAlone); // To remove the text before the <p> closing tag
+      $textAlone = implode($textAlone, ">");
+      // The attributes of the <p> tag
+      $textAttr = explode(">", $textWithClass)[0];
+      // Sort into blank and filled Classes
+      if (strpos(strtolower($textAttr), "class=") !== false) {
+        $classes = substr($textAttr, strpos(strtolower($textAttr),"class="));
+        // Accept classes denoted by either single or double quoation marks
+        if (isset(explode("'", $classes)[1])) {
+          $classes = explode("'", $classes)[1];
+        } else {
+          $classes = explode('"', $classes)[1];
+        }
+        if (isset($articleContent[$classes])) {
+          $articleContent[$classes] .= $textAlone . " ";
+        } else {
+          $articleContent[$classes] = $textAlone . " ";
+        }
+      } else {
+        $articleContent['defaultClassing'] .= $textAlone . " ";
+      }
+    }
   }
-  // Replace an amp in the middle with a single slash
-  $item->link = str_replace("/amp/", "/", $item->link);
+  if (!function_exists('lengthSort')) {
+    // Define a custom sort function that determines the difference in string length
+    function lengthSort($stringA, $stringB) {
+      return strlen($stringB) - strlen($stringA);
+    }
+  }
+  // Sort the array in terms of content length (referenced from below)
+  usort($articleContent, 'lengthSort');
+  $finalContent = $articleContent[0];
+  // Strip article of all other tags
+  return $finalContent;
 }
 
-echo $item->link;
+function stripHTMLTags($contents) {
+  // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
+  $contentNoScript = preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", " ", $contents);
+  // Remove Styling info
+  $contentNoStyling = preg_replace("/<style\b[^>]*>(.*?)<\/style>/is", " ", $contentNoScript);
+  // Remove html tags and formatting from the excerpt
+  $contentNoHTML = preg_replace("#\<[^\>]+\>#", " ", $contentNoStyling);
+  // Clean additional whitespaces
+  return preg_replace("#\s+#", " ", $contentNoHTML);
+}
+
+function getPageContents($pageURL) {
+  // Run a query to the page for source contents
+  $pageContents = @file_get_contents($pageURL);
+  // If the url cannot be accessed, make another attempt as a user
+  if ($pageContents == null || $pageContents == false) {
+    $pageContents = getContentsAsUser($pageURL);
+    if ($pageContents == null) {
+      return null;
+    }
+  }
+  return $pageContents;
+}
+
+function getContentsAsUser($pageURL) {
+  // Mimic a user browser request to work around potential 401 FORBIDDEN errors
+  $userAgent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36';
+  // Instantiate and configure a cURL to mimic a user request (uses the cURL library)
+  $curl = curl_init();
+  curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+  curl_setopt($curl, CURLOPT_VERBOSE, true);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_USERAGENT, $userAgent);
+  curl_setopt($curl, CURLOPT_URL, $pageURL);
+  // Run a query to the page for source contents using a viewer context
+  $pageContents = curl_exec($curl);
+  // If the page content is still null following this, the site is unreachable, null should be returned
+  if ($pageContents == null || $pageContents == false) {
+    return null;
+  }
+  return $pageContents;
+}
 
 ?>

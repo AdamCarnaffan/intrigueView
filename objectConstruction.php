@@ -272,7 +272,7 @@ class SiteData {
     // Find the feature image on the page
     $this->imageURL = $this->validateImageLink($this->getImage($this->pageContent));
     // Get an excerpt of text from the article to display if no feature image is found
-    $this->synopsis = trim(addslashes($this->getExcerpt($this->pageContent)));
+    $this->synopsis = trim($this->articleContent);
     // Build tags
     $tagBuilder = function (&$tagArray, $frequency) use ($tagBlackList) {
       foreach ($tagArray as $tagKey=>&$tag) {
