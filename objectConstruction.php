@@ -923,39 +923,6 @@ class SiteData {
     return null;
   }
 
-  public function getExcerpt($pageContents) {
-    // The excerpt is always assumed the first paragraph of an article
-    $attempt = 0;
-    start:
-    $selectedParagraph = explode("</p>",$pageContents)[$attempt]; // Paragraph ends at the ending tag
-    // Paragraph begins at the beginning tag prior to the ending tag. Processed based on p having or not having tags
-    if (isset(explode("<p ", $selectedParagraph)[1])) {
-      $cutStart = explode("<p ", $selectedParagraph)[1];
-      $excerptTagged = substr($cutStart, strpos($cutStart, ">") + 1); // The paragraph is all that is inbetween the paragraph tags
-    } else {
-      if (isset(explode("<p>", $selectedParagraph)[1])) {
-        $excerptTagged = explode("<p>", $selectedParagraph)[1];
-      } else {
-        return null;
-      }
-    }
-    // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
-    $excerptNoScript = preg_replace("#(<script.*?>).*?(</script>)#", " ", $excerptTagged);
-    // Remove html tags and formatting from the excerpt
-    $excerptNoHTML = preg_replace("#\<[^\>]+\>#", " ", $excerptNoScript);
-    // Clean additional whitespaces
-    $excerptClean = preg_replace("#\s+#", " ", $excerptNoHTML);
-    // Check that the excerpt contains content
-    if (!array_intersect(str_split($excerptClean), range('a','z')) || strlen($excerptClean) < 80) {
-      if ($attempt > 10) { // Timeout for attempting to get excerpt
-        return null;
-      }
-      $attempt++;
-      goto start; // This is bad, I know
-    }
-    return $excerptClean;
-  }
-
   public function clearData() {
     $this->imageURL = null;
     $this->synopsis = " ";
