@@ -2,11 +2,13 @@
 
 $url = "https://dzone.com/articles/ai-and-machine-learning-trends-for-2018-what-to-ex";
 $content = getPageContents($url);
-$excerpt = getArticleContents($content);
+$excerpt = getArticleContents($content, true);
 echo $excerpt;
+//echo $excerpt;
 
-function getArticleContents($input) {
+function getArticleContents($input, $needReadable = false) {
   $articleContent = ['defaultClassing' => '']; // Initialize default as the value when no classes are present
+  $input = stripScripting($input);
   $pTagSeparated = explode("<p", $input);
   foreach ($pTagSeparated as $tag) {
     $validationChar = substr($tag, 0, 1); // Get the first following character from the HTML tag
@@ -34,7 +36,11 @@ function getArticleContents($input) {
           $articleContent[$classes] = $textAlone . " ";
         }
       } else {
-        $articleContent['defaultClassing'] .= $textAlone . " ";
+        if ($needReadable) {
+          $articleContent['defaultClassing'] = (strlen($textAlone) > strlen($articleContent['defaultClassing'])) ? $textAlone : $articleContent['defaultClassing'];
+        } else {
+          $articleContent['defaultClassing'] .= $textAlone . " ";
+        }
       }
     }
   }
@@ -48,18 +54,22 @@ function getArticleContents($input) {
   usort($articleContent, 'lengthSort');
   $finalContent = $articleContent[0];
   // Strip article of all other tags
-  return $finalContent;
+  return stripHTMLTags($finalContent);
 }
 
 function stripHTMLTags($contents) {
   // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
-  $contentNoScript = preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", " ", $contents);
+  $contentNoScript = stripScripting($contents);
   // Remove Styling info
   $contentNoStyling = preg_replace("/<style\b[^>]*>(.*?)<\/style>/is", " ", $contentNoScript);
   // Remove html tags and formatting from the excerpt
   $contentNoHTML = preg_replace("#\<[^\>]+\>#", " ", $contentNoStyling);
   // Clean additional whitespaces
   return preg_replace("#\s+#", " ", $contentNoHTML);
+}
+
+function stripScripting($contents) {
+  return preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", " ", $contents);
 }
 
 function getPageContents($pageURL) {

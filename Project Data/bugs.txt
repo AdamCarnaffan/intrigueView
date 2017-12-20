@@ -30,3 +30,5 @@ Allow multi-word tags where phrases are used repeatedly (Net Neutrality)
 Tag counts do not reflect query results
 
 Rise up excerpt display (with views and rating)
+
+Change filler image to default intrigue view !

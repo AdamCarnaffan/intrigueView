@@ -360,9 +360,10 @@ class SiteData {
     $this->tags = $this->computeWeighting($weightedTags);
   }
 
-  public function getArticleContents() {
+  public function getArticleContents($input, $needReadable = false) {
     $articleContent = ['defaultClassing' => '']; // Initialize default as the value when no classes are present
-    $pTagSeparated = explode("<p", $this->pageContent);
+    $input = $this->stripScripting($this->pageContent);
+    $pTagSeparated = explode("<p", $input);
     foreach ($pTagSeparated as $tag) {
       $validationChar = substr($tag, 0, 1); // Get the first following character from the HTML tag
       if ($validationChar == ">" || $validationChar == " ") { // To validate that we're looking at a <p> tag
@@ -389,7 +390,11 @@ class SiteData {
             $articleContent[$classes] = $textAlone . " ";
           }
         } else {
-          $articleContent['defaultClassing'] .= $textAlone . " ";
+          if ($needReadable) {
+            $articleContent['defaultClassing'] = (strlen($textAlone) > strlen($articleContent['defaultClassing'])) ? $textAlone : $articleContent['defaultClassing'];
+          } else {
+            $articleContent['defaultClassing'] .= $textAlone . " ";
+          }
         }
       }
     }
@@ -416,13 +421,17 @@ class SiteData {
 
   public function stripHTMLTags($contents) {
     // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
-    $contentNoScript = preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", " ", $contents);
+    $contentNoScript = $this->stripScripting($contents);
     // Remove Styling info
     $contentNoStyling = preg_replace("/<style\b[^>]*>(.*?)<\/style>/is", " ", $contentNoScript);
     // Remove html tags and formatting from the excerpt
     $contentNoHTML = preg_replace("#\<[^\>]+\>#", " ", $contentNoStyling);
     // Clean additional whitespaces
     return preg_replace("#\s+#", " ", $contentNoHTML);
+  }
+
+  public function stripScripting($contents) {
+    return preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", " ", $contents);
   }
 
   // TAG FUNCTIONS
