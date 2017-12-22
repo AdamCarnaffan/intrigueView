@@ -151,6 +151,17 @@ function queryEntries(selection, feeds, scroll = false) {
       }
       scrollCooldown = 0.8;
       entriesDisplayed += selection;
+      // Apply the hover detection to all entries
+      $(".hover-detect").hover( function() {
+        $(this).data('leaving', false);
+        $(this).siblings(".image-container").children(".extra-info").addClass("extra-info-hover");
+      }, function() {
+        $(this).data('leaving', true);
+        var hoverObject = $(this);
+        setTimeout( function() {
+          closeInfo(hoverObject);
+        }, 1000);
+      });
     },
     error: function() {
       // Remove the loading dots
@@ -162,6 +173,12 @@ function queryEntries(selection, feeds, scroll = false) {
     alert: "Success!",
     timeout: 10000 // 10 Second Timeout
   });
+}
+
+function closeInfo(extraInfoObject) {
+  if (extraInfoObject.data('leaving') == true) {
+    extraInfoObject.siblings(".image-container").children(".extra-info").removeClass("extra-info-hover");
+  }
 }
 
 function returnToTop() {

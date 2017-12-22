@@ -184,6 +184,23 @@ html, body {
 .container {
   min-height: 100%;
 }
+.extra-info {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 100%;
+  background-color: rgba(0,0,0,.6);
+  transition: top 0.8s;
+}
+@keyframes openEntryInfo {
+  100% { top: 0%; }
+}
+@keyframes closeEntryInfo {
+  100% { top: 100%; }
+}
+.extra-info-hover {
+  top: 0%;
+}
 .button-holder {
   width: 2.5rem;
   height: 2.5rem;

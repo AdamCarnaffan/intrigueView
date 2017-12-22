@@ -136,7 +136,7 @@ var entriesDisplayed = 0;
 var search = "";
 var queryTags = [];
 var display = true;
-var feedSelection = [35];
+var feedSelection = [2];
 var currentTagMode = 1; // Defined in a global scope to use in multiple functions
 // Toggle the AND selection
 $('#and-tag').toggleClass('toggle-button-class');
