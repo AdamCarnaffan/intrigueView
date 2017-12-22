@@ -25,6 +25,8 @@ class Entry {
     $this->siteURL = $dataArray[6];
     $this->siteIcon = $dataArray[7];
     $this->id = $dataArray[8];
+    $this->views = $dataArray[9];
+    $this->rating = 5; // We only put out the highest quality content xD
     // Build the tags array
     while ($row = $dataTags->fetch_array()) {
       $this->tags[$row[2]] = $row[1];
@@ -58,32 +60,31 @@ class Entry {
     $tile .= '<a href="' . $this->url . '" onclick="return openInNewTab(\'' . $this->url . '\')" class="hover-detect" id="lol-test"><span class="entry-url"></span></a>';
     // Add Article Heading
     $tile .= '<h5 class="entry-heading">' . $this->title . '</h5>';
+    
+    // Add Article Image Display
+    if ($this->image != null) {
+      $tile .= '<div class="image-container"><img class="image" src="' . $this->image . '"/>';
+    } else {
+      $tile .= '<div class="image-container"><img class="image fill-size" src="assets/tileFill.png"/>';
+    }
+    
+    // Begin site details slider
+    $tile .= '<div class="extra-info">';
     // Add Top Tags
-    $tile .= '<div class="entry-stats tag-shift">Tags: ';
+    $tile .= '<div class="entry-stats tag-display extra-info-addon">Tags: ';
     // Initialize a counter
     $c = 1;
     foreach ($this->tags as $id=>$tag) {
-      // Stop after the third tag on smaller entry tiles
-      if ($this->entryDisplaySize == 1 && $c > 3) {
-        break;
-      }
-      $tile .= '<a class="tag" href="#" onclick="return addTag(' . $id . ')">' . $tag . '</a> ';
+      $tile .= '<a class="tag in-extra-info" href="#" onclick="return addTag(' . $id . ')">' . $tag . '</a> ';
       $c++;
     }
     $tile .= '</div>';
-    // Add Article Feature Image if available
-    if ($this->image != null) {
-      $tile .= '<div class="image-container"><img class="image" src="' . $this->image . '"/><div class="extra-info"></div></div>';
-    } elseif ($this->synopsis != null) {
-      // Add the synopsis here (STYLING INCOMPLETE)
-      $synopsisExcerpt = trim(substr($this->synopsis, 0, 270));
-      if (strlen($synopsisExcerpt) > 267) {
-        $synopsisExcerpt .= "...";
-      }
-      $tile .= '<div class="synopsis-container centered"><p class="synopsis">' . $synopsisExcerpt . '</p></div>';
-    } else {
-      $tile .= '<div class="image-container"><img class="image fill-size" src="assets/tileFill.png"/></div>';
-    }
+    // Display Article Synopsis
+    $tile .= '<div class="extra-info-addon extra-info-synopsis">' . $this->synopsis . '</div>';
+    // Display Entry Stats
+    $tile .= '<div class="extra-info-addon extra-info-bottom-data"><div class="extra-info-views">Views: ' . $this->views . '</div><div class="extra-info-rating">Rating: ' . $this->rating . '/5</div></div>';
+    $tile .= '</div></div>';
+    
     // Add Site Stats
     $tile .= '<div class="entry-stats">';
     // Site Icon
@@ -139,25 +140,6 @@ class FeedDisplay {
   }
 
   public function generateTile() {
-    /* EXAMPLE
-    <div class='feed-tile'>
-      <div class='feed-tile-image-container'>
-        <img class='feed-tile-image' src='https://beebom-redkapmedia.netdna-ssl.com/wp-content/uploads/2016/01/Reverse-Image-Search-Engines-Apps-And-Its-Uses-2016.jpg'>
-      </div>
-      <div class='feed-tile-info'>
-        <a href="viewFeed.php?feedID=2" onclick='return selectFeed(2)' class='hover-detect'><span class='entry-url'></span></a>
-        <h4 class='feed-tile-title'>This is the name of the feed</h4>
-        <p class='feed-tile-desc'>This is the feed descrption, it's kinda long and whatever, but ya know....</p>
-        <div class='feed-tile-footer'>
-          <b>Categories: </b>
-          <a class='tag' href='#' onclick='return false'>Cat1</a>
-          <a class='tag' href='#' onclick='return false'>Cat2</a>
-          <a class='tag' href='#' onclick='return false'>Cat3</a>
-          <a class='context-display' href='#' onclick='return false'><span class='fa fa-plus fa-context-style'></span></a>
-        </div>
-      </div>
-    </div>
-    */
     $tile = "<div class='feed-tile'><div class='feed-tile-image-container'>";
     // Add the image
     if ($this->imagePath == null || $this->imagePath == "") {
@@ -241,7 +223,7 @@ class SiteData {
         return;
       }
     }
-    $this->articleContent = $this->getArticleContents();
+    $this->articleContent = $this->getArticleContents($this->pageContent);
     // get the Site URL for a cross check with the database
     $this->siteURL = explode("/",$url)[2];
     // Remove the www subdomain if it occurs
@@ -458,7 +440,7 @@ class SiteData {
 
   public function getTags($content) {
     $tags = [];
-    $fillerWords = ['when', 'said', 'dr', 'after', 'my', 'doesn’t', 'who', 'now', 'most', 'place', 'should', 'best', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'mr', 'ms', 'mrs', 'dr', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
+    $fillerWords = ['when', 'said', 'dr', 'after', 'my', 'doesn’t', 'who', 'now', 'most', 'place', 'should', 'best', 'using', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'mr', 'ms', 'mrs', 'dr', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
     $splitContent = explode(' ', $this->stripPunctuation($content));
     foreach ($splitContent as &$word) {
       // Remove ALL whitespace

@@ -82,8 +82,9 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
       if (isset($item->title)) {
         $entryInfo->title = $item->title;
       }
-      // Filter title for SQL injection
+      // Filter text for SQL injection
       $entryInfo->title = $conn->real_escape_string($entryInfo->title);
+      $entryInfo->synopsis = $conn->real_escape_string($entryInfo->synopsis);
     } catch (Exception $e) {
       $entryInfo = null;
       echo $e->getMessage() . " @ " . $item->link . "\n";

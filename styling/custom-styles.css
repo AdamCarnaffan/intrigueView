@@ -60,8 +60,7 @@
 }
 .entry-heading {
   padding: 0.25rem;
-  padding-bottom: 0;
-  margin-bottom: .2rem;
+  margin-bottom: .4rem;
 }
 .entry-stats {
   position: relative;
@@ -189,17 +188,52 @@ html, body {
   height: 100%;
   position: absolute;
   top: 100%;
-  background-color: rgba(0,0,0,.6);
+  background-color: rgba(0, 0, 0, 0.8);
   transition: top 0.8s;
-}
-@keyframes openEntryInfo {
-  100% { top: 0%; }
-}
-@keyframes closeEntryInfo {
-  100% { top: 100%; }
+  display: flex;
+  flex-direction: column;
 }
 .extra-info-hover {
   top: 0%;
+}
+.extra-info-addon {
+  position: relative;
+  display: flex;
+  color: rgba(255,255,255,1);
+}
+.extra-info-synopsis  {
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+  line-height: normal;
+  font-size: 0.95rem;
+  color: #c3c3c3;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+.extra-info-bottom-data {
+  flex-direction: row;
+  height: 1.7rem;
+  min-height: 1.7rem;
+  margin-bottom: auto;
+  padding-bottom: 5px;
+  padding-left: 0.4rem;
+}
+.extra-info-views {
+  position: absolute;
+  bottom: 5px;
+}
+.extra-info-rating {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+.synopsis-shadow {
+  position: absolute;
+  width: 110%;
+  height: 115%;
+  box-shadow: inset 3px 3px 10px 10px black;
+  top: -15%;
+  left: -5%;
 }
 .button-holder {
   width: 2.5rem;
@@ -437,15 +471,17 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
 .remove-scrolling {
   min-height: 10% !important;
 }
-.tag-shift {
-  padding-top: 0;
-  margin-bottom: 0;
-  padding-bottom: 0;
+.tag-display {
+  min-height: 1.8rem;
+  padding-top: 0.2rem;
+  padding-left: 0.4rem;
+  padding-bottom: 0.4rem;
+  color: rgba(255,255,255,1);
 }
 .tag {
   position: relative;
   z-index: 2;
-  color: black;
+  color: white;
   text-decoration: underline;
   margin-left: 0.15rem;
 }

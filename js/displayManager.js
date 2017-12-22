@@ -162,6 +162,16 @@ function queryEntries(selection, feeds, scroll = false) {
           closeInfo(hoverObject);
         }, 1000);
       });
+      $(".in-extra-info").hover( function() {
+        $(this).parents('.image-container').siblings('.hover-detect').data('leaving', false);
+      });
+      // Apply shadow styling in the extra info where necessary
+      var shadowStyling = '<div class="synopsis-shadow"></div>';
+      $('.extra-info-synopsis').each( function() {
+        if ($(this).prop('scrollHeight') > $(this).prop('clientHeight')) {
+          $(this).append(shadowStyling);
+        }
+      });
     },
     error: function() {
       // Remove the loading dots

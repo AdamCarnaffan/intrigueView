@@ -13,8 +13,6 @@ Not all pages or functions support error logging
 
 Search not working for tags
 
-'No entries found' displayed for a second query where the first was not filled
-
 RSS ADMIN FEED dropdown needs search
 
 Higher min-height for mobile Filter
@@ -29,6 +27,12 @@ Allow multi-word tags where phrases are used repeatedly (Net Neutrality)
 
 Tag counts do not reflect query results
 
-Rise up excerpt display (with views and rating)
-
 Change filler image to default intrigue view !
+
+Nothing being fetched for 'freeforteachers.com' or something (http://www.freetech4teachers.com/2017/12/5-good-alternatives-to-google-image.html)
+
+Add a view when an article is opened
+
+Views always displaying as 1
+
+Add ability to rate

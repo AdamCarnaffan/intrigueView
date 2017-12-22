@@ -96,7 +96,7 @@ array_unique($selectedFeedArray);
 // Consolidate the array for query
 $selectedFeedList = implode("','", $selectedFeedArray);
 // When changing the query, remember to adjust object
-$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon, entries.entryID, entries.visible, entryConn.feedID FROM entries
+$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon, entries.entryID, entries.visible, entryConn.feedID, entries.views FROM entries
 	               JOIN sites ON entries.siteID = sites.siteID
                  JOIN entry_connections AS Entryconn ON entries.entryID = Entryconn.entryID
                  LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
@@ -153,7 +153,7 @@ while ($row = $entries->fetch_array()) {
   $getTags = "SELECT tagConn.entryID, tags.tagNAME, tags.tagID FROM entry_tags AS tagConn
               JOIN tags ON tags.tagID = tagConn.tagID
               WHERE tagConn.entryID = '$entryIDVal'
-              ORDER BY sortORDER LIMIT 4"; // Only get the first 4 tags for the entry
+              ORDER BY sortORDER LIMIT 3"; // Only get the first 3 tags for the entry
   $tags = $conn->query($getTags);
   $entry = new Entry($row, $tags, $context);
   $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
