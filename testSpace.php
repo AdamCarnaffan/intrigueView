@@ -1,76 +1,8 @@
 <?php
 
-$url = "https://dzone.com/articles/ai-and-machine-learning-trends-for-2018-what-to-ex";
+$url = "http://www.freetech4teachers.com/2017/12/5-good-alternatives-to-google-image.html?cachebusterTimestamp=1513951824233#.Wj0SVt-nGUk";
 $content = getPageContents($url);
-$excerpt = getArticleContents($content, true);
-echo $excerpt;
-//echo $excerpt;
-
-function getArticleContents($input, $needReadable = false) {
-  $articleContent = ['defaultClassing' => '']; // Initialize default as the value when no classes are present
-  $input = stripScripting($input);
-  $pTagSeparated = explode("<p", $input);
-  foreach ($pTagSeparated as $tag) {
-    $validationChar = substr($tag, 0, 1); // Get the first following character from the HTML tag
-    if ($validationChar == ">" || $validationChar == " ") { // To validate that we're looking at a <p> tag
-      // The text within the <p></p> tags
-      $textWithClass = explode("</p>", $tag)[0];
-      // Operation to remove <p> attributes
-      $textAlone = explode('>', $textWithClass);
-      array_shift($textAlone); // To remove the text before the <p> closing tag
-      $textAlone = implode($textAlone, ">");
-      // The attributes of the <p> tag
-      $textAttr = explode(">", $textWithClass)[0];
-      // Sort into blank and filled Classes
-      if (strpos(strtolower($textAttr), "class=") !== false) {
-        $classes = substr($textAttr, strpos(strtolower($textAttr),"class="));
-        // Accept classes denoted by either single or double quoation marks
-        if (isset(explode("'", $classes)[1])) {
-          $classes = explode("'", $classes)[1];
-        } else {
-          $classes = explode('"', $classes)[1];
-        }
-        if (isset($articleContent[$classes])) {
-          $articleContent[$classes] .= $textAlone . " ";
-        } else {
-          $articleContent[$classes] = $textAlone . " ";
-        }
-      } else {
-        if ($needReadable) {
-          $articleContent['defaultClassing'] = (strlen($textAlone) > strlen($articleContent['defaultClassing'])) ? $textAlone : $articleContent['defaultClassing'];
-        } else {
-          $articleContent['defaultClassing'] .= $textAlone . " ";
-        }
-      }
-    }
-  }
-  if (!function_exists('lengthSort')) {
-    // Define a custom sort function that determines the difference in string length
-    function lengthSort($stringA, $stringB) {
-      return strlen($stringB) - strlen($stringA);
-    }
-  }
-  // Sort the array in terms of content length (referenced from below)
-  usort($articleContent, 'lengthSort');
-  $finalContent = $articleContent[0];
-  // Strip article of all other tags
-  return stripHTMLTags($finalContent);
-}
-
-function stripHTMLTags($contents) {
-  // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
-  $contentNoScript = stripScripting($contents);
-  // Remove Styling info
-  $contentNoStyling = preg_replace("/<style\b[^>]*>(.*?)<\/style>/is", " ", $contentNoScript);
-  // Remove html tags and formatting from the excerpt
-  $contentNoHTML = preg_replace("#\<[^\>]+\>#", " ", $contentNoStyling);
-  // Clean additional whitespaces
-  return preg_replace("#\s+#", " ", $contentNoHTML);
-}
-
-function stripScripting($contents) {
-  return preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", " ", $contents);
-}
+echo getImage($content);
 
 function getPageContents($pageURL) {
   // Run a query to the page for source contents
@@ -102,6 +34,85 @@ function getContentsAsUser($pageURL) {
     return null;
   }
   return $pageContents;
+}
+
+function getImage($pageContent) {
+  // Check for schema.org inclusion (this is used to determine compatibility)
+  if (strpos($pageContent, 'schema.org"') !== false && strpos($pageContent, '"image":') !== false || strpos($pageContent, '"image" :') !== false) {
+    // Remove whitespaces for uniformity of string searches
+    $noWhiteContent = preg_replace('/\s*/m','',$pageContent);
+    // Select the beginning position of the required section
+    $beginningPos = strpos($noWhiteContent, '"@context":"http://schema.org"');
+    $beginningPos = ($beginningPos == null) ? strpos($noWhiteContent, '"@context":"https://schema.org"') : $beginningPos;
+    // Find the end and create a string that includes only required properties
+    $contentsTrim = substr($noWhiteContent, $beginningPos, strpos($noWhiteContent,'</script>', $beginningPos) - $beginningPos);
+    // Remove the [] in cases where developers decided to throw those in
+    $noBracketing = str_replace('[','',$contentsTrim);
+    $noBracketingFinal = str_replace(']','',$noBracketing);
+    // Select each instance of ":{" --> if it is preceeded by "image", it contains the image url.
+    $nextContainsURL = false; // Define the variable to prevent exceptions
+    foreach (explode(":{",$noBracketingFinal) as $segment) {
+      if ($nextContainsURL) {
+        $honedURL = substr($segment, strpos($segment, "url"),-1);
+        // If the image is subdivided into another object, progress to that segment instead
+        if (isset(explode('"',$honedURL)[2])) {
+          $imageURL = explode('"',$honedURL)[2];
+          return $imageURL;
+        }
+      }
+      if (substr($segment, strlen($segment) - 7, 7) == '"image"') { // Check if the last characters of a segment are the correct ones for an "image":{} property
+        // Flag the next segment as that with the URL
+        $nextContainsURL = true;
+      }
+    }
+    return null;
+  } elseif (strpos($pageContent,'<div class="post-body__content"><figure') !== false) {
+    $contentsTrim = substr($pageContent, strpos($pageContent, '<div class="post-body__content"><figure'), 600);
+    $targetURL = substr($contentsTrim, strpos($contentsTrim, '<img src='), 400);
+    $imageURL = explode('"',$targetURL)[1];
+    return $imageURL;
+  } elseif (strpos($pageContent, '"og:image"') !== false || strpos($pageContent, "'og:image'") !== false) { // Cover Wikipedia type articles which never use schema.org but are common
+    $contentByMeta = explode("<meta", $pageContent);
+    foreach ($contentByMeta as $content) {
+      if (strpos($content, '"og:image"') || strpos($content, "'og:image'")) {
+        $contentTrim = explode("/>", $content)[0];
+        $contentTag = substr($contentTrim, strpos($contentTrim, "content="));
+        // Cover cases where single quotes are used to define content (outliers)
+        if (isset(explode('"', $contentTag)[1])) {
+          $imageURL = explode('"', $contentTag)[1];
+        } else {
+          $imageURL = explode("'", $contentTag)[1];
+        }
+        break;
+      }
+    }
+    return $imageURL;
+  } else { // The page is not compatible with the method
+    return null;
+  }
+}
+
+function stripPunctuation($string) {
+  $punctuation = ['?', ".", "!", ",", "-", '"', "&quot;", "]", "[", "(", ")", "'s", "&#x27;s"];
+  // Replace dashes with spaces to separate words
+  $wordConnectors = ['—', '-'];
+  $string = str_replace($wordConnectors, " ", $string);
+  return str_replace($punctuation, "", $string);
+}
+
+function stripHTMLTags($contents) {
+  // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
+  $contentNoScript = stripScripting($contents);
+  // Remove Styling info
+  $contentNoStyling = preg_replace("/<style\b[^>]*>(.*?)<\/style>/is", " ", $contentNoScript);
+  // Remove html tags and formatting from the excerpt
+  $contentNoHTML = preg_replace("#\<[^\>]+\>#", " ", $contentNoStyling);
+  // Clean additional whitespaces
+  return preg_replace("#\s+#", " ", $contentNoHTML);
+}
+
+function stripScripting($contents) {
+  return preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", " ", $contents);
 }
 
 ?>

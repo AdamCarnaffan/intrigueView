@@ -60,14 +60,14 @@ class Entry {
     $tile .= '<a href="' . $this->url . '" onclick="return openInNewTab(\'' . $this->url . '\')" class="hover-detect" id="lol-test"><span class="entry-url"></span></a>';
     // Add Article Heading
     $tile .= '<h5 class="entry-heading">' . $this->title . '</h5>';
-    
+
     // Add Article Image Display
     if ($this->image != null) {
       $tile .= '<div class="image-container"><img class="image" src="' . $this->image . '"/>';
     } else {
       $tile .= '<div class="image-container"><img class="image fill-size" src="assets/tileFill.png"/>';
     }
-    
+
     // Begin site details slider
     $tile .= '<div class="extra-info">';
     // Add Top Tags
@@ -84,7 +84,7 @@ class Entry {
     // Display Entry Stats
     $tile .= '<div class="extra-info-addon extra-info-bottom-data"><div class="extra-info-views">Views: ' . $this->views . '</div><div class="extra-info-rating">Rating: ' . $this->rating . '/5</div></div>';
     $tile .= '</div></div>';
-    
+
     // Add Site Stats
     $tile .= '<div class="entry-stats">';
     // Site Icon
@@ -254,7 +254,10 @@ class SiteData {
     // Find the feature image on the page
     $this->imageURL = $this->validateImageLink($this->getImage($this->pageContent));
     // Get an excerpt of text from the article to display if no feature image is found
-    $this->synopsis = trim($this->articleContent);
+    $this->synopsis = $this->getArticleContents($this->pageContent, true);
+    if (strlen($this->synopsis) < 20) {
+      $this->synopsis = "Click the article to see what it's about!";
+    }
     // Build tags
     $tagBuilder = function (&$tagArray, $frequency) use ($tagBlackList) {
       foreach ($tagArray as $tagKey=>&$tag) {
@@ -340,6 +343,7 @@ class SiteData {
     $weightedTags = $this->checkCommonality($authorTags, $articleTags, $titleTags, $urlTags, $siteMainURL);
     // Determine final order
     $this->tags = $this->computeWeighting($weightedTags);
+    $this->checkPluralized($this->tags);
   }
 
   public function getArticleContents($input, $needReadable = false) {
@@ -417,6 +421,9 @@ class SiteData {
   }
 
   // TAG FUNCTIONS
+  public function checkPluralized($tagArray) {
+
+  }
 
   public function getURLTags($inputURL) {
     $noDashes = explode("-", $inputURL); // All URLs with content pertanent to the article separate these words with dashes
@@ -440,7 +447,7 @@ class SiteData {
 
   public function getTags($content) {
     $tags = [];
-    $fillerWords = ['when', 'said', 'dr', 'after', 'my', 'doesn’t', 'who', 'now', 'most', 'place', 'should', 'best', 'using', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'mr', 'ms', 'mrs', 'dr', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
+    $fillerWords = ['when', 'said', 'dr', 'after', 'my', 'doesn’t', 'who', 'now', 'most', 'good', 'receiving', 'place', 'should', 'best', 'using', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'mr', 'ms', 'mrs', 'dr', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
     $splitContent = explode(' ', $this->stripPunctuation($content));
     foreach ($splitContent as &$word) {
       // Remove ALL whitespace
@@ -755,10 +762,10 @@ class SiteData {
       $targetURL = substr($contentsTrim, strpos($contentsTrim, '<img src='), 400);
       $imageURL = explode('"',$targetURL)[1];
       return $imageURL;
-    } elseif (strpos($pageContent, '"og:image"') !== false) { // Cover Wikipedia type articles which never use schema.org but are common
+    } elseif (strpos($pageContent, '"og:image"') !== false || strpos($pageContent, "'og:image'") !== false) { // Cover Wikipedia type articles which never use schema.org but are common
       $contentByMeta = explode("<meta", $pageContent);
       foreach ($contentByMeta as $content) {
-        if (strpos($content, '"og:image"')) {
+        if (strpos($content, '"og:image"') || strpos($content, "'og:image'")) {
           $contentTrim = explode("/>", $content)[0];
           $contentTag = substr($contentTrim, strpos($contentTrim, "content="));
           // Cover cases where single quotes are used to define content (outliers)

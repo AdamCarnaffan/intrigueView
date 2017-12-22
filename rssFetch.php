@@ -21,6 +21,13 @@ $timeZone = ('-5:00');
 // Default for the error variable used in the loop
 $error = false;
 
+// Define a shutdown function
+register_shutdown_function(function() use ($feedSelection) {
+  include('dbConnect.php');
+  $unloadFeed = "UPDATE external_feeds SET busy = 0 WHERE externalFeedID = '$feedSelection->id'";
+  $conn->query($unloadFeed);
+});
+
 /*
 RSS Feed xml attributes come from xml->[title][description][link]->attributes->ITEM PROPERTY
 RSS Feed xml interpretation points xml->channel->LISTOFITEMS(item)->ITEM PROPERTY

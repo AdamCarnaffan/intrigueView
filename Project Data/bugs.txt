@@ -29,8 +29,6 @@ Tag counts do not reflect query results
 
 Change filler image to default intrigue view !
 
-Nothing being fetched for 'freeforteachers.com' or something (http://www.freetech4teachers.com/2017/12/5-good-alternatives-to-google-image.html)
-
 Add a view when an article is opened
 
 Views always displaying as 1
