@@ -4,7 +4,7 @@ require('objectConstruction.php');
 
 // $_POST['selection'] = 10;
 // $_POST['currentDisplay'] = 0;
-// $_POST['tags'] = [];
+// $_POST['tags'] = "9";
 // $_POST['tagMode'] = 0;
 // $_POST['search'] = "";
 // $_POST['feedsList'] = "23";
@@ -99,8 +99,7 @@ $selectedFeedList = implode("','", $selectedFeedArray);
 $getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon, entries.entryID, entries.visible, entryConn.feedID, entries.views FROM entries
 	               JOIN sites ON entries.siteID = sites.siteID
                  JOIN entry_connections AS Entryconn ON entries.entryID = Entryconn.entryID
-                 LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
-                 LEFT JOIN tags ON tagConn.tagID = tags.tagID";
+                 LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID";
 // Adjust the query if a search is present
 $search = false;
 if ($searchKey != null && strlen($searchKey) > 0) {
@@ -121,7 +120,7 @@ if ($queryTags != "" && $queryTags != null) {
   }
   $tags = explode("+", $queryTags);
   foreach ($tags as $tagID) {
-    $tempCondition = "SUM(CASE WHEN tags.tagID = '$tagID' THEN 1 ELSE 0 END) = 1";
+    $tempCondition = "SUM(CASE WHEN tagConn.tagID = '$tagID' THEN 1 ELSE 0 END) > 0";
     if (!$addedTag) {
       $getEntries .= " HAVING " . $tempCondition;
       // Only the first tag condition is first
