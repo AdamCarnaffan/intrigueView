@@ -240,12 +240,14 @@ function removeTag(tagID) {
 function getTags() {
   // Process Tag Query String To know which should be highlighted
   var tagString = queryTags.join('+');
+  var feedString = feedSelection.join('+');
   // Empty the current Tags field
   $('#tag-collection').html('');
   $.post({
     url: 'tagDisplay.php',
     data: {
-      'tags': tagString
+      'tags': tagString,
+      'feeds': feedString
     },
     success: function(data) {
       $('#tag-collection').html(data);

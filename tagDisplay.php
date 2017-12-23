@@ -1,7 +1,7 @@
 <?php
 require('dbConnect.php');
 
-$_POST['feeds'] = '2';
+// $_POST['feeds'] = '2';
 
 // Process Submitted Tags
 $tags = $_POST['tags'];
