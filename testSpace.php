@@ -1,8 +1,10 @@
 <?php
 
-$url = "http://www.freetech4teachers.com/2017/12/5-good-alternatives-to-google-image.html?cachebusterTimestamp=1513951824233#.Wj0SVt-nGUk";
+$url = "https://dzone.com/articles/ai-and-machine-learning-trends-for-2018-what-to-ex";
 $content = getPageContents($url);
-echo getImage($content);
+$img = getImage($content);
+//echo validateImageLink($img);
+echo $img;
 
 function getPageContents($pageURL) {
   // Run a query to the page for source contents
@@ -36,6 +38,59 @@ function getContentsAsUser($pageURL) {
   return $pageContents;
 }
 
+function validateImageLink($imgURL) {
+  // Make a library of supported extensions
+  $supportedExtensions = ['bmp','jpg','jpeg','png','gif','webp','ico'];
+  // Interpret URL if it is from a URI scheme
+  do {
+    $imgURL = str_replace('%25','%',$imgURL); // Interpret percentage signs
+    if (false !== strpos($imgURL, "image_uri")) {
+      // The Distribution takes place through a routed network, the true URL is embedded
+      $urlPos = strpos($imgURL, "image_uri");
+      $cdnLinkNoEnd = substr($imgURL, $urlPos);
+      $cdnLink = explode('&',$cdnLinkNoEnd)[0];
+      $embedded = true;
+    } else {
+      // The Distribution is not through a routed CDN
+      $cdnLink = $imgURL;
+      $embedded = false;
+    }
+    // Fix the equals signs where they've been reformatted
+    $cdnLink = str_replace('%3D','=',$cdnLink);
+    $cdnLink = preg_replace('~image_uri=~','',$cdnLink,1);
+    // reformat the link as a URL, as URI practice converts slashes into codes
+    // Fix the http colons
+    $firstReplace = str_replace('%3A', ':', $cdnLink);
+    // Fix the /'s
+    $imgURL = str_replace('%2F', "/", $firstReplace);
+    // Fix the &'s
+    $imgURL = str_replace('%26', "&", $firstReplace);
+  } while (false !== strpos($imgURL, "image_uri"));  // In some cases, 3 image_uri formattings are buried inside eachother
+  if ($embedded) {
+    // Interpret all /'s final
+    $imgURL = str_replace('%2F', '/', $imgURL);
+    return $imgURL;
+  }
+  // Change all slashes before checking
+  $imgURL = str_replace('%2F', '/', $imgURL);
+  // Check for embedded 'smart' links
+  if (substr_count($imgURL, "http://") > 1 || substr_count($imgURL, "https://") > 1) {
+    $lastURLPos = strrpos($imgURL, "http://");
+    $lastURLPos = ($lastURLPos != 0) ? $lastURLPos : strrpos($imgURL, "https://");
+    $fullURL = substr($imgURL, $lastURLPos);
+    $fullURL = str_replace('%3F', '&', $fullURL);
+    $imgURL = explode('&', $fullURL)[0];
+  }
+  // Breakdown the URL for the file extension (as the extension is of an unknown length)
+  $breakdownForExtension = explode(".",$imgURL);
+  $extension = $breakdownForExtension[count($breakdownForExtension) - 1];
+  //Protect extension validation from addition image properties on the image URL
+  $extension = trim(explode("?",$extension)[0]);
+  // Validate the extension or return null for the URL if the extension is invalid
+  $validURL = (in_array($extension, $supportedExtensions)) ? $imgURL : null;
+  return $validURL;
+}
+
 function getImage($pageContent) {
   // Check for schema.org inclusion (this is used to determine compatibility)
   if (strpos($pageContent, 'schema.org"') !== false && strpos($pageContent, '"image":') !== false || strpos($pageContent, '"image" :') !== false) {
@@ -65,18 +120,19 @@ function getImage($pageContent) {
         $nextContainsURL = true;
       }
     }
-    return null;
-  } elseif (strpos($pageContent,'<div class="post-body__content"><figure') !== false) {
+  } 
+  if (strpos($pageContent,'<div class="post-body__content"><figure') !== false) {
     $contentsTrim = substr($pageContent, strpos($pageContent, '<div class="post-body__content"><figure'), 600);
     $targetURL = substr($contentsTrim, strpos($contentsTrim, '<img src='), 400);
     $imageURL = explode('"',$targetURL)[1];
     return $imageURL;
-  } elseif (strpos($pageContent, '"og:image"') !== false || strpos($pageContent, "'og:image'") !== false) { // Cover Wikipedia type articles which never use schema.org but are common
+  } 
+  if (strpos($pageContent, '"og:image"') !== false || strpos($pageContent, "'og:image'") !== false) { // Cover Wikipedia type articles which never use schema.org but are common
     $contentByMeta = explode("<meta", $pageContent);
     foreach ($contentByMeta as $content) {
       if (strpos($content, '"og:image"') || strpos($content, "'og:image'")) {
         $contentTrim = explode("/>", $content)[0];
-        $contentTag = substr($contentTrim, strpos($contentTrim, "content="));
+        $contentTag = substr($contentTrim, strpos($contentTrim, " content="));
         // Cover cases where single quotes are used to define content (outliers)
         if (isset(explode('"', $contentTag)[1])) {
           $imageURL = explode('"', $contentTag)[1];
@@ -87,9 +143,9 @@ function getImage($pageContent) {
       }
     }
     return $imageURL;
-  } else { // The page is not compatible with the method
-    return null;
-  }
+  } 
+  // The page is not compatible with the method
+  return null;
 }
 
 function stripPunctuation($string) {

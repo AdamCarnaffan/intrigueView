@@ -756,18 +756,19 @@ class SiteData {
           $nextContainsURL = true;
         }
       }
-      return null;
-    } elseif (strpos($pageContent,'<div class="post-body__content"><figure') !== false) {
+    } 
+    if (strpos($pageContent,'<div class="post-body__content"><figure') !== false) {
       $contentsTrim = substr($pageContent, strpos($pageContent, '<div class="post-body__content"><figure'), 600);
       $targetURL = substr($contentsTrim, strpos($contentsTrim, '<img src='), 400);
       $imageURL = explode('"',$targetURL)[1];
       return $imageURL;
-    } elseif (strpos($pageContent, '"og:image"') !== false || strpos($pageContent, "'og:image'") !== false) { // Cover Wikipedia type articles which never use schema.org but are common
+    } 
+    if (strpos($pageContent, '"og:image"') !== false || strpos($pageContent, "'og:image'") !== false) { // Cover Wikipedia type articles which never use schema.org but are common
       $contentByMeta = explode("<meta", $pageContent);
       foreach ($contentByMeta as $content) {
         if (strpos($content, '"og:image"') || strpos($content, "'og:image'")) {
           $contentTrim = explode("/>", $content)[0];
-          $contentTag = substr($contentTrim, strpos($contentTrim, "content="));
+          $contentTag = substr($contentTrim, strpos($contentTrim, " content="));
           // Cover cases where single quotes are used to define content (outliers)
           if (isset(explode('"', $contentTag)[1])) {
             $imageURL = explode('"', $contentTag)[1];
@@ -778,9 +779,9 @@ class SiteData {
         }
       }
       return $imageURL;
-    } else { // The page is not compatible with the method
-      return null;
-    }
+    } 
+    // The page is not compatible with the method
+    return null;
   }
 
   public function getPageContents($pageURL) {
@@ -828,6 +829,16 @@ class SiteData {
       // Interpret all /'s final
       $imgURL = str_replace('%2F', '/', $imgURL);
       return $imgURL;
+    }
+    // Change all slashes before checking
+    $imgURL = str_replace('%2F', '/', $imgURL);
+    // Check for embedded 'smart' links
+    if (substr_count($imgURL, "http://") > 1 || substr_count($imgURL, "https://") > 1) {
+      $lastURLPos = strrpos($imgURL, "http://");
+      $lastURLPos = ($lastURLPos != 0) ? $lastURLPos : strrpos($imgURL, "https://");
+      $fullURL = substr($imgURL, $lastURLPos);
+      $fullURL = str_replace('%3F', '&', $fullURL);
+      $imgURL = explode('&', $fullURL)[0];
     }
     // Breakdown the URL for the file extension (as the extension is of an unknown length)
     $breakdownForExtension = explode(".",$imgURL);
