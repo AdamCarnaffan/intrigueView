@@ -1,7 +1,12 @@
-function openInNewTab(url) {
+function openInNewTab(url, entryID) {
   var tab = window.open(url, '_blank');
   tab.focus();
-  // Add a view submision here
+  $.post({
+    url: 'viewEntry.php',
+    data: {
+      'entry': entryID
+    }
+  });
   return false;
 }
 

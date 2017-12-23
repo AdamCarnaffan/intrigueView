@@ -57,7 +57,7 @@ class Entry {
     }
     $tile .= '">';
     // Add Article URL
-    $tile .= '<a href="' . $this->url . '" onclick="return openInNewTab(\'' . $this->url . '\')" class="hover-detect" id="lol-test"><span class="entry-url"></span></a>';
+    $tile .= '<a href="' . $this->url . '" onclick="return openInNewTab(\'' . $this->url . '\', \'' . $this->id . '\')" class="hover-detect" id="lol-test"><span class="entry-url"></span></a>';
     // Add Article Heading
     $tile .= '<h5 class="entry-heading">' . $this->title . '</h5>';
 
