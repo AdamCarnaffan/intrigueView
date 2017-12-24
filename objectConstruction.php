@@ -25,7 +25,7 @@ class Entry {
     $this->siteURL = $dataArray[6];
     $this->siteIcon = $dataArray[7];
     $this->id = $dataArray[8];
-    $this->views = $dataArray[9];
+    $this->views = $dataArray[11];
     $this->rating = 5; // We only put out the highest quality content xD
     // Build the tags array
     while ($row = $dataTags->fetch_array()) {

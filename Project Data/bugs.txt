@@ -29,6 +29,4 @@ Change filler image to default intrigue view !
 
 Add view when the article is opened by middle mouse or right click
 
-Views always displaying as 1
-
 Add ability to rate
