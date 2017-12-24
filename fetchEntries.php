@@ -4,10 +4,10 @@ require('objectConstruction.php');
 
 // $_POST['selection'] = 10;
 // $_POST['currentDisplay'] = 0;
-// $_POST['tags'] = "9";
+// $_POST['tags'] = "";
 // $_POST['tagMode'] = 0;
-// $_POST['search'] = "";
-// $_POST['feedsList'] = "23";
+// $_POST['search'] = "AI";
+// $_POST['feedsList'] = "2";
 $_POST['context'] = "public";
 
 // Take Inputs from the specific call
@@ -18,6 +18,9 @@ $searchKey = (isset($_POST['search']) && strlen($_POST['search']) > 0) ? $_POST[
 $queryTags = $_POST['tags'];
 $tagMode = $_POST['tagMode'];
 $context = $_POST['context'];
+// Generate search as tags as well
+$searchTags = (strlen($searchKey) > 1) ? explode(" ", $searchKey) : [];
+$search = false;
 
 // Set default values
 $entryDisplayNumber = 1; // The slot for page display in a given set
@@ -99,13 +102,8 @@ $selectedFeedList = implode("','", $selectedFeedArray);
 $getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon, entries.entryID, entries.visible, entryConn.feedID, entries.views FROM entries
 	               JOIN sites ON entries.siteID = sites.siteID
                  JOIN entry_connections AS Entryconn ON entries.entryID = Entryconn.entryID
-                 LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID";
-// Adjust the query if a search is present
-$search = false;
-if ($searchKey != null && strlen($searchKey) > 0) {
- $getEntries .= " WHERE entries.title LIKE '%$searchKey%'";
- $search = true;
-}
+                 LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
+                 LEFT JOIN tags ON tags.tagID = tagConn.tagID";
 // Add the GROUP BY following all WHERE Statements
 $getEntries .= " GROUP BY entries.entryID";
 // Add the Tag Query
@@ -130,6 +128,27 @@ if ($queryTags != "" && $queryTags != null) {
     }
   }
 }
+// Adjust the query if a search is present
+if ($searchKey != null && strlen($searchKey) > 0) {
+  if ($addedTag) {
+    $getEntries .= " AND entries.title LIKE '%$searchKey%'";
+  } else {
+    $getEntries .= " HAVING BINARY entries.title LIKE '%$searchKey%'";
+  }
+ $search = true;
+}
+if (count($searchTags) > 0) {
+  if ($addedTag) {
+    $condition = " AND ";
+  } else {
+    $condition = " OR ";
+  }
+  foreach ($searchTags as $tagString) {
+    $tempCondition = "SUM(CASE WHEN tags.tagName = '$tagString' THEN 1 ELSE 0 END) > 0";
+    $getEntries .= $condition . $tempCondition;
+  }
+  $addedTag = true;
+}
 if (!$addedTag) {
   $getEntries .= " HAVING ";
 } else {
@@ -146,7 +165,9 @@ $getEntries .= "entries.visible = 1 AND
 $entriesFound = false;
 $display = [];
 $entries = $conn->query($getEntries);
-//echo $conn->error;
+// echo $conn->error;
+// echo "</br>";
+// echo $getEntries;
 while ($row = $entries->fetch_array()) {
   $entryIDVal = $row[8];
   $getTags = "SELECT tagConn.entryID, tags.tagNAME, tags.tagID FROM entry_tags AS tagConn

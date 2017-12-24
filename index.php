@@ -24,7 +24,6 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
   <!-- Javascript -->
   <script src='js/jquery-3.2.1.min.js'></script>
   <script src='js/displayManager.js'></script>
-  <script src='js/loginManager.js'></script>
   <script src='js/popper.js'></script>
   <script src='js/bootstrap.js'></script>
 </head>

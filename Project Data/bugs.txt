@@ -1,15 +1,8 @@
 A Site that uses javascript to display content has nothing to show when pulled (techinasia.com). See below URL
 
   https://techinasia.com/talk/8-machine-learning-8-minutes
-
-No response is returned in the admin area
-
-No Feeds are displayed if permission for editing feeds is not ALL
-    This issue also exists with Entries
-
-Entries Management needs pagination
-
-Not all pages or functions support error logging
+  
+Admin area needs to be re-done (manage some things in regular UI) (edit button)
 
 Search not working for tags
 
