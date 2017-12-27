@@ -1,4 +1,20 @@
 <?php 
+require_once('lib/vendor/autoload.php');
+require_once('objectConstruction.php');
+
+// Modifiable Variables
+$googleServiceAccPath = "F:/UniformServer/UniServerZ/Google_API/service.json";
+
+// Generate a client
+$client = new Google_Client();
+putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $googleServiceAccPath);
+$client->useApplicationDefaultCredentials();
+$client->setScopes(['https://www.googleapis.com/auth/books']);
+$engineID = '017024561452473323470:vibdg2pnw_e';
+
+// Create a search 
+$search = new Google_Service_Customsearch($client);
+
 
 /*
 

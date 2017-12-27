@@ -131,7 +131,7 @@ if ($queryTags != "" && $queryTags != null) {
 // Adjust the query if a search is present
 if ($searchKey != null && strlen($searchKey) > 0) {
   if ($addedTag) {
-    $getEntries .= " AND entries.title LIKE '%$searchKey%'";
+    $getEntries .= " AND BINARY entries.title LIKE '%$searchKey%'";
   } else {
     $getEntries .= " HAVING BINARY entries.title LIKE '%$searchKey%'";
   }

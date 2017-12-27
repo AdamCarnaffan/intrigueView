@@ -4,15 +4,11 @@ A Site that uses javascript to display content has nothing to show when pulled (
   
 Admin area needs to be re-done (manage some things in regular UI) (edit button)
 
-Search not working for tags
-
 RSS ADMIN FEED dropdown needs search
 
 Higher min-height for mobile Filter
 
 Mobile Filters should be hidden by default, visible by button
-
-FeedInfo object not built well
 
 Take pluralization out of tags
 
@@ -23,3 +19,9 @@ Change filler image to default intrigue view !
 Add view when the article is opened by middle mouse or right click
 
 Add ability to rate
+
+Add ability to refetch article (admin)
+
+Handle Capitals in searchKey
+
+3rd glance will need an SSL Certificate
