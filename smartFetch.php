@@ -15,6 +15,8 @@ $engineID = '017024561452473323470:vibdg2pnw_e';
 // Create a search 
 $search = new Google_Service_Customsearch($client);
 
+// https://developers.google.com/apis-explorer/?cachebusterTimestamp=1514304833602&hl=en_US#p/customsearch/v1/search.cse.list?q=AI&cx=017024561452473323470%253Avibdg2pnw_e&dateRestrict=d2&googlehost=google.ca&_h=1&
+// https://github.com/google/google-api-php-client
 // Build php class to construct this parameter tree programatically
 
 $fullParams = array(
