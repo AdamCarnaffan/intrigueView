@@ -25,3 +25,7 @@ Add ability to refetch article (admin)
 Handle Capitals in searchKey
 
 3rd glance will need an SSL Certificate
+
+----------------------
+
+Resource.php line 110 Google API
