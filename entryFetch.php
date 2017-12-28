@@ -3,7 +3,7 @@ include_once('dbConnect.php');
 require('objectConstruction.php');
 
 $_POST['targetID'] = 25;
-$_POST['url'] = "https://www.wired.com/story/did-you-like-or-follow-facebook-pages-from-a-russian-troll-farm/";
+$_POST['url'] = "https://www.wired.com/2017/12/geeks-guide-last-jedi/";
 
 $targetFeed = $_POST['targetID'];
 $targetURL = $_POST['url'];

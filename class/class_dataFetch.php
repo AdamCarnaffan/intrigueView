@@ -88,7 +88,9 @@ class Tag_Potential extends Tag {
   public $frequency = 1;
 
   public function makeWeighted() {
-    return new Tag_Weighted($this->name, $this->databaseID);
+    $weighted = new Tag_Weighted($this->name, $this->databaseID);
+    $weighted->frequency = $this->frequency; // Conserve previous frequency
+    return $weighted;
   }
 }
 
@@ -188,6 +190,9 @@ class Entry_Data {
     $this->imageURL = $this->validateImageLink($this->getImage($this->pageContent));
     // Get an excerpt of text from the article to display if no feature image is found
     $this->synopsis = $this->getArticleContents($this->pageContent, true);
+    //echo $this->synopsis . "</br>";
+    // Trim the synopsis (for legal purposes)
+    $this->synopsis = substr($this->synopsis, 0, 400);
     if (strlen($this->synopsis) < 20) {
       $this->synopsis = "Click the article to see what it's about!";
     }
@@ -273,8 +278,9 @@ class Entry_Data {
     // Author Tags --> INPUT 1
     // Content Tags --> INPUT 2
     // Title Tags --> INPUT 3
-    // URL Tags --> INPUT 4
+    // URL Tags --> INPUT
     $weightedTags = $this->checkCommonality($authorTags, $articleTags, $titleTags, $urlTags, $siteMainURL);
+    //print_r($weightedTags);
     // Determine final order
     $this->tags = $this->computeWeighting($weightedTags);
     // Check for Plural tags
@@ -327,7 +333,7 @@ class Entry_Data {
           }
         } else {
           if ($needReadable) {
-            $articleContent['defaultClassing'] = (strlen($textAlone) > strlen($articleContent['defaultClassing'])) ? $textAlone : $articleContent['defaultClassing'];
+            $articleContent['defaultClassing'] = (strlen($this->stripHTMLTags($textAlone)) > strlen($this->stripHTMLTags($articleContent['defaultClassing']))) ? $textAlone : $articleContent['defaultClassing']; // Change the content out if the new content adds significant value
           } else {
             $articleContent['defaultClassing'] .= $textAlone . " ";
           }
@@ -394,7 +400,7 @@ class Entry_Data {
 
   public function getTags($content) {
     $tags = [];
-    $fillerWords = ['when', 'said', 'dr', 'after', 'my', 'doesn’t', 'who', 'now', 'most', 'good', 'receiving', 'place', 'should', 'best', 'using', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'mr', 'ms', 'mrs', 'dr', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
+    $fillerWords = ['when', 'there', 'said', 'dr', 'after', 'my', 'doesn’t', 'who', 'now', 'most', 'good', 'receiving', 'place', 'should', 'best', 'using', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'mr', 'ms', 'mrs', 'dr', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
     $splitContent = explode(' ', $this->stripPunctuation($content));
     foreach ($splitContent as &$word) {
       // Remove ALL whitespace

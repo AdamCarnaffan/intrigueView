@@ -27,8 +27,6 @@ Add ability to manage and flag tags --> flagged tags must be confirmed before th
 
 Make tags filter out verbs, they make poor tags
 
-Tags should be checked for a singular form in the article as well as database
-
 Tag consolidate() function misses plurals that end in "i" like "cacti"
 
 3rd glance will need an SSL Certificate
@@ -36,10 +34,6 @@ Tag consolidate() function misses plurals that end in "i" like "cacti"
 Classes need to be consolidated
 
 Make the feed builder
-
-"Star Wars" isn't a tag on https://www.wired.com/2017/12/geeks-guide-last-jedi/ --> How tho?
-
-Legal blab is fetched as an excerpt -> https://www.wired.com/story/most-read-wired-business-stories-2017/
 
 ----------------------
 
@@ -50,11 +44,15 @@ Untested fixes:
 
 Fixed offline:
 
-Handle capitals in searches
-Fixed an issue with fetching search results from all feeds
-Moved classes to a new folder separated by functionality
-Removed feedBuilder.php as it mirrors builder.php (both empty)
-Renamed SiteData class to Entry_Data (to be made an extension of a default Entry class)
-Script written to consolidate previous tags from the database
-Refactored the tag classing to create one extended class
-Fixed undefined index exceptions in tagging
+Fixed tags not carrying frequency to final priority function
+Fixed a problem with displaying the correct synopsis
+Tags are now checked for a singular form in the article as well
+Trimmed the synopsis for legal reasons (may need adjusting for the box)
+
+To do:
+
+Continue fixing tagging
+Allow for phrase tags
+Fix Google API
+Consolidate other classes
+Make new filler image
