@@ -1,7 +1,7 @@
 A Site that uses javascript to display content has nothing to show when pulled (techinasia.com). See below URL
 
   https://techinasia.com/talk/8-machine-learning-8-minutes
-  
+
 Admin area needs to be re-done (manage some things in regular UI) (edit button)
 
 RSS ADMIN FEED dropdown needs search
@@ -10,9 +10,10 @@ Higher min-height for mobile Filter
 
 Mobile Filters should be hidden by default, visible by button
 
-Take pluralization out of tags
-
 Allow multi-word tags where phrases are used repeatedly (Net Neutrality)
+    when a tag is used more than 3 times, check the word in front of the tag and behind the tag.
+    if either of these values are repeated for the majority of instances of the tag, they become part of the tag.
+    this is repeated for the same side until it returns false or hits a cap of 3 words.
 
 Change filler image to default intrigue view !
 
@@ -22,10 +23,38 @@ Add ability to rate
 
 Add ability to refetch article (admin)
 
-Handle Capitals in searchKey
+Add ability to manage and flag tags --> flagged tags must be confirmed before the article is displayed
+
+Make tags filter out verbs, they make poor tags
+
+Tags should be checked for a singular form in the article as well as database
+
+Tag consolidate() function misses plurals that end in "i" like "cacti"
 
 3rd glance will need an SSL Certificate
+
+Classes need to be consolidated
+
+Make the feed builder
+
+"Star Wars" isn't a tag on https://www.wired.com/2017/12/geeks-guide-last-jedi/ --> How tho?
+
+Legal blab is fetched as an excerpt -> https://www.wired.com/story/most-read-wired-business-stories-2017/
 
 ----------------------
 
 Resource.php line 110 Google API
+
+----------------------
+Untested fixes:
+
+Fixed offline:
+
+Handle capitals in searches
+Fixed an issue with fetching search results from all feeds
+Moved classes to a new folder separated by functionality
+Removed feedBuilder.php as it mirrors builder.php (both empty)
+Renamed SiteData class to Entry_Data (to be made an extension of a default Entry class)
+Script written to consolidate previous tags from the database
+Refactored the tag classing to create one extended class
+Fixed undefined index exceptions in tagging

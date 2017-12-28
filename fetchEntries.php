@@ -1,12 +1,13 @@
 <?php
 include('dbConnect.php');
-require('objectConstruction.php');
+require_once('objectConstruction.php');
+// require('objectConstruction.php');
 
 // $_POST['selection'] = 10;
 // $_POST['currentDisplay'] = 0;
 // $_POST['tags'] = "";
 // $_POST['tagMode'] = 0;
-// $_POST['search'] = "AI";
+// $_POST['search'] = "unsettling";
 // $_POST['feedsList'] = "2";
 $_POST['context'] = "public";
 
@@ -80,7 +81,7 @@ $checkPrivate = "SELECT isPrivate, internalFeedID FROM user_feeds WHERE internal
 $securityReturn = $conn->query($checkPrivate);
 while ($secure = $securityReturn->fetch_array()) {
   if ($secure[0] == 1) {
-    
+
   }
 }
 
@@ -103,7 +104,8 @@ $getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries
 	               JOIN sites ON entries.siteID = sites.siteID
                  JOIN entry_connections AS Entryconn ON entries.entryID = Entryconn.entryID
                  LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
-                 LEFT JOIN tags ON tags.tagID = tagConn.tagID";
+                 LEFT JOIN tags ON tags.tagID = tagConn.tagID
+                 WHERE entryConn.feedID IN ('$selectedFeedList')";
 // Add the GROUP BY following all WHERE Statements
 $getEntries .= " GROUP BY entries.entryID";
 // Add the Tag Query
@@ -130,10 +132,15 @@ if ($queryTags != "" && $queryTags != null) {
 }
 // Adjust the query if a search is present
 if ($searchKey != null && strlen($searchKey) > 0) {
+  // Create an adjusted string where the first letter is capitalized or not (based on original)
+  $splitSearch = str_split($searchKey);
+  $splitSearch[0] = (ctype_upper($splitSearch[0])) ? strtolower($splitSearch[0]) : strtoupper($splitSearch[0]);
+  $adjustedSearchKey = implode($splitSearch);
+  // Add the search string to the query
   if ($addedTag) {
-    $getEntries .= " AND BINARY entries.title LIKE '%$searchKey%'";
+    $getEntries .= " AND (BINARY entries.title LIKE '%$searchKey%' OR BINARY entries.title LIKE '%$adjustedSearchKey%')";
   } else {
-    $getEntries .= " HAVING BINARY entries.title LIKE '%$searchKey%'";
+    $getEntries .= " HAVING (BINARY entries.title LIKE '%$searchKey%' OR BINARY entries.title LIKE '%$adjustedSearchKey%')";
   }
  $search = true;
 }
@@ -157,8 +164,7 @@ if (!$addedTag) {
 
 // Finish the query
 
-$getEntries .= "entries.visible = 1 AND
-                SUM(CASE WHEN entryConn.feedID IN('$selectedFeedList') THEN 1 ELSE 0 END) > 0
+$getEntries .= "entries.visible = 1
                 ORDER BY entryConn.dateConnected DESC, entries.entryID ASC
                 LIMIT $selectionLimit OFFSET $selectionOffset";
 // Prepare and query

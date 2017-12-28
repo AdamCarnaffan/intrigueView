@@ -84,7 +84,7 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
         // Replace an amp in the middle with a single slash
         $item->link = str_replace("/amp/", "/", $item->link);
       }
-      $entryInfo = new SiteData($item->link, $feedSelection->source, $conn, $tagBlackList);
+      $entryInfo = new Entry_Data($item->link, $feedSelection->source, $conn, $tagBlackList);
       // Check for title in RSS Feed, and fetch if not present
       if (isset($item->title)) {
         $entryInfo->title = $item->title;

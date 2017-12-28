@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once('lib/vendor/autoload.php');
 require_once('objectConstruction.php');
 
@@ -12,7 +12,7 @@ $client->useApplicationDefaultCredentials();
 $client->setScopes(['https://www.googleapis.com/auth/cse']);
 $engineID = '017024561452473323470:vibdg2pnw_e';
 
-// Create a search 
+// Create a search
 $search = new Google_Service_Customsearch($client);
 
 // https://developers.google.com/apis-explorer/?cachebusterTimestamp=1514304833602&hl=en_US#p/customsearch/v1/search.cse.list?q=AI&cx=017024561452473323470%253Avibdg2pnw_e&dateRestrict=d2&googlehost=google.ca&_h=1&
@@ -163,7 +163,7 @@ Idea: The feature takes tag data submitted and uses the data to find related art
 
 1) Fetch Global / Personal data (input)
   -Get data and weight factors from database for incoming query
-  
+
 
 2) Apply Data to Google News Query (output)
   -Take top recent results for the Query

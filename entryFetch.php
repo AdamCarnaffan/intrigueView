@@ -1,9 +1,9 @@
 <?php
 include_once('dbConnect.php');
-require_once('objectConstruction.php');
+require('objectConstruction.php');
 
 $_POST['targetID'] = 25;
-$_POST['url'] = "https://www.engadget.com/2017/11/17/best-phones-under-500/";
+$_POST['url'] = "https://www.wired.com/story/did-you-like-or-follow-facebook-pages-from-a-russian-troll-farm/";
 
 $targetFeed = $_POST['targetID'];
 $targetURL = $_POST['url'];
@@ -26,6 +26,7 @@ while ($row = $result->fetch_array()) {
 
 // Insert the item into the database
 // Get the site data as an object
+
 try {
   // Remove the /amp from site links where applicable
   if (strpos($targetURL, "wired.com") !== false || strpos($targetURL, "engadget.com") !== false) {
@@ -36,24 +37,24 @@ try {
     // Replace an amp in the middle with a single slash
     $targetURL = str_replace("/amp/", "/", $targetURL);
   }
-  $entryInfo = new SiteData($targetURL, $targetFeed, $conn, $tagBlackList);
-  // Check for title in RSS Feed, and fetch if not present
-  if (isset($item->title)) {
-    $entryInfo->title = $item->title;
-  }
-  // Filter title for SQL injection
+  $entryInfo = new Entry_Data($targetURL, $targetFeed, $conn, $tagBlackList);
+  // Filter text for SQL injection
   $entryInfo->title = $conn->real_escape_string($entryInfo->title);
+  $entryInfo->synopsis = $conn->real_escape_string($entryInfo->synopsis);
 } catch (Exception $e) {
   $entryInfo = null;
   echo $e->getMessage() . " @ " . $targetURL . "\n";
   $error = true;
   exit;
 }
+foreach ($entryInfo->tags as $sortOrder=>$tag) {
+  echo $sortOrder . ") " . $tag . " added </br>";
+}
 // Format Date Time for mySQL
 $dateAdded = new DateTime();
 $dateAdded = $dateAdded->format('Y-m-d H:i:s');
 // MySQL Statement
-$addEntry = "CALL newEntry('$entryInfo->siteID','$targetFeed', '$entryInfo->title','$targetURL','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis', @newID);
+$addEntry = "CALL newEntry('$entryInfo->siteID', '$targetFeed', '$entryInfo->title','$targetURL','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis', @newID);
               SELECT @newID";
 if ($conn->multi_query($addEntry)) { // Report all succcessful entries to the user
   // Cycle to second query
@@ -78,7 +79,7 @@ if ($conn->multi_query($addEntry)) { // Report all succcessful entries to the us
   } elseif ($conn->errno == 1048) {
     $summary->entriesFailed++;
     array_push($summary->failuresList, $entryInfo->title);
-    $summary->failureReason = "The entry is not a duplicate but was treated as such" . " @ " . $targetURL;
+    $summary->failureReason = "The entry is not a duplicate but was treated as such @ " . $targetURL;
   } else {
     $summary->entriesFailed++;
     array_push($summary->failuresList, $entryInfo->title);
@@ -97,7 +98,7 @@ foreach ($summary->entriesList as $title) {
 }
 // Handle for failed actions report
 if ($summary->entriesFailed > 0) {
-  echo $summary->entriesFailed . " entries failed to be added to the database table due to: '" . $summary->failureReason . "'";
+  echo "\n {$summary->entriesFailed} entries failed to be added to the database table due to: '{$summary->failureReason}' ";
 }
 
 ?>
