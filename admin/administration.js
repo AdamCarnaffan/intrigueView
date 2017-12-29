@@ -12,7 +12,8 @@ function refreshFeed(feedId, target) {
   $.post({
     url: "../rssFetch.php",
     data: {
-      'sourceID': feedId
+      'sourceID': feedId,
+      'method': 2
     },
     success: function(data) {
       if (data.error) {

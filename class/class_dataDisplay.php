@@ -1,22 +1,13 @@
 <?php
 
-class Entry {
+class Entry_Display extends Entry {
 
-  public $feedName;
-  public $id;
-  public $title;
-  public $url;
-  public $image;
-  public $synopsis;
-  public $siteURL;
-  public $siteIcon;
   public $entryDisplaySize;
   public $contextMenu;
-  public $tags = [];
+  public $isFeatured;
 
   public function __construct($dataArray, $dataTags, $displayContext) {
     // Get all data from the Query. Indexes are based on position in the query
-    // $this->feedName = $dataArray[0];
     $this->title = $dataArray[0];
     $this->url = $dataArray[1];
     $this->image = $dataArray[3];

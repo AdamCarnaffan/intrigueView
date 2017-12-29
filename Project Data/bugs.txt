@@ -31,9 +31,13 @@ Tag consolidate() function misses plurals that end in "i" like "cacti"
 
 3rd glance will need an SSL Certificate
 
-Classes need to be consolidated
+Feed Class needs consolidation
+
+EntryLog may be logging duplicates more often than necessary
 
 Make the feed builder
+
+checkURLPathing() Makes http:// the standard when sometimes this doesn't work
 
 ----------------------
 
@@ -44,15 +48,12 @@ Untested fixes:
 
 Fixed offline:
 
-Fixed tags not carrying frequency to final priority function
-Fixed a problem with displaying the correct synopsis
-Tags are now checked for a singular form in the article as well
-Trimmed the synopsis for legal reasons (may need adjusting for the box)
+Split the Entry class into a std class and extensions
+  Included the Source_Site class
 
 To do:
 
 Continue fixing tagging
 Allow for phrase tags
 Fix Google API
-Consolidate other classes
 Make new filler image

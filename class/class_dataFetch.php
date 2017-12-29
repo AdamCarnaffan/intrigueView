@@ -1,88 +1,5 @@
 <?php
 
-class Tag {
-
-  public $name;
-  public $databaseID;
-
-  public function __construct($tagName, $dbID = null) {
-    $this->name = $tagName;
-    $this->databaseID = $dbID;
-  }
-
-  public function checkPluralization() {
-    if (strpos($this->name, "s", -1) !== false) {
-      return true;
-    }
-    return false;
-  }
-
-  public function generateTagSingulars() {
-    $singularStrings = [];
-
-    // Add the tag without an s as the first possible singlular form
-    $tempSingleSplit = str_split($this->name);
-    array_pop($tempSingleSplit);
-    // Check for a pluralized acronym, skip if so
-    if (ctype_upper(implode($tempSingleSplit))) {
-      return false;
-    }
-    array_push($singularStrings, implode($tempSingleSplit));
-
-    // Add other possible pluralizations of the word
-
-    // ies -> ex. entries = entry
-    if (strpos($this->name, "ies", -4)) {
-      $tempSingleSplit = str_split($this->name);
-      // Remove last 2 characters from array
-      array_pop($tempSingleSplit);
-      array_pop($tempSingleSplit);
-      $tempSingleSplit[count($tempSingleSplit) - 1] = "y";
-    }
-    return $singularStrings;
-  }
-
-  public function consolidate($dbConn) {
-    /**
-    * Returning false indicated that no consolidation was available (the inverse indicated the inverse)
-    *
-    * @param (mysqli object) $dbConn -> MySQL database connection object for queries
-    */
-
-    // Check that the tag name appears to be a plural form
-    if (!$this->checkPluralization()) {
-      return false;
-    }
-    // Don't even bother if the tag is an acronym
-    if (ctype_upper($this->name)) {
-      return false;
-    }
-    // Generate possible singulars
-    $possibleSingulars = $this->generateTagSingulars();
-    // Develop a query to find existing IDs
-    $transitionString = "";
-    // Begin query definition
-    $getSingle = "SELECT tagID, tagName FROM tags WHERE ";
-    foreach ($possibleSingulars as $tagName) {
-      $getSingle .= "tagName = '{$tagName}'";
-      $transitionString = " OR ";
-    }
-    // Return only one result, the result to which other tags should link
-    $getSingle .= " LIMIT 1";
-
-    // Run the query
-    if ($existingID = $dbConn->query($getSingle)->fetch_array()) {
-      // Sets the information for the tag equal to the existing singular tag
-      $this->databaseID = $existingID[0];
-      $this->name = $existingID[1];
-      return true; // A single was found
-    } else {
-      return false; // Indicate that no single currently exists
-    }
-  }
-
-}
-
 class Tag_Potential extends Tag {
 
   public $frequency = 1;
@@ -105,94 +22,45 @@ class Tag_Weighted extends Tag_Potential {
 
 }
 
-// class PotentialTag {
-//   public $tag;
-//   public $frequency;
-//
-//   public function __construct($index, $value) {
-//     $this->tag = $index;
-//     $this->frequency = $value;
-//   }
-//
-// }
-//
-// Class Tag extends PotentialTag {
-//
-//   public $weight;
-//   public $priority;
-//
-//   public function __construct($potentialTagObject, $weighting) {
-//     $this->tag = $potentialTagObject->tag;
-//     $this->frequency = $potentialTagObject->frequency;
-//     $this->weight = $weighting;
-//   }
-//
-//   public function prioritize() {
-//     $this->priority = round($this->frequency*$this->weight);
-//   }
-// }
+class Entry_Data extends Entry {
 
-class Entry_Data {
-
-  public $siteIcon;
-  public $siteURL;
-  public $siteID;
-  public $feedID;
-  public $imageURL;
-  public $synopsis;
+  // Data exclusive
   public $pageContent;
-  public $articleContent;
-  public $title;
-  public $tags;
+  public $articleText;
 
-  public function __construct($url, $feedID, $dbConn, $tagBlackList) {
-    $this->feedID = $feedID; // PLACEHOLDER FOR FEED DATA SUBMISSION
+  public function __construct($url, $dbConn, $tagBlackList) {
     // Get the contents of the site page
-    $this->pageContent = $this->getPageContents($url);
+    $this->pageContent = getPageContents($url);
     if ($this->pageContent == null) {
       // Try without https
       $url = str_replace('https://', 'http://', $url);
-      $this->pageContent = $this->getPageContents($url);
+      $this->pageContent = getPageContents($url);
       if ($this->pageContent == null) {
         throw new Exception("The URL is invalid or the page does not accept outside requests");
         return;
       }
     }
-    $this->articleContent = $this->getArticleContents($this->pageContent);
+    $this->articleText = $this->getArticleContents();
     // get the Site URL for a cross check with the database
-    $this->siteURL = explode("/",$url)[2];
+    $siteURL = explode("/",$url)[2];
     // Remove the www subdomain if it occurs
-    $this->siteURL = str_replace("www.", "", $this->siteURL);
+    $siteURL = str_replace("www.", "", $siteURL);
     // Check for the site URL in the database sites table
-    $getSiteInfo = "SELECT siteID, icon FROM sites WHERE url = '$this->siteURL'";
-    if ($tempInfo = $dbConn->query($getSiteInfo)) { // Check that the query is successful
-      $siteResult = $tempInfo->fetch_array();
-      if (count($siteResult) > 0) { // Check for the return of a result
-        $this->siteIcon = null; // If the site is already in the database, the site icon does not matter
-        $this->siteID = $siteResult['siteID'];
-      } else {
-        // Get the site icon from the contents
-        $this->siteIcon = $this->validateImageLink($this->getSiteIconURL($this->pageContent));
-        // Submit the site to the database as a new site entry
-        $insertSite = "INSERT INTO sites (url, icon) VALUES ('$this->siteURL','$this->siteIcon')";
-        if ($dbConn->query($insertSite)) {
-          $this->siteID = $dbConn->insert_id;
-        } else {
-          throw new Exception($dbConn->error);
-        }
-      }
-    } else {
-      throw new Exception($dbConn->error);
+    $this->source = new Source_Site($siteURL);
+    // Fetch any data from the site if needed
+    if ($this->source->icon == null || $this->source->icon == "") {
+      $this->source->getData($dbConn, $this->pageContent);
     }
     // Get the title from the page
-    $this->title = $this->getTitle($this->pageContent);
+    $this->getTitle();
     // Find the feature image on the page
-    $this->imageURL = $this->validateImageLink($this->getImage($this->pageContent));
+    $this->getImage();
     // Get an excerpt of text from the article to display if no feature image is found
-    $this->synopsis = $this->getArticleContents($this->pageContent, true);
+    $this->synopsis = $this->getArticleContents(true);
     //echo $this->synopsis . "</br>";
     // Trim the synopsis (for legal purposes)
     $this->synopsis = substr($this->synopsis, 0, 400);
+    // Add a filler if the Synopsis doesn't exist
     if (strlen($this->synopsis) < 20) {
       $this->synopsis = "Click the article to see what it's about!";
     }
@@ -236,9 +104,9 @@ class Entry_Data {
     // Call functions to build tag arrays
     $authorTags = $this->getAuthorTags($this->pageContent); // Try to ommit author name from these tags on return
     $titleKeywords = $this->getTags($this->title);
-    $contentTags = $this->getTags($this->articleContent);
+    $contentTags = $this->getTags($this->articleText);
     $urlTags = $this->getURLTags($url);
-    $siteMainURL = explode('.',$this->siteURL)[0]; // Get ONLY the main URL
+    $siteMainURL = explode('.',$this->source->url)[0]; // Get ONLY the main URL
     //$soughtTags = seekTags($articleContent);
     // Convert all tags
     $articleTags = [];
@@ -302,9 +170,44 @@ class Entry_Data {
     }
   }
 
-  public function getArticleContents($input, $needReadable = false) {
+  public function submitEntry(mysqli $dbConn, $feedID, $date) {
+    // Escape strings
+    $this->title = $dbConn->real_escape_string($this->title);
+    $this->synopsis = $dbConn->real_escape_string($this->synopsis);
+    // Build the Query
+    $addEntry = "CALL newEntry('{$this->source->id}','$feedID', '$this->title','$this->url','$date','$this->image','$this->synopsis', @newID);
+                  SELECT @newID";
+    if ($dbConn->multi_query($addEntry)) {
+      // Cycle to second query
+      $dbConn->next_result();
+      // Get the new entry's ID
+      $entryID = $dbConn->store_result()->fetch_array()[0];
+      // Add the tags with connections
+      foreach ($this->tags as $sortOrder=>$tag) {
+        $addTag = "CALL addTag('$tag', '$entryID', '$sortOrder')";
+        $dbConn->query($addTag);
+        //echo $sortOrder . ") " . $tag . " added </br>";
+      }
+      return "The entry '{$this->title}' was added successfully";
+    } elseif ($dbConn->errno == 1062) {
+      // Make the Connection to the feed, instead of adding the entry
+      $connectEntry = "CALL newEntryConnection('$this->url', '$feedID', @duplicate)";
+      // Run the query and handle responses
+      if ($dbConn->query($connectEntry)) {
+        return "The entry '{$this->title}' was connected to the Feed with ID {$feedID}";
+      } elseif ($dbConn->errno == 1048) {
+        return "The entry is not a duplicate but was handled as such for URL '{$this->url}'";
+      } else {
+        return "{$dbConn->error} with URL '{$this->url}'";
+      }
+    } else { // The inital multi-query failed
+      return "{$dbConn->error} with URL '{$this->url}'";
+    }
+  }
+
+  public function getArticleContents($needReadable = false) {
     $articleContent = ['defaultClassing' => '']; // Initialize default as the value when no classes are present
-    $input = $this->stripScripting($this->pageContent);
+    $input = stripScripting($this->pageContent);
     $pTagSeparated = explode("<p", $input);
     foreach ($pTagSeparated as $tag) {
       $validationChar = substr($tag, 0, 1); // Get the first following character from the HTML tag
@@ -321,10 +224,11 @@ class Entry_Data {
         if (strpos(strtolower($textAttr), "class=") !== false) {
           $classes = substr($textAttr, strpos(strtolower($textAttr),"class="));
           // Accept classes denoted by either single or double quoation marks
+          //echo $classes . "</br>";
           if (isset(explode("'", $classes)[1])) {
             $classes = explode("'", $classes)[1];
           } else {
-            $classes = explode('"', $classes)[1];
+            $classes = explode('"', fixHTMLChars($classes))[1];
           }
           if (isset($articleContent[$classes])) {
             $articleContent[$classes] .= $textAlone . " ";
@@ -333,7 +237,7 @@ class Entry_Data {
           }
         } else {
           if ($needReadable) {
-            $articleContent['defaultClassing'] = (strlen($this->stripHTMLTags($textAlone)) > strlen($this->stripHTMLTags($articleContent['defaultClassing']))) ? $textAlone : $articleContent['defaultClassing']; // Change the content out if the new content adds significant value
+            $articleContent['defaultClassing'] = (strlen(stripHTMLTags($textAlone)) > strlen(stripHTMLTags($articleContent['defaultClassing']))) ? $textAlone : $articleContent['defaultClassing']; // Change the content out if the new content adds significant value
           } else {
             $articleContent['defaultClassing'] .= $textAlone . " ";
           }
@@ -350,31 +254,31 @@ class Entry_Data {
     usort($articleContent, 'lengthSort');
     $finalContent = $articleContent[0];
     // Strip article of all other tags
-    return $this->stripHTMLTags($finalContent);
+    return stripHTMLTags($finalContent);
   }
 
-  public function stripPunctuation($string) {
-    $punctuation = ['?', ".", "!", ",", "-", '"', "&quot;", "]", "[", "(", ")", "'s", "&#x27;s"];
-    // Replace dashes with spaces to separate words
-    $wordConnectors = ['—', '-'];
-    $string = str_replace($wordConnectors, " ", $string);
-    return str_replace($punctuation, "", $string);
-  }
+  // public function stripPunctuation($string) {
+  //   $punctuation = ['?', ".", "!", ",", "-", '"', "&quot;", "]", "[", "(", ")", "'s", "&#x27;s"];
+  //   // Replace dashes with spaces to separate words
+  //   $wordConnectors = ['—', '-'];
+  //   $string = str_replace($wordConnectors, " ", $string);
+  //   return str_replace($punctuation, "", $string);
+  // }
 
-  public function stripHTMLTags($contents) {
-    // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
-    $contentNoScript = $this->stripScripting($contents);
-    // Remove Styling info
-    $contentNoStyling = preg_replace("/<style\b[^>]*>(.*?)<\/style>/is", " ", $contentNoScript);
-    // Remove html tags and formatting from the excerpt
-    $contentNoHTML = preg_replace("#\<[^\>]+\>#", " ", $contentNoStyling);
-    // Clean additional whitespaces
-    return preg_replace("#\s+#", " ", $contentNoHTML);
-  }
+  // public function stripHTMLTags($contents) {
+  //   // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
+  //   $contentNoScript = $this->stripScripting($contents);
+  //   // Remove Styling info
+  //   $contentNoStyling = preg_replace("/<style\b[^>]*>(.*?)<\/style>/is", " ", $contentNoScript);
+  //   // Remove html tags and formatting from the excerpt
+  //   $contentNoHTML = preg_replace("#\<[^\>]+\>#", " ", $contentNoStyling);
+  //   // Clean additional whitespaces
+  //   return preg_replace("#\s+#", " ", $contentNoHTML);
+  // }
 
-  public function stripScripting($contents) {
-    return preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", " ", $contents);
-  }
+  // public function stripScripting($contents) {
+  //   return preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", " ", $contents);
+  // }
 
   // TAGGING RELATED FUNCTIONS
 
@@ -401,7 +305,7 @@ class Entry_Data {
   public function getTags($content) {
     $tags = [];
     $fillerWords = ['when', 'there', 'said', 'dr', 'after', 'my', 'doesn’t', 'who', 'now', 'most', 'good', 'receiving', 'place', 'should', 'best', 'using', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'mr', 'ms', 'mrs', 'dr', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
-    $splitContent = explode(' ', $this->stripPunctuation($content));
+    $splitContent = explode(' ', stripPunctuation($content));
     foreach ($splitContent as &$word) {
       // Remove ALL whitespace
       $word = str_replace("&nbsp;", "", $word);
@@ -693,11 +597,11 @@ class Entry_Data {
 
   // -----------------------------------------------------------
 
-  public function getImage($pageContent) {
+  public function getImage() {
     // Check for schema.org inclusion (this is used to determine compatibility)
-    if (strpos($pageContent, 'schema.org"') !== false && strpos($pageContent, '"image":') !== false || strpos($pageContent, '"image" :') !== false) {
+    if (strpos($this->pageContent, 'schema.org"') !== false && strpos($this->pageContent, '"image":') !== false || strpos($this->pageContent, '"image" :') !== false) {
       // Remove whitespaces for uniformity of string searches
-      $noWhiteContent = preg_replace('/\s*/m','',$pageContent);
+      $noWhiteContent = preg_replace('/\s*/m','',$this->pageContent);
       // Select the beginning position of the required section
       $beginningPos = strpos($noWhiteContent, '"@context":"http://schema.org"');
       $beginningPos = ($beginningPos == null) ? strpos($noWhiteContent, '"@context":"https://schema.org"') : $beginningPos;
@@ -714,7 +618,8 @@ class Entry_Data {
           // If the image is subdivided into another object, progress to that segment instead
           if (isset(explode('"',$honedURL)[2])) {
             $imageURL = explode('"',$honedURL)[2];
-            return $imageURL;
+            $this->image = validateImageLink($imageURL);
+            return;
           }
         }
         if (substr($segment, strlen($segment) - 7, 7) == '"image"') { // Check if the last characters of a segment are the correct ones for an "image":{} property
@@ -723,14 +628,15 @@ class Entry_Data {
         }
       }
     }
-    if (strpos($pageContent,'<div class="post-body__content"><figure') !== false) {
-      $contentsTrim = substr($pageContent, strpos($pageContent, '<div class="post-body__content"><figure'), 600);
+    if (strpos($this->pageContent,'<div class="post-body__content"><figure') !== false) {
+      $contentsTrim = substr($this->pageContent, strpos($this->pageContent, '<div class="post-body__content"><figure'), 600);
       $targetURL = substr($contentsTrim, strpos($contentsTrim, '<img src='), 400);
       $imageURL = explode('"',$targetURL)[1];
-      return $imageURL;
+      $this->image = validateImageLink($imageURL);
+      return;
     }
-    if (strpos($pageContent, '"og:image"') !== false || strpos($pageContent, "'og:image'") !== false) { // Cover Wikipedia type articles which never use schema.org but are common
-      $contentByMeta = explode("<meta", $pageContent);
+    if (strpos($this->pageContent, '"og:image"') !== false || strpos($this->pageContent, "'og:image'") !== false) { // Cover Wikipedia type articles which never use schema.org but are common
+      $contentByMeta = explode("<meta", $this->pageContent);
       foreach ($contentByMeta as $content) {
         if (strpos($content, '"og:image"') || strpos($content, "'og:image'")) {
           $contentTrim = explode("/>", $content)[0];
@@ -744,169 +650,164 @@ class Entry_Data {
           break;
         }
       }
-      return $imageURL;
+      $this->image = validateImageLink($imageURL);
+      return;
     }
     // The page is not compatible with the method
-    return null;
+    return;
   }
 
-  public function getPageContents($pageURL) {
-    // Run a query to the page for source contents
-    $pageContents = @file_get_contents($pageURL);
-    // If the url cannot be accessed, make another attempt as a user
-    if ($pageContents == null || $pageContents == false) {
-      $pageContents = $this->getContentsAsUser($pageURL);
-      if ($pageContents == null) {
-        return null;
-      }
-    }
-    return $pageContents;
-  }
+  // public function getPageContents($pageURL) {
+  //   // Run a query to the page for source contents
+  //   $pageContents = @file_get_contents($pageURL);
+  //   // If the url cannot be accessed, make another attempt as a user
+  //   if ($pageContents == null || $pageContents == false) {
+  //     $pageContents = $this->getContentsAsUser($pageURL);
+  //     if ($pageContents == null) {
+  //       return null;
+  //     }
+  //   }
+  //   return $pageContents;
+  // }
 
-  public function validateImageLink($imgURL) {
-    // Make a library of supported extensions
-    $supportedExtensions = ['bmp','jpg','jpeg','png','gif','webp','ico'];
-    // Interpret URL if it is from a URI scheme
-    do {
-      $imgURL = str_replace('%25','%',$imgURL); // Interpret percentage signs
-      if (false !== strpos($imgURL, "image_uri")) {
-        // The Distribution takes place through a routed network, the true URL is embedded
-        $urlPos = strpos($imgURL, "image_uri");
-        $cdnLinkNoEnd = substr($imgURL, $urlPos);
-        $cdnLink = explode('&',$cdnLinkNoEnd)[0];
-        $embedded = true;
-      } else {
-        // The Distribution is not through a routed CDN
-        $cdnLink = $imgURL;
-        $embedded = false;
-      }
-      // Fix the equals signs where they've been reformatted
-      $cdnLink = str_replace('%3D','=',$cdnLink);
-      $cdnLink = preg_replace('~image_uri=~','',$cdnLink,1);
-      // reformat the link as a URL, as URI practice converts slashes into codes
-      // Fix the http colons
-      $firstReplace = str_replace('%3A', ':', $cdnLink);
-      // Fix the /'s
-      $imgURL = str_replace('%2F', "/", $firstReplace);
-      // Fix the &'s
-      $imgURL = str_replace('%26', "&", $firstReplace);
-    } while (false !== strpos($imgURL, "image_uri"));  // In some cases, 3 image_uri formattings are buried inside eachother
-    if ($embedded) {
-      // Interpret all /'s final
-      $imgURL = str_replace('%2F', '/', $imgURL);
-      return $imgURL;
-    }
-    // Change all slashes before checking
-    $imgURL = str_replace('%2F', '/', $imgURL);
-    // Check for embedded 'smart' links
-    if (substr_count($imgURL, "http://") > 1 || substr_count($imgURL, "https://") > 1) {
-      $lastURLPos = strrpos($imgURL, "http://");
-      $lastURLPos = ($lastURLPos != 0) ? $lastURLPos : strrpos($imgURL, "https://");
-      $fullURL = substr($imgURL, $lastURLPos);
-      $fullURL = str_replace('%3F', '&', $fullURL);
-      $imgURL = explode('&', $fullURL)[0];
-    }
-    // Breakdown the URL for the file extension (as the extension is of an unknown length)
-    $breakdownForExtension = explode(".",$imgURL);
-    $extension = $breakdownForExtension[count($breakdownForExtension) - 1];
-    //Protect extension validation from addition image properties on the image URL
-    $extension = trim(explode("?",$extension)[0]);
-    // Validate the extension or return null for the URL if the extension is invalid
-    $validURL = (in_array($extension, $supportedExtensions)) ? $imgURL : null;
-    return $validURL;
-  }
+  // public function validateImageLink($imgURL) {
+  //   // Make a library of supported extensions
+  //   $supportedExtensions = ['bmp','jpg','jpeg','png','gif','webp','ico'];
+  //   // Interpret URL if it is from a URI scheme
+  //   do {
+  //     $imgURL = str_replace('%25','%',$imgURL); // Interpret percentage signs
+  //     if (false !== strpos($imgURL, "image_uri")) {
+  //       // The Distribution takes place through a routed network, the true URL is embedded
+  //       $urlPos = strpos($imgURL, "image_uri");
+  //       $cdnLinkNoEnd = substr($imgURL, $urlPos);
+  //       $cdnLink = explode('&',$cdnLinkNoEnd)[0];
+  //       $embedded = true;
+  //     } else {
+  //       // The Distribution is not through a routed CDN
+  //       $cdnLink = $imgURL;
+  //       $embedded = false;
+  //     }
+  //     // Fix the equals signs where they've been reformatted
+  //     $cdnLink = str_replace('%3D','=',$cdnLink);
+  //     $cdnLink = preg_replace('~image_uri=~','',$cdnLink,1);
+  //     // reformat the link as a URL, as URI practice converts slashes into codes
+  //     // Fix the http colons
+  //     $firstReplace = str_replace('%3A', ':', $cdnLink);
+  //     // Fix the /'s
+  //     $imgURL = str_replace('%2F', "/", $firstReplace);
+  //     // Fix the &'s
+  //     $imgURL = str_replace('%26', "&", $firstReplace);
+  //   } while (false !== strpos($imgURL, "image_uri"));  // In some cases, 3 image_uri formattings are buried inside eachother
+  //   if ($embedded) {
+  //     // Interpret all /'s final
+  //     $imgURL = str_replace('%2F', '/', $imgURL);
+  //     return $imgURL;
+  //   }
+  //   // Change all slashes before checking
+  //   $imgURL = str_replace('%2F', '/', $imgURL);
+  //   // Check for embedded 'smart' links
+  //   if (substr_count($imgURL, "http://") > 1 || substr_count($imgURL, "https://") > 1) {
+  //     $lastURLPos = strrpos($imgURL, "http://");
+  //     $lastURLPos = ($lastURLPos != 0) ? $lastURLPos : strrpos($imgURL, "https://");
+  //     $fullURL = substr($imgURL, $lastURLPos);
+  //     $fullURL = str_replace('%3F', '&', $fullURL);
+  //     $imgURL = explode('&', $fullURL)[0];
+  //   }
+  //   // Breakdown the URL for the file extension (as the extension is of an unknown length)
+  //   $breakdownForExtension = explode(".",$imgURL);
+  //   $extension = $breakdownForExtension[count($breakdownForExtension) - 1];
+  //   //Protect extension validation from addition image properties on the image URL
+  //   $extension = trim(explode("?",$extension)[0]);
+  //   // Validate the extension or return null for the URL if the extension is invalid
+  //   $validURL = (in_array($extension, $supportedExtensions)) ? $imgURL : null;
+  //   return $validURL;
+  // }
 
-  private function getContentsAsUser($pageURL) {
-    // Mimic a user browser request to work around potential 401 FORBIDDEN errors
-    $userAgent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36';
-    // Instantiate and configure a cURL to mimic a user request (uses the cURL library)
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($curl, CURLOPT_VERBOSE, true);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_USERAGENT, $userAgent);
-    curl_setopt($curl, CURLOPT_URL, $pageURL);
-    // Run a query to the page for source contents using a viewer context
-    $pageContents = curl_exec($curl);
-    // If the page content is still null following this, the site is unreachable, null should be returned
-    if ($pageContents == null || $pageContents == false) {
-      return null;
-    }
-    return $pageContents;
-  }
+  // private function getContentsAsUser($pageURL) {
+  //   // Mimic a user browser request to work around potential 401 FORBIDDEN errors
+  //   $userAgent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36';
+  //   // Instantiate and configure a cURL to mimic a user request (uses the cURL library)
+  //   $curl = curl_init();
+  //   curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+  //   curl_setopt($curl, CURLOPT_VERBOSE, true);
+  //   curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  //   curl_setopt($curl, CURLOPT_USERAGENT, $userAgent);
+  //   curl_setopt($curl, CURLOPT_URL, $pageURL);
+  //   // Run a query to the page for source contents using a viewer context
+  //   $pageContents = curl_exec($curl);
+  //   // If the page content is still null following this, the site is unreachable, null should be returned
+  //   if ($pageContents == null || $pageContents == false) {
+  //     return null;
+  //   }
+  //   return $pageContents;
+  // }
 
-  public function getSiteIconURL($pageContents) {
-    // Arriving here indicated that the URL was not found in the <link> tags
-    if (strpos($pageContents, 'schema.org"') !== false && strpos($pageContents, '"logo":') !== false || strpos($pageContents, '"logo" :') !== false) {
-      // Remove whitespaces for uniformity of string searches
-      $noWhiteContent = preg_replace('/\s*/m','',$pageContents);
-      // Select the beginning position of the required section
-      $beginningPos = strpos($noWhiteContent, '"@context":"http://schema.org"');
-      $beginningPos = ($beginningPos == null) ? strpos($noWhiteContent, '"@context":"https://schema.org"') : $beginningPos;
-      // Find the end and create a string that includes only required properties
-      $contentsTrim = substr($noWhiteContent, $beginningPos, strpos($noWhiteContent,'</script>', $beginningPos) - $beginningPos);
-      // Remove the [] in cases where developers decided to throw those in
-      $noBracketing = str_replace('[','',$contentsTrim);
-      $noBracketingFinal = str_replace(']','',$noBracketing);
-      // Select each instance of ":{" --> if it is preceeded by "image", it contains the image url.
-      $nextContainsURL = false; // Define the variable to prevent exceptions
-      foreach (explode(":{",$noBracketingFinal) as $segment) {
-        if ($nextContainsURL) {
-          $honedURL = substr($segment, strpos($segment, "url"),-1);
-          // If the image is subdivided into another object, progress to that segment instead
-          if (isset(explode('"',$honedURL)[2])) {
-            $imageURL = explode('"',$honedURL)[2];
-            return $imageURL;
-          }
-        }
-        if (substr($segment, strlen($segment) - 6, 6) == '"logo"') { // Check if the last characters of a segment are the correct ones for an "image":{} property
-          // Flag the next segment as that with the URL
-          $nextContainsURL = true;
-        }
-      }
-    }
-    $linkTagSelection = explode("<link",$pageContents);
-    // Remove content from before the <link> tag
-    array_shift($linkTagSelection);
-    // Remove the content after the close of the last />
-    if (count($linkTagSelection) > 0) {
-      $lastTagIndex = count($linkTagSelection)-1;
-      $linkTagSelection[$lastTagIndex] = explode(">", $linkTagSelection[$lastTagIndex])[0];
-    }
-    foreach ($linkTagSelection as $tag) {
-      if (strpos($tag, '"icon"') !== false || strpos($tag, " icon") !== false || strpos($tag, "icon ") !== false) {
-        $iconURL = explode('href="', $tag)[1];
-        $iconURL = explode('"', $iconURL)[0];
-        $iconURLFinal = $this->checkURLPathing($iconURL);
-        return $iconURLFinal;
-      } elseif (strpos($tag, "'icon'") !== false) { // Use the single quotation mark in the case where it is used in the rel
-        $iconURL = explode("href='", $tag)[1];
-        $iconURL = explode("'", $iconURL)[0];
-        $iconURLFinal = $this->checkURLPathing($iconURL);
-        return $iconURLFinal;
-      }
-    }
-    return null;
-  }
+  // public function getSiteIconURL($pageContents) {
+  //   // Arriving here indicated that the URL was not found in the <link> tags
+  //   if (strpos($pageContents, 'schema.org"') !== false && strpos($pageContents, '"logo":') !== false || strpos($pageContents, '"logo" :') !== false) {
+  //     // Remove whitespaces for uniformity of string searches
+  //     $noWhiteContent = preg_replace('/\s*/m','',$pageContents);
+  //     // Select the beginning position of the required section
+  //     $beginningPos = strpos($noWhiteContent, '"@context":"http://schema.org"');
+  //     $beginningPos = ($beginningPos == null) ? strpos($noWhiteContent, '"@context":"https://schema.org"') : $beginningPos;
+  //     // Find the end and create a string that includes only required properties
+  //     $contentsTrim = substr($noWhiteContent, $beginningPos, strpos($noWhiteContent,'</script>', $beginningPos) - $beginningPos);
+  //     // Remove the [] in cases where developers decided to throw those in
+  //     $noBracketing = str_replace('[','',$contentsTrim);
+  //     $noBracketingFinal = str_replace(']','',$noBracketing);
+  //     // Select each instance of ":{" --> if it is preceeded by "image", it contains the image url.
+  //     $nextContainsURL = false; // Define the variable to prevent exceptions
+  //     foreach (explode(":{",$noBracketingFinal) as $segment) {
+  //       if ($nextContainsURL) {
+  //         $honedURL = substr($segment, strpos($segment, "url"),-1);
+  //         // If the image is subdivided into another object, progress to that segment instead
+  //         if (isset(explode('"',$honedURL)[2])) {
+  //           $imageURL = explode('"',$honedURL)[2];
+  //           return $imageURL;
+  //         }
+  //       }
+  //       if (substr($segment, strlen($segment) - 6, 6) == '"logo"') { // Check if the last characters of a segment are the correct ones for an "image":{} property
+  //         // Flag the next segment as that with the URL
+  //         $nextContainsURL = true;
+  //       }
+  //     }
+  //   }
+  //   $linkTagSelection = explode("<link",$pageContents);
+  //   // Remove content from before the <link> tag
+  //   array_shift($linkTagSelection);
+  //   // Remove the content after the close of the last />
+  //   if (count($linkTagSelection) > 0) {
+  //     $lastTagIndex = count($linkTagSelection)-1;
+  //     $linkTagSelection[$lastTagIndex] = explode(">", $linkTagSelection[$lastTagIndex])[0];
+  //   }
+  //   foreach ($linkTagSelection as $tag) {
+  //     if (strpos($tag, '"icon"') !== false || strpos($tag, " icon") !== false || strpos($tag, "icon ") !== false) {
+  //       $iconURL = explode('href="', $tag)[1];
+  //       $iconURL = explode('"', $iconURL)[0];
+  //       $iconURLFinal = $this->checkURLPathing($iconURL);
+  //       return $iconURLFinal;
+  //     } elseif (strpos($tag, "'icon'") !== false) { // Use the single quotation mark in the case where it is used in the rel
+  //       $iconURL = explode("href='", $tag)[1];
+  //       $iconURL = explode("'", $iconURL)[0];
+  //       $iconURLFinal = $this->checkURLPathing($iconURL);
+  //       return $iconURLFinal;
+  //     }
+  //   }
+  //   return null;
+  // }
 
-  public function clearData() {
-    $this->imageURL = null;
-    $this->synopsis = " ";
-    $this->pageContent = null;
-  }
+  // public function checkURLPathing($url) {
+  //   if (substr(strtolower($url), 0, 4) != 'http') {
+  //     $urlNew = "http://" . $this->siteURL . $url;
+  //     return $urlNew;
+  //   } else {
+  //     return $url;
+  //   }
+  // }
 
-  public function checkURLPathing($url) {
-    if (substr(strtolower($url), 0, 4) != 'http') {
-      $urlNew = "http://" . $this->siteURL . $url;
-      return $urlNew;
-    } else {
-      return $url;
-    }
-  }
-
-  public function getTitle($pageContents) {
+  public function getTitle() {
     // Begin by checking meta tags for the title
-    $linkTagSelection = explode("<meta",$pageContents);
+    $linkTagSelection = explode("<meta", $this->pageContent);
     // Remove content from before the <link> tag
     array_shift($linkTagSelection);
     // Remove the content after the close of the last />
@@ -925,14 +826,16 @@ class Entry_Data {
       } elseif (strpos($tag, "'og:title'") !== false) { // Use the single quotation mark in the case where it is used in the rel
         $titleStart = explode("content='", $tag)[1];
         $titleFull = explode("'", $titleStart)[0];
-        return $titleFull;
+        $this->title = $titleFull;
+        return;
       }
     }
     // Check here if a meta title is not available
     if (strpos($pageContents, "<title>") !== false) {
       $titleStart = explode("<title>", $pageContents)[1];
       $titleFull = explode("</title>", $titleStart)[0];
-      return $titleFull;
+      $this->title = $titleFull;
+      return;
     }
     // Arriving here indicated that the Title was not found in the <meta> tags OR <title> tags
     if (strpos($pageContents, 'schema.org"') !== false && strpos($pageContents, '"headline":') !== false || strpos($pageContents, '"headline" :') !== false) {
@@ -949,34 +852,23 @@ class Entry_Data {
       // Select each instance of ":{" --> if it is preceeded by "image", it contains the image url.
       $nextContainsURL = false; // Define the variable to prevent exceptions
       foreach (explode(":{",$noBracketingFinal) as $segment) {
-        if ($nextContainsURL) {
+        if ($nextContainsTitle) {
           $honedURL = substr($segment, strpos($segment, "headline"),-1);
           // If the image is subdivided into another object, progress to that segment instead
           if (isset(explode('"',$honedURL)[2])) {
-            $imageURL = explode('"',$honedURL)[2];
-            return $imageURL;
+            $titleFull = explode('"',$honedURL)[2];
+            $this->title = $titleFull;
+            return;
           }
         }
         if (substr($segment, strlen($segment) - 10, 10) == '"headline"') { // Check if the last characters of a segment are the correct ones for an "image":{} property
           // Flag the next segment as that with the URL
-          $nextContainsURL = true;
+          $nextContainsTitle = true;
         }
       }
     }
-    return null;
+    return;
   }
-}
-
-class Summary {
-
-  public $entriesAdded = 0;
-  public $entriesList = [];
-  public $entriesFailed;
-  public $failuresList = [];
-  public $failureReason;
-
-  public function __construct() {}
-
 }
 
  ?>

@@ -2,13 +2,24 @@
 include_once('dbConnect.php');
 require_once('objectConstruction.php');
 
+/*
+*   METHOD INDEX
+*   1 -> Manual testing (PHP)
+*   2 -> Forced (Javascript)
+*   3 -> Automation (PHP -> unattended)
+*/
+
+$_POST['sourceID'] = 2;
+$_POST['method'] = 3;
 
 // Get the Source ID for database selection of feed
 $sourceID = $_POST['sourceID'];
+$method = $_POST['method'];
 // IMPERSONATION FOR MIGRATION
 //$feedSudoID = 6;
-// The Export URL (RSS Feed) from getFeed
+// The Export URL (RSS Feed)
 $feedSelection = new FeedInfo($sourceID, $conn, 1);
+
 if ($feedSelection->busy) {
   echo "The feed is currently being fetched and as such is unavailable";
   return;
@@ -16,10 +27,22 @@ if ($feedSelection->busy) {
   $busyFeed = "UPDATE external_feeds SET busy = 1 WHERE externalFeedID = '$feedSelection->id'";
   $conn->query($busyFeed);
 }
-// Time zone info to sync with feed
+// Time zone info to sync with DB from feed common
 $timeZone = ('-5:00');
 // Default for the error variable used in the loop
 $error = false;
+
+// Use query method to determine reporting methodology
+$logReport = false;
+
+if ($method == 1) {
+  $lineEnding = "</br>";
+} else if ($method == 2) {
+  $lineEnding = "\n";
+} else {
+  $lineEnding = "\r\n";
+  $logReport = true;
+}
 
 // Define a shutdown function
 register_shutdown_function(function() use ($feedSelection) {
@@ -53,8 +76,8 @@ if ($lastUpdateValue != null) {
 } else {
   $lastUpdate = new DateTime('0000-00-00 00:00:00');
 }
-// Entry tracking class Definition
-$summary = new Summary();
+// Entry Submission result tracker
+$results = [];
 
 // Fetch the tag blacklist in preperation
 $getBlackList = "SELECT blacklistedTag FROM tag_blacklist";
@@ -72,7 +95,8 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
   $dateAdded = new DateTime($item->pubDate);
   // Check if the entry is a new addition to the pocket
   if ($dateAdded > $lastUpdate) {
-    // Insert the item into the database
+    // Format Date Time for mySQL
+    $dateAdded = $dateAdded->format('Y-m-d H:i:s');
     // Get the site data as an object
     try {
       // Remove the /amp from site links where applicable
@@ -84,73 +108,36 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
         // Replace an amp in the middle with a single slash
         $item->link = str_replace("/amp/", "/", $item->link);
       }
-      $entryInfo = new Entry_Data($item->link, $feedSelection->source, $conn, $tagBlackList);
+      $entryInfo = new Entry_Data($item->link, $conn, $tagBlackList);
       // Check for title in RSS Feed, and fetch if not present
       if (isset($item->title)) {
         $entryInfo->title = $item->title;
       }
       // Filter text for SQL injection
-      $entryInfo->title = $conn->real_escape_string($entryInfo->title);
-      $entryInfo->synopsis = $conn->real_escape_string($entryInfo->synopsis);
+      $submissionResult = $entryInfo->submitEntry($conn, $feedSelection->id, $dateAdded) . " {$lineEnding}";
+      array_push($results, $submissionResult);
     } catch (Exception $e) {
-      $entryInfo = null;
-      echo $e->getMessage() . " @ " . $item->link . "\n";
+      unset($entryInfo);
+      $submissionResult = "{$e->getMessage()} occured on URL '{$item->link}' {$lineEnding}";
+      array_push($results, $submissionResult);
       $error = true;
       continue;
     }
-    // Format Date Time for mySQL
-    $dateAdded = $dateAdded->format('Y-m-d H:i:s');
-    // MySQL Statement
-    $addEntry = "CALL newEntry('$entryInfo->siteID','$feedSelection->id', '$entryInfo->title','$item->link','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis', @newID);
-                  SELECT @newID";
-    if ($conn->multi_query($addEntry)) { // Report all succcessful entries to the user
-      // Cycle to second query
-      $conn->next_result();
-      $result = $conn->store_result();
-      // Get the new entry's ID
-      $entryID = $result->fetch_array()[0];
-      // Add the tags with connections
-      foreach ($entryInfo->tags as $sortOrder=>$tag) {
-        $addTag = "CALL addTag('$tag', '$entryID', '$sortOrder')";
-        $conn->query($addTag);
-        //echo $sortOrder . ") " . $tag . " added </br>";
-      }
-      $summary->entriesAdded++;
-      array_push($summary->entriesList, $entryInfo->title);
-    } elseif ($conn->errno == 1062) {
-      // Make the Connection to the feed, instead of adding the entry
-      $connectEntry = "CALL newEntryConnection('$item->link', '$feedSelection->id', @duplicate)";
-      if ($conn->query($connectEntry)) {
-        $summary->entriesAdded++;
-        array_push($summary->entriesList, $entryInfo->title . " -- Duplicate Connected");
-      } elseif ($conn->errno == 1048) {
-        $summary->entriesFailed++;
-        array_push($summary->failuresList, $entryInfo->title);
-        $summary->failureReason = "The entry is not a duplicate but was treated as such" . " @ " . $item->link;
-      } else {
-        $summary->entriesFailed++;
-        array_push($summary->failuresList, $entryInfo->title);
-        $summary->failureReason = $conn->error . " @ " . $item->link;
-      }
-    } else { // Keep a record of all failed additions
-      $summary->entriesFailed++;
-      array_push($summary->failuresList, $entryInfo->title);
-      $summary->failureReason = $conn->error . " @ " . $item->link;
-    }
-  } elseif ($error) {
-    $error = false;
   }
-	//echo $entryInfo->siteID . " " . $entryInfo->finalTitle . " " . $item->link . " " . $dateAdded . " " . $entryInfo->imageURL . " " . $entryInfo->synopsis . "</br></br>";
 }
 
-// Summary of Action
-echo $summary->entriesAdded . " entries have been added to the database, including: \n";
-foreach ($summary->entriesList as $title) {
-  echo $title . "\n";
-}
-// Handle for failed actions report
-if ($summary->entriesFailed > 0) {
-  echo $summary->entriesFailed . " entries failed to be added to the database table due to: '" . $summary->failureReason . "'";
+if ($logReport) {
+  // Designate and load a file
+  $logTarget = "entryLog.txt";
+  try {
+    $file = fopen($logTarget, 'a');
+  } catch (Exception $fileException) {}
+  // Write to the log file
+  if (isset($file)) {
+    foreach ($results as $entryData) {
+      fwrite($file, $entryData);
+    }
+  }
 }
 
 if ($feedSelection->isExternal) {
@@ -158,6 +145,9 @@ if ($feedSelection->isExternal) {
   $conn->query($releaseFeed);
 }
 
-return $summary; // To be returned to administrative page on a forced update
+// Throw a file write exception if needed
+if (isset($fileException)) {
+  throw new Exception ($fileException->getMessage());
+}
 
 ?>

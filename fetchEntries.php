@@ -181,7 +181,7 @@ while ($row = $entries->fetch_array()) {
               WHERE tagConn.entryID = '$entryIDVal'
               ORDER BY sortORDER LIMIT 3"; // Only get the first 3 tags for the entry
   $tags = $conn->query($getTags);
-  $entry = new Entry($row, $tags, $context);
+  $entry = new Entry_Display($row, $tags, $context);
   $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
   array_push($display, $tempTile);
   $entryDisplayNumber++;
