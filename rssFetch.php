@@ -10,7 +10,7 @@ require_once('objectConstruction.php');
 */
 
 $_POST['sourceID'] = 2;
-$_POST['method'] = 3;
+$_POST['method'] = 1;
 
 // Get the Source ID for database selection of feed
 $sourceID = $_POST['sourceID'];
@@ -65,7 +65,7 @@ if (isset($feedSudoID)) {
 $xml = simplexml_load_file($feedSelection->source) or die("Error: Could not connect to the feed");
 
 // Get the last update time (for comparison with any articles to add)
-$getLastPub = "SELECT datePublished FROM entries JOIN entry_connections AS connections ON entries.entryID = connections.entryID WHERE connections.feedID = '$feedSelection->id' ORDER BY datePublished DESC LIMIT 1";
+$getLastPub = "SELECT datePublished FROM entries JOIN entry_connections AS connections ON entries.entryID = connections.entryID WHERE feedID = '$feedSelection->id' ORDER BY connections.dateConnected DESC LIMIT 1";
 
 // Get the one data point in a single line and convert to a DateTime object
 // GET TIMEZONE on insert (The data entering the database will be of the same timezone as that leaving the database) --> pocket doesn't offer this offset so matching is the best way
@@ -93,10 +93,14 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
   $item = $xml->channel->item[$entryNumber];
   // Convert the Date to a DateTime Object
   $dateAdded = new DateTime($item->pubDate);
-  // Check if the entry is a new addition to the pocket
-  if ($dateAdded > $lastUpdate) {
+  $interval = $lastUpdate->diff($dateAdded);
+  $change = $interval->format('%R%a');
+  //$dateAdded > $lastUpdate
+  // Check if the entry is a new addition to the feed
+  if ($change > 0) {
     // Format Date Time for mySQL
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
+    echo $dateAdded . " -> " . $lastUpdate->format('Y-m-d H:i:s') . "</br>";
     // Get the site data as an object
     try {
       // Remove the /amp from site links where applicable
@@ -137,6 +141,15 @@ if ($logReport) {
     foreach ($results as $entryData) {
       fwrite($file, $entryData);
     }
+  }
+} else {
+  if (count($results) > 0) {
+    // Display the report
+    foreach ($results as $line) {
+      echo $line;
+    }
+  } else {
+    echo "Feed ID {$feedSelection->id} is up to date at this time {$lineEnding}";
   }
 }
 

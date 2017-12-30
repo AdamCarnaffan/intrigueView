@@ -1,5 +1,7 @@
 <?php
 
+require_once('class_std.php');
+
 class Tag_Potential extends Tag {
 
   public $frequency = 1;
@@ -29,6 +31,7 @@ class Entry_Data extends Entry {
   public $articleText;
 
   public function __construct($url, $dbConn, $tagBlackList) {
+    $this->url = $url;
     // Get the contents of the site page
     $this->pageContent = getPageContents($url);
     if ($this->pageContent == null) {
@@ -59,7 +62,7 @@ class Entry_Data extends Entry {
     $this->synopsis = $this->getArticleContents(true);
     //echo $this->synopsis . "</br>";
     // Trim the synopsis (for legal purposes)
-    $this->synopsis = substr($this->synopsis, 0, 400);
+    //$this->synopsis = substr($this->synopsis, 0, 400);
     // Add a filler if the Synopsis doesn't exist
     if (strlen($this->synopsis) < 20) {
       $this->synopsis = "Click the article to see what it's about!";
@@ -189,7 +192,8 @@ class Entry_Data extends Entry {
         //echo $sortOrder . ") " . $tag . " added </br>";
       }
       return "The entry '{$this->title}' was added successfully";
-    } elseif ($dbConn->errno == 1062) {
+    } else if ($dbConn->errno == 1062) {
+      //echo $dbConn->error;
       // Make the Connection to the feed, instead of adding the entry
       $connectEntry = "CALL newEntryConnection('$this->url', '$feedID', @duplicate)";
       // Run the query and handle responses
@@ -657,154 +661,6 @@ class Entry_Data extends Entry {
     return;
   }
 
-  // public function getPageContents($pageURL) {
-  //   // Run a query to the page for source contents
-  //   $pageContents = @file_get_contents($pageURL);
-  //   // If the url cannot be accessed, make another attempt as a user
-  //   if ($pageContents == null || $pageContents == false) {
-  //     $pageContents = $this->getContentsAsUser($pageURL);
-  //     if ($pageContents == null) {
-  //       return null;
-  //     }
-  //   }
-  //   return $pageContents;
-  // }
-
-  // public function validateImageLink($imgURL) {
-  //   // Make a library of supported extensions
-  //   $supportedExtensions = ['bmp','jpg','jpeg','png','gif','webp','ico'];
-  //   // Interpret URL if it is from a URI scheme
-  //   do {
-  //     $imgURL = str_replace('%25','%',$imgURL); // Interpret percentage signs
-  //     if (false !== strpos($imgURL, "image_uri")) {
-  //       // The Distribution takes place through a routed network, the true URL is embedded
-  //       $urlPos = strpos($imgURL, "image_uri");
-  //       $cdnLinkNoEnd = substr($imgURL, $urlPos);
-  //       $cdnLink = explode('&',$cdnLinkNoEnd)[0];
-  //       $embedded = true;
-  //     } else {
-  //       // The Distribution is not through a routed CDN
-  //       $cdnLink = $imgURL;
-  //       $embedded = false;
-  //     }
-  //     // Fix the equals signs where they've been reformatted
-  //     $cdnLink = str_replace('%3D','=',$cdnLink);
-  //     $cdnLink = preg_replace('~image_uri=~','',$cdnLink,1);
-  //     // reformat the link as a URL, as URI practice converts slashes into codes
-  //     // Fix the http colons
-  //     $firstReplace = str_replace('%3A', ':', $cdnLink);
-  //     // Fix the /'s
-  //     $imgURL = str_replace('%2F', "/", $firstReplace);
-  //     // Fix the &'s
-  //     $imgURL = str_replace('%26', "&", $firstReplace);
-  //   } while (false !== strpos($imgURL, "image_uri"));  // In some cases, 3 image_uri formattings are buried inside eachother
-  //   if ($embedded) {
-  //     // Interpret all /'s final
-  //     $imgURL = str_replace('%2F', '/', $imgURL);
-  //     return $imgURL;
-  //   }
-  //   // Change all slashes before checking
-  //   $imgURL = str_replace('%2F', '/', $imgURL);
-  //   // Check for embedded 'smart' links
-  //   if (substr_count($imgURL, "http://") > 1 || substr_count($imgURL, "https://") > 1) {
-  //     $lastURLPos = strrpos($imgURL, "http://");
-  //     $lastURLPos = ($lastURLPos != 0) ? $lastURLPos : strrpos($imgURL, "https://");
-  //     $fullURL = substr($imgURL, $lastURLPos);
-  //     $fullURL = str_replace('%3F', '&', $fullURL);
-  //     $imgURL = explode('&', $fullURL)[0];
-  //   }
-  //   // Breakdown the URL for the file extension (as the extension is of an unknown length)
-  //   $breakdownForExtension = explode(".",$imgURL);
-  //   $extension = $breakdownForExtension[count($breakdownForExtension) - 1];
-  //   //Protect extension validation from addition image properties on the image URL
-  //   $extension = trim(explode("?",$extension)[0]);
-  //   // Validate the extension or return null for the URL if the extension is invalid
-  //   $validURL = (in_array($extension, $supportedExtensions)) ? $imgURL : null;
-  //   return $validURL;
-  // }
-
-  // private function getContentsAsUser($pageURL) {
-  //   // Mimic a user browser request to work around potential 401 FORBIDDEN errors
-  //   $userAgent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36';
-  //   // Instantiate and configure a cURL to mimic a user request (uses the cURL library)
-  //   $curl = curl_init();
-  //   curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-  //   curl_setopt($curl, CURLOPT_VERBOSE, true);
-  //   curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-  //   curl_setopt($curl, CURLOPT_USERAGENT, $userAgent);
-  //   curl_setopt($curl, CURLOPT_URL, $pageURL);
-  //   // Run a query to the page for source contents using a viewer context
-  //   $pageContents = curl_exec($curl);
-  //   // If the page content is still null following this, the site is unreachable, null should be returned
-  //   if ($pageContents == null || $pageContents == false) {
-  //     return null;
-  //   }
-  //   return $pageContents;
-  // }
-
-  // public function getSiteIconURL($pageContents) {
-  //   // Arriving here indicated that the URL was not found in the <link> tags
-  //   if (strpos($pageContents, 'schema.org"') !== false && strpos($pageContents, '"logo":') !== false || strpos($pageContents, '"logo" :') !== false) {
-  //     // Remove whitespaces for uniformity of string searches
-  //     $noWhiteContent = preg_replace('/\s*/m','',$pageContents);
-  //     // Select the beginning position of the required section
-  //     $beginningPos = strpos($noWhiteContent, '"@context":"http://schema.org"');
-  //     $beginningPos = ($beginningPos == null) ? strpos($noWhiteContent, '"@context":"https://schema.org"') : $beginningPos;
-  //     // Find the end and create a string that includes only required properties
-  //     $contentsTrim = substr($noWhiteContent, $beginningPos, strpos($noWhiteContent,'</script>', $beginningPos) - $beginningPos);
-  //     // Remove the [] in cases where developers decided to throw those in
-  //     $noBracketing = str_replace('[','',$contentsTrim);
-  //     $noBracketingFinal = str_replace(']','',$noBracketing);
-  //     // Select each instance of ":{" --> if it is preceeded by "image", it contains the image url.
-  //     $nextContainsURL = false; // Define the variable to prevent exceptions
-  //     foreach (explode(":{",$noBracketingFinal) as $segment) {
-  //       if ($nextContainsURL) {
-  //         $honedURL = substr($segment, strpos($segment, "url"),-1);
-  //         // If the image is subdivided into another object, progress to that segment instead
-  //         if (isset(explode('"',$honedURL)[2])) {
-  //           $imageURL = explode('"',$honedURL)[2];
-  //           return $imageURL;
-  //         }
-  //       }
-  //       if (substr($segment, strlen($segment) - 6, 6) == '"logo"') { // Check if the last characters of a segment are the correct ones for an "image":{} property
-  //         // Flag the next segment as that with the URL
-  //         $nextContainsURL = true;
-  //       }
-  //     }
-  //   }
-  //   $linkTagSelection = explode("<link",$pageContents);
-  //   // Remove content from before the <link> tag
-  //   array_shift($linkTagSelection);
-  //   // Remove the content after the close of the last />
-  //   if (count($linkTagSelection) > 0) {
-  //     $lastTagIndex = count($linkTagSelection)-1;
-  //     $linkTagSelection[$lastTagIndex] = explode(">", $linkTagSelection[$lastTagIndex])[0];
-  //   }
-  //   foreach ($linkTagSelection as $tag) {
-  //     if (strpos($tag, '"icon"') !== false || strpos($tag, " icon") !== false || strpos($tag, "icon ") !== false) {
-  //       $iconURL = explode('href="', $tag)[1];
-  //       $iconURL = explode('"', $iconURL)[0];
-  //       $iconURLFinal = $this->checkURLPathing($iconURL);
-  //       return $iconURLFinal;
-  //     } elseif (strpos($tag, "'icon'") !== false) { // Use the single quotation mark in the case where it is used in the rel
-  //       $iconURL = explode("href='", $tag)[1];
-  //       $iconURL = explode("'", $iconURL)[0];
-  //       $iconURLFinal = $this->checkURLPathing($iconURL);
-  //       return $iconURLFinal;
-  //     }
-  //   }
-  //   return null;
-  // }
-
-  // public function checkURLPathing($url) {
-  //   if (substr(strtolower($url), 0, 4) != 'http') {
-  //     $urlNew = "http://" . $this->siteURL . $url;
-  //     return $urlNew;
-  //   } else {
-  //     return $url;
-  //   }
-  // }
-
   public function getTitle() {
     // Begin by checking meta tags for the title
     $linkTagSelection = explode("<meta", $this->pageContent);
@@ -831,16 +687,16 @@ class Entry_Data extends Entry {
       }
     }
     // Check here if a meta title is not available
-    if (strpos($pageContents, "<title>") !== false) {
+    if (strpos($this->pageContent, "<title>") !== false) {
       $titleStart = explode("<title>", $pageContents)[1];
       $titleFull = explode("</title>", $titleStart)[0];
       $this->title = $titleFull;
       return;
     }
     // Arriving here indicated that the Title was not found in the <meta> tags OR <title> tags
-    if (strpos($pageContents, 'schema.org"') !== false && strpos($pageContents, '"headline":') !== false || strpos($pageContents, '"headline" :') !== false) {
+    if (strpos($this->pageContent, 'schema.org"') !== false && strpos($this->pageContent, '"headline":') !== false || strpos($this->pageContent, '"headline" :') !== false) {
       // Remove whitespaces for uniformity of string searches
-      $noWhiteContent = preg_replace('/\s*/m','',$pageContents);
+      $noWhiteContent = preg_replace('/\s*/m','',$this->pageContent);
       // Select the beginning position of the required section
       $beginningPos = strpos($noWhiteContent, '"@context":"http://schema.org"');
       $beginningPos = ($beginningPos == null) ? strpos($noWhiteContent, '"@context":"https://schema.org"') : $beginningPos;

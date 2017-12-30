@@ -1,5 +1,7 @@
 <?php
 
+require_once('class_std.php');
+
 class Entry_Display extends Entry {
 
   public $entryDisplaySize;
