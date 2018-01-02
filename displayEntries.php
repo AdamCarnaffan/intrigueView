@@ -7,7 +7,7 @@ require_once('objectConstruction.php');
 // $_POST['currentDisplay'] = 0;
 // $_POST['tags'] = "";
 // $_POST['tagMode'] = 0;
-// $_POST['search'] = "unsettling";
+// $_POST['search'] = "";
 // $_POST['feedsList'] = "2";
 $_POST['context'] = "public";
 
@@ -100,8 +100,7 @@ array_unique($selectedFeedArray);
 // Consolidate the array for query
 $selectedFeedList = implode("','", $selectedFeedArray);
 // When changing the query, remember to adjust object
-$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, sites.url, sites.icon, entries.entryID, entries.visible, entryConn.feedID, entries.views FROM entries
-	               JOIN sites ON entries.siteID = sites.siteID
+$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, entries.siteID, entries.entryID, entries.visible, entryConn.feedID, entries.views, entries.rating FROM entries
                  JOIN entry_connections AS Entryconn ON entries.entryID = Entryconn.entryID
                  LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
                  LEFT JOIN tags ON tags.tagID = tagConn.tagID
@@ -181,7 +180,7 @@ while ($row = $entries->fetch_array()) {
               WHERE tagConn.entryID = '$entryIDVal'
               ORDER BY sortORDER LIMIT 3"; // Only get the first 3 tags for the entry
   $tags = $conn->query($getTags);
-  $entry = new Entry_Display($row, $tags, $context);
+  $entry = new Entry_Display($row, $conn, $context);
   $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
   array_push($display, $tempTile);
   $entryDisplayNumber++;

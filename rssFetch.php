@@ -1,6 +1,6 @@
 <?php
 include_once('dbConnect.php');
-require_once('objectConstruction.php');
+require_once('class/class_dataFetch.php');
 
 /*
 *   METHOD INDEX

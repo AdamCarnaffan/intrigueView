@@ -8,22 +8,14 @@ class Entry_Display extends Entry {
   public $contextMenu;
   public $isFeatured;
 
-  public function __construct($dataArray, $dataTags, $displayContext) {
-    // Get all data from the Query. Indexes are based on position in the query
-    $this->title = $dataArray[0];
-    $this->url = $dataArray[1];
-    $this->image = $dataArray[3];
-    $this->synopsis = $dataArray[4];
-    $this->isFeatured = ($dataArray[5] == 1) ? true : false; // Create a boolean based on the data table output. This boolean decides highlighting
-    $this->siteURL = $dataArray[6];
-    $this->siteIcon = $dataArray[7];
-    $this->id = $dataArray[8];
-    $this->views = $dataArray[11];
-    $this->rating = 5; // We only put out the highest quality content xD
-    // Build the tags array
-    while ($row = $dataTags->fetch_array()) {
-      $this->tags[$row[2]] = $row[1];
-    }
+  public function __construct($dataArray, $dbConn, $displayContext) {
+    parent::__construct($dataArray, $dbConn);
+
+    $this->isFeatured = ($dataArray['featured'] == 1) ? true : false; // Create a boolean based on the data table output. This boolean decides highlighting
+    $this->views = $dataArray['views'];
+    $this->rating = $dataArray['rating']; // We only put out the highest quality content xD
+
+    // Revise this for the triple dot context menu -> always the same menu per display, though changes dynamically per user
     if ($displayContext == "Saved") {
       $this->contextMenu = "X FOR REMOVING";
     } else {
@@ -65,11 +57,9 @@ class Entry_Display extends Entry {
     $tile .= '<div class="extra-info">';
     // Add Top Tags
     $tile .= '<div class="entry-stats tag-display extra-info-addon">Tags: ';
-    // Initialize a counter
-    $c = 1;
-    foreach ($this->tags as $id=>$tag) {
-      $tile .= '<a class="tag in-extra-info" href="#" onclick="return addTag(' . $id . ')">' . $tag . '</a> ';
-      $c++;
+    $maxTags = (count($this->tags) > 3) ? 3 : count($this->tags);
+    for ($c = 0; $c < $maxTags; $c++) {
+      $tile .= '<a class="tag in-extra-info" href="#" onclick="return addTag(' . $this->tags[$c]->databaseID . ')">' . $this->tags[$c]->name . '</a> ';
     }
     $tile .= '</div>';
     // Display Article Synopsis
@@ -81,14 +71,14 @@ class Entry_Display extends Entry {
     // Add Site Stats
     $tile .= '<div class="entry-stats">';
     // Site Icon
-    if ($this->siteIcon != null) { // Handle cases where site icons haven't fetched properly or don't exist
-      $tile .= '<img src="' . $this->siteIcon . '" class="site-icon"/>';
+    if ($this->source->icon != null) { // Handle cases where site icons haven't fetched properly or don't exist
+      $tile .= '<img src="' . $this->source->icon . '" class="site-icon"/>';
     }
     // Site URL (hyperlink)
-    $linkedURL = "http://" . $this->siteURL;
+    $linkedURL = "http://" . $this->source->url;
     $tile .= '<a class="site-info-url" href="' . $linkedURL . '">';
     // Site URL (visual)
-    $tile .= $this->siteURL . '</a>';
+    $tile .= $this->source->url . '</a>';
     // Context Display
     $tile .= $this->contextMenu;
     // Close all required tags

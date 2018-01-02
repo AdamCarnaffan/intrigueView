@@ -1,19 +1,53 @@
 <?php
 include_once('dbConnect.php');
-require('objectConstruction.php');
+require_once('class/class_dataFetch.php');
 
-$_POST['targetID'] = 25;
+$_POST['target'] = "entry_500"; // The target Feed to save to
 $_POST['url'] = "https://www.wired.com/2017/12/geeks-guide-last-jedi/";
+$_POST['method'] = 1;
 
-$targetFeed = $_POST['targetID'];
-$targetURL = $_POST['url'];
+/*
+*   METHOD INDEX
+*   1 -> Manual testing (PHP)
+*   2 -> Forced (Javascript)
+*   3 -> Automation (PHP -> unattended)
+*/
 
-// Time zone info to sync with feed
+$target = $_POST['target'];
+$method = $_POST['method'];
+
+// Determine the action
+if (strpos($target, "entry") !== false) {
+  // Use entry refetch
+  $targetEntry = str_replace("entry_", "", $target);
+  $targetURL = $conn->query("SELECT url FROM entries WHERE entryID = '$targetEntry' LIMIT 1");
+  $newEntry = false;
+} else if (strpos($target, "feed") !== false) {
+  // Use a target feed and url to get a new article
+  $targetURL = $_POST['url'];
+  $targetFeed = str_replace("feed_", "", $target);
+  $newEntry = true;
+} else {
+  echo "The target selection '{$target}' is invalid! Please specify 'entry_#' OR 'feed_#'";
+  throw new Exception("No valid target set");
+}
+
+// Time zone info to sync with feeding
 $timeZone = ('-5:00');
 // Default for the error variable used in the loop
 $error = false;
-// Entry tracking class Definition
-$summary = new Summary();
+
+// Use query method to determine reporting methodology
+$logReport = false;
+
+if ($method == 1) {
+  $lineEnding = "</br>";
+} else if ($method == 2) {
+  $lineEnding = "\n";
+} else {
+  $lineEnding = "\r\n";
+  $logReport = true;
+}
 
 // Fetch the tag blacklist in preperation
 $getBlackList = "SELECT blacklistedTag FROM tag_blacklist";
@@ -37,68 +71,43 @@ try {
     // Replace an amp in the middle with a single slash
     $targetURL = str_replace("/amp/", "/", $targetURL);
   }
-  $entryInfo = new Entry_Data($targetURL, $targetFeed, $conn, $tagBlackList);
-  // Filter text for SQL injection
-  $entryInfo->title = $conn->real_escape_string($entryInfo->title);
-  $entryInfo->synopsis = $conn->real_escape_string($entryInfo->synopsis);
+  $entryInfo = new Entry_Data($targetURL, $conn, $tagBlackList);
+  if ($newEntry) {
+    // Format Date Time for mySQL
+    $dateAdded = new DateTime();
+    $dateAdded = $dateAdded->format('Y-m-d H:i:s');
+    // Submit the entry and receive the result
+    $result =  $entryInfo->submitEntry($conn, $targetFeed, $dateAdded) . $lineEnding;
+  } else {
+    $previousEntryData = $conn->query("SELECT url, title, featureImage, siteID, entryID, previewText FROM entries WHERE entryID = '$targetEntry' LIMIT 1")->fetch_array();
+    $prevEntry = new Entry($previousEntryData, $conn);
+    $prevEntry->updateEntry($entryInfo, $conn);
+    $result = "The entry '{$prevEntry->title}' has been updated {$lineEnding}";
+  }
 } catch (Exception $e) {
   $entryInfo = null;
-  echo $e->getMessage() . " @ " . $targetURL . "\n";
+  echo $e->getMessage() . " in '" . $targetURL . "' {$lineEnding}";
   $error = true;
   exit;
 }
-foreach ($entryInfo->tags as $sortOrder=>$tag) {
-  echo $sortOrder . ") " . $tag . " added </br>";
-}
-// Format Date Time for mySQL
-$dateAdded = new DateTime();
-$dateAdded = $dateAdded->format('Y-m-d H:i:s');
-// MySQL Statement
-$addEntry = "CALL newEntry('$entryInfo->siteID', '$targetFeed', '$entryInfo->title','$targetURL','$dateAdded','$entryInfo->imageURL','$entryInfo->synopsis', @newID);
-              SELECT @newID";
-if ($conn->multi_query($addEntry)) { // Report all succcessful entries to the user
-  // Cycle to second query
-  $conn->next_result();
-  $result = $conn->store_result();
-  // Get the new entry's ID
-  $entryID = $result->fetch_array()[0];
-  // Add the tags with connections
-  foreach ($entryInfo->tags as $sortOrder=>$tag) {
-    $addTag = "CALL addTag('$tag', '$entryID', '$sortOrder')";
-    $conn->query($addTag);
-    //echo $sortOrder . ") " . $tag . " added </br>";
+
+if ($logReport) {
+  // Designate and load a file
+  $logTarget = "entryLog.txt";
+  try {
+    $file = fopen($logTarget, 'a');
+  } catch (Exception $fileException) {}
+  // Write to the log file
+  if (isset($file)) {
+    fwrite($file, $result);
   }
-  $summary->entriesAdded++;
-  array_push($summary->entriesList, $entryInfo->title);
-} elseif ($conn->errno == 1062) {
-  // Make the Connection to the feed, instead of adding the entry
-  $connectEntry = "CALL newEntryConnection('$targetURL', '$targetFeed', @duplicate)";
-  if ($conn->query($connectEntry)) {
-    $summary->entriesAdded++;
-    array_push($summary->entriesList, $entryInfo->title . " -- Duplicate Connected");
-  } elseif ($conn->errno == 1048) {
-    $summary->entriesFailed++;
-    array_push($summary->failuresList, $entryInfo->title);
-    $summary->failureReason = "The entry is not a duplicate but was treated as such @ " . $targetURL;
-  } else {
-    $summary->entriesFailed++;
-    array_push($summary->failuresList, $entryInfo->title);
-    $summary->failureReason = $conn->error . " @ " . $targetURL;
-  }
-} else { // Keep a record of all failed additions
-  $summary->entriesFailed++;
-  array_push($summary->failuresList, $entryInfo->title);
-  $summary->failureReason = $conn->error . " @ " . $targetURL;
+} else {
+  echo $result;
 }
 
-// Summary of Action
-echo $summary->entriesAdded . " entries have been added to the database, including: \n";
-foreach ($summary->entriesList as $title) {
-  echo $title . "\n";
-}
-// Handle for failed actions report
-if ($summary->entriesFailed > 0) {
-  echo "\n {$summary->entriesFailed} entries failed to be added to the database table due to: '{$summary->failureReason}' ";
+// Throw a file write exception if needed
+if (isset($fileException)) {
+  throw new Exception ($fileException->getMessage());
 }
 
 ?>

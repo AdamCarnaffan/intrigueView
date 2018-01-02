@@ -135,7 +135,7 @@ function queryEntries(selection, feeds, scroll = false) {
   var feedIDList = feeds.join('+');
   // Send the Query
   $.post({
-    url: "fetchEntries.php",
+    url: "displayEntries.php",
     data: {
       'selection': selection,
       'currentDisplay': entriesDisplayed,
@@ -249,7 +249,7 @@ function getTags() {
   // Empty the current Tags field
   $('#tag-collection').html('');
   $.post({
-    url: 'tagDisplay.php',
+    url: 'displayTags.php',
     data: {
       'tags': tagString,
       'feeds': feedString

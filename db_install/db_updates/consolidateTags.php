@@ -4,7 +4,7 @@ $dir = $_SERVER['DOCUMENT_ROOT'];
 
 require("{$dir}/intrigueView/dbConnect.php");
 
-$getAllPlurals = "SELECT tagName, tagID FROM tags WHERE tagName LIKE '%s'";
+$getAllPlurals = "SELECT tagName, tagID FROM tags WHERE tagName LIKE '%s' OR tagName LIKE '%i'";
 
 $sTagsQuery = $conn->query($getAllPlurals);
 

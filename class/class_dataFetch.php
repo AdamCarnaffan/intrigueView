@@ -155,21 +155,22 @@ class Entry_Data extends Entry {
     // Determine final order
     $this->tags = $this->computeWeighting($weightedTags);
     // Check for Plural tags
-    foreach ($this->tags as &$tagName) {
-      $tagObject = new Tag($tagName);
+    foreach ($this->tags as &$tagFinal) {
+      // Convert all tags to generic tag objects
+      $tagObject = new Tag($tagFinal);
+      // Begin comparing tags for singulars
       if (!$tagObject->consolidate($dbConn)) {
         if ($tagObject->checkPluralization()) {
           // Check article for singulars
           foreach ($tagObject->generateTagSingulars() as $single) {
             if (stripos($this->pageContent, " {$single} ") !== false) {
-              $tagName = $single;
+              $tagObject->name = $single;
             }
           }
         }
-      } else {
-        // Change the name if it is found in consolidation w/ the database
-        $tagName = $tagObject->name;
       }
+      // Turn each tag into a Tag object
+      $tagFinal = $tagObject;
     }
   }
 
@@ -186,14 +187,12 @@ class Entry_Data extends Entry {
       // Get the new entry's ID
       $entryID = $dbConn->store_result()->fetch_array()[0];
       // Add the tags with connections
-      foreach ($this->tags as $sortOrder=>$tag) {
-        $addTag = "CALL addTag('$tag', '$entryID', '$sortOrder')";
+      foreach ($this->tags as $tag) {
+        $addTag = "CALL addTag('$tag->name', '$entryID', '$sortOrder')";
         $dbConn->query($addTag);
-        //echo $sortOrder . ") " . $tag . " added </br>";
       }
       return "The entry '{$this->title}' was added successfully";
     } else if ($dbConn->errno == 1062) {
-      //echo $dbConn->error;
       // Make the Connection to the feed, instead of adding the entry
       $connectEntry = "CALL newEntryConnection('$this->url', '$feedID', @duplicate)";
       // Run the query and handle responses

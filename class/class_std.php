@@ -10,9 +10,9 @@ class Source_Site {
 
   public function __construct($reference, $dbConn = null) {
     if (is_array($reference)) { // Get the data from the DB array
-      $this->id = isset($reference['sites.siteID']) ? $reference['sites.siteID'] : null;
-      $this->url = $reference['sites.url'];
-      $this->icon = $reference['sites.icon'];
+      $this->id = isset($reference['siteID']) ? $reference['siteID'] : null;
+      $this->url = $reference['url'];
+      $this->icon = $reference['icon'];
     } else if (is_numeric($reference)) { // Do the fetch by DB ID (Query Method)
       $this->id = $reference;
       if (is_null($dbConn)) {
@@ -129,6 +129,52 @@ class Entry {
   public $synopsis;
   public $tags = [];
 
+  public function __construct($dataPackage, $dbConn) {
+    $this->source = new Source_Site($dataPackage['siteID'], $dbConn);
+    $this->title = $dataPackage['title'];
+    $this->url = $dataPackage['url'];
+    $this->image = $dataPackage['featureImage'];
+    $this->synopsis = $dataPackage['previewText'];
+    $this->id = $dataPackage['entryID'];
+    $this->fetchTags($dbConn);
+  }
+
+  public function fetchTags($dbConn) {
+    $tagQuery = $dbConn->query("SELECT tags.tagName, tags.tagID FROM entry_tags AS tagConn JOIN tags ON tags.tagID = tagConn.tagID WHERE entryID = '$this->id' ORDER BY tagConn.sortOrder DESC");
+    while ($data = $tagQuery->fetch_array()) {
+      array_push($this->tags, new Tag($data[0], $data[1]));
+    }
+    return;
+  }
+
+  public function updateEntry(Entry $newInfo, $dbConn) {
+    // Update Entry Data
+    $this->url = $newInfo->url;
+    $this->synopsis = $newInfo->synopsis;
+    $this->image = ($newInfo->image != null) ? $newInfo->image : $this->image;
+    $this->title = $newInfo->title;
+    $dbConn->query("UPDATE entries (url, title, featureImage, previewText) SET url = '$this->url', title = '$this->title', featureImage = '$this->image', preivewText = '$this->synopsis' WHERE entryID = '$this->id'");
+    // Determine new tags
+    $newTags = [];
+    $newEntryTags = [];
+    foreach ($newInfo->tags as $tagObject) {
+      array_push($newEntryTags, $tagObject->name);
+    }
+    $prevTags = [];
+    foreach ($this->tags as $tagObject) {
+      array_push($prevTags, $tagObject->name);
+    }
+    $newTags = array_diff($newEntryTags, $prevTags);
+    // Get the current sort order position
+    $sortOrder = $dbConn->query("SELECT sortOrder FROM entry_tags WHERE entryID = '$this->id' ORDER BY sortOrder DESC LIMIT 1")->fetch_array()[0];
+    // Add the tags
+    foreach ($newTags as $tag) {
+      $sortOrder++;
+      $dbConn->query("CALL addTag('$tag', '$this->id', '$sortOrder')");
+    }
+    return;
+  }
+
 }
 
 class Tag {
@@ -142,7 +188,7 @@ class Tag {
   }
 
   public function checkPluralization() {
-    if (strpos($this->name, "s", -1) !== false) {
+    if (strpos($this->name, "s", -1) !== false || strpos($this->name, "i", -1) !== false) {
       return true;
     }
     return false;
@@ -162,8 +208,15 @@ class Tag {
 
     // Add other possible pluralizations of the word
 
+    // i -> us ex. cacti = cactus
+    if (strpos($this->name, "i", -1) !== false) {
+      $tempSingleSplit = str_split($this->name);
+      $tempSingleSplit[count($tempSingleSplit) - 1] = "us";
+      array_push($singularStrings, implode($tempSingleSplit));
+    }
+
     // ies -> ex. entries = entry
-    if (strlen($this->name) > 3) {
+    if (strlen($this->name) > 3 && strpos($this->name, "s", -1) !== false) {
       if (strpos($this->name, "ies", -4)) {
         $tempSingleSplit = str_split($this->name);
         // Remove last 2 characters from array
