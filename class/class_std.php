@@ -153,7 +153,7 @@ class Entry {
     $this->synopsis = $newInfo->synopsis;
     $this->image = ($newInfo->image != null) ? $newInfo->image : $this->image;
     $this->title = $newInfo->title;
-    $dbConn->query("UPDATE entries (url, title, featureImage, previewText) SET url = '$this->url', title = '$this->title', featureImage = '$this->image', preivewText = '$this->synopsis' WHERE entryID = '$this->id'");
+    $dbConn->query("UPDATE entries SET url = '$this->url', title = '$this->title', featureImage = '$this->image', previewText = '$this->synopsis' WHERE entryID = '$this->id'");
     // Determine new tags
     $newTags = [];
     $newEntryTags = [];

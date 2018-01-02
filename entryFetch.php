@@ -2,8 +2,8 @@
 include_once('dbConnect.php');
 require_once('class/class_dataFetch.php');
 
-$_POST['target'] = "entry_500"; // The target Feed to save to
-$_POST['url'] = "https://www.wired.com/2017/12/geeks-guide-last-jedi/";
+$_POST['target'] = "entry_7"; // The target Feed to save to
+$_POST['url'] = "";
 $_POST['method'] = 1;
 
 /*
@@ -20,7 +20,7 @@ $method = $_POST['method'];
 if (strpos($target, "entry") !== false) {
   // Use entry refetch
   $targetEntry = str_replace("entry_", "", $target);
-  $targetURL = $conn->query("SELECT url FROM entries WHERE entryID = '$targetEntry' LIMIT 1");
+  $targetURL = $conn->query("SELECT url FROM entries WHERE entryID = '$targetEntry' LIMIT 1")->fetch_array()[0];
   $newEntry = false;
 } else if (strpos($target, "feed") !== false) {
   // Use a target feed and url to get a new article
@@ -77,7 +77,7 @@ try {
     $dateAdded = new DateTime();
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
     // Submit the entry and receive the result
-    $result =  $entryInfo->submitEntry($conn, $targetFeed, $dateAdded) . $lineEnding;
+    $result = $entryInfo->submitEntry($conn, $targetFeed, $dateAdded) . $lineEnding;
   } else {
     $previousEntryData = $conn->query("SELECT url, title, featureImage, siteID, entryID, previewText FROM entries WHERE entryID = '$targetEntry' LIMIT 1")->fetch_array();
     $prevEntry = new Entry($previousEntryData, $conn);

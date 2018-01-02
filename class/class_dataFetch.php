@@ -672,13 +672,16 @@ class Entry_Data extends Entry {
     }
     foreach ($linkTagSelection as $tag) {
       if (strpos($tag, '"og:title"') !== false) {
-        $titleStart = explode('content="', $tag)[1];
-        if (!isset(explode('content="', $tag)[1])) {
-          //echo $tag . "</br>" . $this->pageContent;
+        if (isset(explode('content="', $tag)[1])) {
+          $titleStart = explode('content="', $tag)[1];
+          $titleFull = explode('"', $titleStart)[0];
+        } else {
+          $titleStart = explode("content='", $tag)[1];
+          $titleFull = explode("'", $titleStart)[0];
         }
-        $titleFull = explode('"', $titleStart)[0];
-        return $titleFull;
-      } elseif (strpos($tag, "'og:title'") !== false) { // Use the single quotation mark in the case where it is used in the rel
+        $this->title = $titleFull;
+        return;
+      } else if (strpos($tag, "'og:title'") !== false) { // Use the single quotation mark in the case where it is used in the rel
         $titleStart = explode("content='", $tag)[1];
         $titleFull = explode("'", $titleStart)[0];
         $this->title = $titleFull;
