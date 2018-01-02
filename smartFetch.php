@@ -19,7 +19,9 @@ $search = new Google_Service_Customsearch($client);
 // https://github.com/google/google-api-php-client
 // Build php class to construct this parameter tree programatically
 
-$fullParams = array(
+/*
+
+array(
                 'methods' => array(
                   'list' => array(
                     'path' => 'v1',
@@ -154,8 +156,39 @@ $fullParams = array(
                   ),
                 )
               );
+              
+*/
 
-$search->cse->listCse('AI');
+
+// cx => Sets the Custom Search Engine Key (Used to search News sites only)
+// dateRestrict => Only content from the last 2 days is worth querying
+// googlehost => We'd like to use a local search, no albanian results thx <3
+
+$params = array(
+              'cx' => '017024561452473323470:vibdg2pnw_e',
+              'dateRestrict' => 'd2',
+              'googlehost' => 'google.ca'
+            );
+
+$results = $search->cse->listCse('AI', $params);
+
+// DIAGNOSTIC
+
+$now = new DateTime("now");
+$date = $now->format("Y-m-d H:i:s");
+$file = fopen('queryLog.txt', "a");
+
+fwrite($file, " \r\n");
+fwrite($file, "$date \r\n");
+fwrite($file, "----------------- \r\n");
+
+////////
+
+foreach ($results->getItems() as $k=>$item) {
+  fwrite($file, "$item->link \r\n");
+}
+
+echo "New Results Logged";
 
 /*
 
