@@ -179,9 +179,9 @@ class FeedInfo {
     } else {
       throw new exception($dbConn->error);
     }
-    $this->source = (isset($sourceInfo['url'])) ? $sourceInfo['url'] : null;
+    $this->source = $sourceInfo['url'] ?? null;
     $this->title = $sourceInfo['title'];
-    $this->busy = (isset($sourceInfo['busy'])) ? $sourceInfo['busy'] : 0;
+    $this->busy = $sourceInfo['busy'] ?? 0;
   }
 
 }

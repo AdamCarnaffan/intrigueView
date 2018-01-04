@@ -2,6 +2,8 @@
 require_once('lib/vendor/autoload.php');
 require_once('objectConstruction.php');
 
+$searchTerms = "AI"; // The value from the database for the query cycle
+
 // Modifiable Variables
 $googleServiceAccPath = "F:/UniformServer/UniServerZ/Google_API/service.json";
 
@@ -170,51 +172,34 @@ $params = array(
               'googlehost' => 'google.ca'
             );
 
-$results = $search->cse->listCse('AI', $params);
+$results = $search->cse->listCse($searchTerms, $params);
 
-// DIAGNOSTIC
+$queryResults = [];
 
-$now = new DateTime("now");
-$date = $now->format("Y-m-d H:i:s");
-$file = fopen('queryLog.txt', "a");
-
-fwrite($file, " \r\n");
-fwrite($file, "$date \r\n");
-fwrite($file, "----------------- \r\n");
-
-////////
-
-foreach ($results->getItems() as $k=>$item) {
-  fwrite($file, "$item->link \r\n");
+foreach ($results->getItems() as $item) {
+  array_push($queryResults, $item->link);
 }
 
-echo "New Results Logged";
-
+foreach ($queryResults as $url) {
+  
+}
 /*
 
 Idea: The feature takes tag data submitted and uses the data to find related articles online through google news
 
-1) Fetch Global / Personal data (input)
+1) Fetch Global Data (input)
   -Get data and weight factors from database for incoming query
 
 
 2) Apply Data to Google News Query (output)
-  -Take top recent results for the Query
-  -Check that the site of the result is not on the site blacklist (fake news filter)
   -Process the entry through the usual entry processing method
   -Submit the entry object for validation
 
 3) Check for match between fetched article and original data (validation)
 
+The same query only returns 50% new results after 25 hours
 
-
-Grab all entries simultaneously into a temporary table
-process the entries all together
-insert the relevant ones and discard those that don't apply
-Generate 5 user recommendations for each user on the hour every hour
-Generate 10 feed recommendations every day for each feed (external and non-personal only)
-Display the user's recommended entries in their personal feed, and in a recommendations browser page
-
+Create a seperate serve function to serve recommendations to the user
 */
 
 

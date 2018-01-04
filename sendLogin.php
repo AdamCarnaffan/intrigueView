@@ -23,7 +23,7 @@ if ($getUser->execute()) {
 		$dataPackage['feedID'] = $row[3];
      if (password_verify($inputPassword, $dbPass)) {
 			include('fixSession.php');
-      $_SESSION['user'] = new User($dataPackage, $conn);
+      $_SESSION['user'] = new User($conn, $dataPackage);
       echo "<script>window.location = 'index.php'</script>";
 			exit;
     } else {

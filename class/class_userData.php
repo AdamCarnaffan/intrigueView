@@ -7,13 +7,25 @@ class User {
   public $permissions = [];
   public $feed;
   public $subscriptions;
+  public $recentViews = [];
 
-  public function __construct($userData, $dbConn) {
-    $this->id = $userData['id'];
-    $this->name = $userData['username'];
-    $this->feed = $userData['feedID']; // The user's personal Feed ID
-    $this->getPerms($dbConn);
-    $this->getSubs($dbConn);
+  public function __construct(mysqli $dbConn, $userData = null) {
+    if (is_null($userData)) {
+      // Create a temporary user for the guest
+      $this->id = uniqid(); // Generate a session ID for temp table
+    } else {
+      // Login a full user
+      $this->name = $userData['username'];
+      $this->feed = $userData['feedID']; // The user's personal Feed ID
+      $this->id = $userData['id'];
+      $this->getPerms($dbConn);
+      $this->getSubs($dbConn);
+      // Get current most recent views
+      // Push query results to this->recentViews
+      $this->generateRecommendations($dbConn);
+    }
+    // Generate a recommendation table to tailor to the user
+    
   }
 
   public function getPerms($conn) {
@@ -25,6 +37,20 @@ class User {
         array_push($this->permissions, $tempPerm);
       }
     }
+  }
+  
+  public function view($conn) {
+    // Add the view to the tracking table if the userID is permanent
+    // Track the view in a local array
+    // Adjust recommendations every third view
+  }
+
+  public function generateRecommendations($conn) {
+    // generate recommendations with recent views
+  }
+  
+  public function adjustRecommendations($conn) {
+    // Check for any changes in the viewed entries and adjust recommendations to match that
   }
 
   public function getSubs($conn) {
