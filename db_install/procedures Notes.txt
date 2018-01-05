@@ -101,3 +101,9 @@ SELECT externalFeedID AS feedID FROM external_feeds
 UNION
 SELECT internalFeedID FROM user_feeds
 WHERE active = 1 AND isPrivate = 0
+
+// Show temp tables
+SHOW TABLES FROM INFORMATION_SCHEMA LIKE 'INNODB_TEMP%'
+
+// Create temp table
+CREATE TEMPORARY TABLE name (col_1 TYPE, col_2 TYPE)

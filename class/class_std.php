@@ -129,14 +129,26 @@ class Entry {
   public $synopsis;
   public $tags = [];
 
-  public function __construct($dataPackage, $dbConn) {
-    $this->source = new Source_Site($dataPackage['siteID'], $dbConn);
-    $this->title = $dataPackage['title'];
-    $this->url = $dataPackage['url'];
-    $this->image = $dataPackage['featureImage'];
-    $this->synopsis = $dataPackage['previewText'];
-    $this->id = $dataPackage['entryID'];
-    $this->fetchTags($dbConn);
+  public function __construct($data, $dbConn) {
+    // Handle an Entry ID being passed to the constructor
+    if (is_int($data)) {
+      // Clean this up
+      $entryID = $data;
+      $data = $dbConn->query("SELECT title, siteID, url, featureImage, previewText FROM entries WHERE entryID = '$entryID'")->fetch_array();
+      $data['entryID'] = $entryID;
+    } 
+    // Begin building the object
+    if (is_array($data)) {
+      $this->source = new Source_Site($data['siteID'], $dbConn);
+      $this->title = $data['title'];
+      $this->url = $data['url'];
+      $this->image = $data['featureImage'];
+      $this->synopsis = $data['previewText'];
+      $this->id = $data['entryID'];
+      $this->fetchTags($dbConn);
+    } else {
+      throw new Exception("An ID or Entry Data Package is required to build an Entry where '$data' was provided");
+    }
   }
 
   public function fetchTags($dbConn) {

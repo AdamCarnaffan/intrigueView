@@ -5,6 +5,9 @@ function openInNewTab(url, entryID) {
     url: 'viewEntry.php',
     data: {
       'entry': entryID
+    },
+    success: function(data) {
+      //console.log(data);
     }
   });
   return false;

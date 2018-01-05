@@ -1,20 +1,19 @@
 <?php
+require_once('class/class_userData.php');
 include('fixSession.php');
 include('dbConnect.php');
-require_once('class_userData.php');
 
 // Add the view in the post
 
-$_POST['entry'] = 502;
+// $_POST['entry'] = 502;
 
-$selectedEntry = $_POST['entry'];
+$user = $_SESSION['user'];
+$selectedEntry = (int)$_POST['entry'];
 
-$viewEntry = "UPDATE entries SET views = views + 1 WHERE entryID = '$selectedEntry'";
-
-$conn->query($viewEntry);
+$conn->query("UPDATE entries SET views = views + 1 WHERE entryID = '$selectedEntry'");
 
 // Add the view in the user
 
-$user->view($conn);
+$user->view(new Entry($selectedEntry, $conn), $conn);
 
 ?>

@@ -19,7 +19,7 @@ function validateLogin() {
 
   if (cooldown < 5) {
     $.post({
-      url: "validateLogin.php",
+      url: "sendLogin.php",
       datatype: 'json',
       data: {
         'username': inputUsername,

@@ -26,6 +26,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
   <script src='js/displayManager.js'></script>
   <script src='js/popper.js'></script>
   <script src='js/bootstrap.js'></script>
+  <script src='js/loginManager.js'></script>
 </head>
 <body class="hide-overflow" onresize='resizeCanvas'>
   <!-- Fixed navbar -->

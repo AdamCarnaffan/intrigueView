@@ -1,18 +1,25 @@
 <?php
 
+require_once('class_std.php');
+
 class User {
 
   public $id;
   public $name;
+  public $isTemp = false; // Determine if this is a permanent user
   public $permissions = [];
   public $feed;
   public $subscriptions;
   public $recentViews = [];
-
+  public $recommendations = [];
+  
+  private $viewCount; // Tracks the number of views since last recommendation set
+  
   public function __construct(mysqli $dbConn, $userData = null) {
     if (is_null($userData)) {
       // Create a temporary user for the guest
       $this->id = uniqid(); // Generate a session ID for temp table
+      $this->isTempt = true;
     } else {
       // Login a full user
       $this->name = $userData['username'];
@@ -20,8 +27,6 @@ class User {
       $this->id = $userData['id'];
       $this->getPerms($dbConn);
       $this->getSubs($dbConn);
-      // Get current most recent views
-      // Push query results to this->recentViews
       $this->generateRecommendations($dbConn);
     }
     // Generate a recommendation table to tailor to the user
@@ -39,17 +44,33 @@ class User {
     }
   }
   
-  public function view($conn) {
-    // Add the view to the tracking table if the userID is permanent
+  public function view(Entry $entry, mysqli $conn) {
+    if (!$this->isTemp) {
+      // Add the view to the user view tracker
+      $conn->query("INSERT INTO user_views (userID, entryID) VALUES ('$this->id', '$entry->id')");
+    }
     // Track the view in a local array
+    array_push($this->recentViews, $entry);
     // Adjust recommendations every third view
+    $this->viewCount++;
+    if ($this->viewCount >= 3) {
+      $this->adjustRecommendations($conn);
+      $this->viewCount = 0;
+    }
   }
 
-  public function generateRecommendations($conn) {
+  public function generateRecommendations(mysqli $conn) {
+    // Get views from table for users if available
+    if (count($this->recentViews) < 10 && !$this->isTemp) {
+      $result = $conn->query("SELECT entryID FROM user_views WHERE userID = '$this->id' ORDER BY viewTime DESC LIMIT 10");
+      while ($row = $result->fetch_array()) {
+        array_push($this->recentViews, new Entry($row[0], $dbConn));
+      }
+    }
     // generate recommendations with recent views
   }
   
-  public function adjustRecommendations($conn) {
+  public function adjustRecommendations(mysqli $conn) {
     // Check for any changes in the viewed entries and adjust recommendations to match that
   }
 
