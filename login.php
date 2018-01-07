@@ -1,7 +1,7 @@
 <?php
   // Check if a user is already logged in
-  require('fixSession.php');
-  if (isset($_SESSION['user'])) {
+  require('manageUser.php');
+  if (!$user->isTemp)) {
       header('location: admin/index.php');
   }
 ?>
@@ -14,7 +14,7 @@
   <meta name="author" content="Adam Carnaffan">
   <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
 
-  <title>Intrigue View Beta 0.6</title>
+  <title>Intrigue View Beta 1.0</title>
 
   <!-- Bootstrap core CSS -->
   <link href="styling/bootstrap.min.css" rel="stylesheet">

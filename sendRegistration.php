@@ -1,6 +1,8 @@
 <?php
 require('objectConstruction.php');
 
+// NEEDS TO INCORPORATE PRELOGIN DATA
+
 $username = $_POST['username'];
 $password = $_POST['password'];
 $email = $_POST['email'];

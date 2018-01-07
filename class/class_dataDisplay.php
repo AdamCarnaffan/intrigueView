@@ -7,13 +7,15 @@ class Entry_Display extends Entry {
   public $entryDisplaySize;
   public $contextMenu;
   public $isFeatured;
+  public $isRecommendation;
 
-  public function __construct($dataArray, $dbConn, $displayContext) {
+  public function __construct($dataArray, $dbConn, $displayContext, $recommended = false) {
     parent::__construct($dataArray, $dbConn);
 
     $this->isFeatured = ($dataArray['featured'] == 1) ? true : false; // Create a boolean based on the data table output. This boolean decides highlighting
     $this->views = $dataArray['views'];
-    $this->rating = $dataArray['rating']; // We only put out the highest quality content xD
+    $this->rating = $dataArray['rating'];
+    $this->isRecommendation = $recommended; // means feedback needs to be included (X in the top right) and recommended banner should be there
 
     // Revise this for the triple dot context menu -> always the same menu per display, though changes dynamically per user
     if ($displayContext == "Saved") {

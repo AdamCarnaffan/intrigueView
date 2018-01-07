@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php
-require('objectConstruction.php');
-include('fixSession.php');
-$user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
+require_once('manageUser.php');
 ?>
 <head>
   <meta charset="utf-8">
@@ -12,7 +10,7 @@ $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
   <meta name="author" content="Adam Carnaffan">
   <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
 
-  <title>Intrigue View Beta 0.8</title>
+  <title>Intrigue View Beta 1.0</title>
 
   <!-- Bootstrap core CSS -->
   <link href="styling/bootstrap.min.css" rel="stylesheet">

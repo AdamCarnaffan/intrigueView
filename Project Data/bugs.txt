@@ -21,9 +21,12 @@ Add view when the article is opened by middle mouse or right click
 
 Add ability to rate
 
-Add ability to refetch article (admin) --> code exists, just make UI element
-
-Add ability to remove a tag from an entry (only visibly)
+UI Needed for:
+----------------
+Refetch article
+removing tag
+feedback
+context menu (triple dots)
 
 Add ability to re-order the tags on an article
 
@@ -43,7 +46,7 @@ Add line beginnings to the entry log to display the process responsible for the 
 
 Use JS to preserve the check mark on entries recently saved
 
-Add the context menu to the entry tiles
+Feedback needs to be related to recommendations (recalculate trends every generation)
 
 ----------------------
 
@@ -52,23 +55,9 @@ Resource.php line 110 Google API
 ----------------------
 Untested fixes:
 
-entryFetch.php
-fetchEntries.php --> renamed to displayEntries.php
-displayTags.php --> renames from tagDisplay.php
-
 Fixed offline:
-
-Updated the entryFetch page to leverage the new method and log to the log file
-Added the ability to re-fetch an entry (only in code, js still needed)
-Refactored the Entry class to act as the main constructor for the Entry_Display class (which acts on standard and like principles)
-Renamed display related functions from 'fetch' to distinguish the difference in process
-Made all EntryObject->tags array values into Tag objects
-Fixed the lack of "i" handling in consolidation of tag pluralization
 
 To do:
 
-Continue fixing tagging
 Allow for phrase tags
-Add user specific view tracking
-Fix Google API
 Make new filler image

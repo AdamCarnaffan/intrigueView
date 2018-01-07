@@ -107,3 +107,6 @@ SHOW TABLES FROM INFORMATION_SCHEMA LIKE 'INNODB_TEMP%'
 
 // Create temp table
 CREATE TEMPORARY TABLE name (col_1 TYPE, col_2 TYPE)
+
+// Build recommendations --> SELECT IN () runs in order of the things, not checking each id for each
+CREATE TEMPORARY TABLE recommend (recomID INT, entryID INT, primaryTagID INT)

@@ -2,6 +2,8 @@
 include('dbConnect.php');
 require('objectConstruction.php');
 
+// NEEDS TO INCORPORATE PRELOGIN DATA
+
 $validationError = "The username or password entered was incorrect";
 $inputUsername = $_POST['username'];
 $inputPassword = $_POST['password'];
