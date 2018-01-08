@@ -42,7 +42,7 @@ Make the feed builder
 
 Inefficient require statements are used on most pages
 
-Add line beginnings to the entry log to display the process responsible for the sync (feed automation, recommendations, etc)
+Add logging for SmartFetch
 
 Use JS to preserve the check mark on entries recently saved
 
@@ -50,15 +50,13 @@ Feedback needs to be related to recommendations (recalculate trends every genera
 
 Determine which search keys to use to fetch each day
 
+Add GitHub based updating
+
 ----------------------
 
 Resource.php line 110 Google API
 
 ----------------------
-Untested fixes:
-
-Fixed offline:
-
 To do:
 
 Allow for phrase tags
