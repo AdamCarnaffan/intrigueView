@@ -1,7 +1,7 @@
 <?php
   // Check if a user is already logged in
   require('manageUser.php');
-  if (!$user->isTemp)) {
+  if (!$user->isTemp) {
       header('location: admin/index.php');
   }
 ?>

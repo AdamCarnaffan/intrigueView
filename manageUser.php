@@ -1,16 +1,15 @@
-<?php 
+<?php
 
 require_once('class/class_userData.php');
 require_once('fixSession.php');
 require_once('dbConnect.php');
 
-
-$user = $_SESSION['user'];
-
-if (!isset($user)) {
+if (!isset($_SESSION['user'])) {
   // Log activities as a temporary user
   $user = new User($conn);
   $_SESSION['user'] = $user;
+} else {
+  $user = $_SESSION['user'];
 }
 
 ?>

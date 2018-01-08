@@ -42,7 +42,7 @@ require_once('manageUser.php');
         <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
       </li>
       <?php
-      if (isset($user)) {
+      if (!$user->isTemp) {
         echo '<li class="nav-item active">
           <a class="nav-link" title="See Your Personalized Feed Selection" href="myFeeds.php">My Feeds<span class="sr-only">(current)</span></a>
         </li>';
@@ -57,7 +57,7 @@ require_once('manageUser.php');
     <ul class="navbar-nav dropdown-ontop">
       <?php
         // Change the User display based on a logged in user
-        if (isset($user)) {
+        if (!$user->isTemp) {
           echo "<div class='dropdown'>";
           echo '<a class="nav-item active nav-link hover-highlight dropdown-toggle" href="#" data-toggle="dropdown">Welcome back, ' . $user->name . '</a>';
           echo '<ul class="dropdown-menu dropdown-menu-right dropdown-align">';
