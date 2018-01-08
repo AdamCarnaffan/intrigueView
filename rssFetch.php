@@ -139,7 +139,7 @@ if ($logReport) {
   // Write to the log file
   if (isset($file)) {
     foreach ($results as $entryData) {
-      fwrite($file, $entryData);
+      fwrite($file, "Fetch > $entryData");
     }
   }
 } else {

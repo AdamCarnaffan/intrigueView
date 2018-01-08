@@ -222,7 +222,7 @@ class Tag {
     array_pop($tempSingleSplit);
     // Check for a pluralized acronym, skip if so
     if (ctype_upper(implode($tempSingleSplit))) {
-      return false;
+      return [];
     }
     array_push($singularStrings, implode($tempSingleSplit));
 
