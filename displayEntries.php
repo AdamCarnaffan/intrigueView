@@ -1,7 +1,7 @@
 <?php
 include('dbConnect.php');
 require_once('objectConstruction.php');
-// require('objectConstruction.php');
+require('manageUser.php');
 
 // $_POST['selection'] = 10;
 // $_POST['currentDisplay'] = 0;
@@ -169,21 +169,27 @@ $getEntries .= "entries.visible = 1
 // Prepare and query
 $entriesFound = false;
 $display = [];
+$recomNumber = 0;
 $entries = $conn->query($getEntries);
 // echo $conn->error;
 // echo "</br>";
 // echo $getEntries;
 while ($row = $entries->fetch_array()) {
-  $entryIDVal = $row[8];
-  $getTags = "SELECT tagConn.entryID, tags.tagNAME, tags.tagID FROM entry_tags AS tagConn
-              JOIN tags ON tags.tagID = tagConn.tagID
-              WHERE tagConn.entryID = '$entryIDVal'
-              ORDER BY sortORDER LIMIT 3"; // Only get the first 3 tags for the entry
-  $tags = $conn->query($getTags);
   $entry = new Entry_Display($row, $conn, $context);
   $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
   array_push($display, $tempTile);
   $entryDisplayNumber++;
+  if ($entryDisplayNumber % 10 == 0) {
+    try {
+      $entry = new Entry_Display($user->recommendations[$recomNumber], $conn, $context, true);
+      $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
+      array_push($display, $tempTile);
+      $entryDisplayNumber++;
+    } catch (Exception $error) {
+      //echo $error;
+    }
+    $recomNumber++;
+  }
   $entriesFound = true;
 }
 if (!$entriesFound && ($search == true || $tagged == true)) {

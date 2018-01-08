@@ -14,9 +14,9 @@ class User {
   public $recommendations = [];
   public $recommendationFocus = []; // Used to adjust recommendations
   public $recommendationAvoid = [];
-  
+
   private $viewCount; // Tracks the number of views since last recommendation set
-  
+
   public function __construct(mysqli $dbConn, $userData = null) {
     if (is_null($userData)) {
       // Create a temporary user for the guest
@@ -44,7 +44,7 @@ class User {
       }
     }
   }
-  
+
   public function view(Entry $entry, mysqli $conn) {
     if (!$this->isTemp) {
       // Add the view to the user view tracker
@@ -59,7 +59,7 @@ class User {
       $this->viewCount = 0;
     }
   }
-  
+
   public function provideFeedback(int $entryID, mysqli $conn, $disposition) {
     // Determine if an entry type is to be avoided or focused
     if (!$this->isTemp) {
@@ -72,7 +72,7 @@ class User {
       array_push($this->recommendationAvoid, $entryID);
     }
   }
-  
+
   private function determineFeedbackTrends(mysqli $conn) {
     // Use the entries to determine a trend in user likes & dislikes
   }
@@ -87,7 +87,6 @@ class User {
       foreach ($this->recentViews as $entry) {
         array_push($tempRecentArray, $entry->id);
       }
-      $recentEntries = implode("','", $tempRecentArray);
     }
 
     // Get views from table for users if available
@@ -96,15 +95,16 @@ class User {
       while ($row = $result->fetch_array()) {
         array_push($this->recentViews, new Entry($row[0], $dbConn));
       }
-    } else if (count($this->recentViews) < 10 && $this->isTemp) {
+    }
+    // Generate a short recent entries list for temp users or new accounts
+    $recentEntries = (isset($tempRecentArray) && count($tempRecentArray) > 0) ? implode("','", $tempRecentArray) : "";
+    if (count($this->recentViews) < 10) {
       // Use a completely different query for general recommendations
       // View number should be scaled based on average views of an entry
-      $recomQuery = "SELECT entryID, (CASE WHEN datePublished BETWEEN DATE_ADD(NOW(), INTERVAL -2 DAY) AND NOW() THEN 1 ELSE 0 END) AS veryRecent FROM entries 
-                      WHERE datePublished BETWEEN DATE_ADD(NOW(), INTERVAL -20 DAYS) AND entryID NOT IN ('$recentEntries')
+      $recomQuery = "SELECT entryID, (CASE WHEN datePublished BETWEEN DATE_ADD(NOW(), INTERVAL -2 DAY) AND NOW() THEN 1 ELSE 0 END) AS veryRecent FROM entries
+                      WHERE datePublished BETWEEN DATE_ADD(NOW(), INTERVAL -40 DAY) AND NOW() AND entryID NOT IN ('$recentEntries')
                       ORDER BY veryRecent DESC, views DESC, datePublished DESC";
-    }
-    
-    if (!isset($recomQuery)) {
+    } else {
       // generate recommendations with recent views
       // Get the tags from the last 10 articles viewed (general preference coming soon)
       $recommendationTags = [];
@@ -124,11 +124,11 @@ class User {
       //  The entries that are very recent (last 5 days) are prioritized
       //  If an entry has more than one of the tags, it is sorted as such based on the first tag found
       //  The entries are then sorted based on recency
-      $recomQuery = "SELECT tagConn.entryID, tagConn.tagID, entries.datePublished, COUNT(tagConn.tagID), 
-                      (CASE WHEN entries.datePublished BETWEEN DATE_ADD(NOW(), INTERVAL -5 DAY) AND NOW() THEN 1 ELSE 0 END) AS veryRecent 
-                      FROM entry_tags AS tagConn 
+      $recomQuery = "SELECT tagConn.entryID, tagConn.tagID, entries.datePublished, COUNT(tagConn.tagID),
+                      (CASE WHEN entries.datePublished BETWEEN DATE_ADD(NOW(), INTERVAL -5 DAY) AND NOW() THEN 1 ELSE 0 END) AS veryRecent
+                      FROM entry_tags AS tagConn
                       JOIN entries ON entries.entryID = tagConn.entryID
-                      WHERE entries.datePublished BETWEEN DATE_ADD(NOW(), INTERVAL -60 DAY) AND NOW() 
+                      WHERE entries.datePublished BETWEEN DATE_ADD(NOW(), INTERVAL -60 DAY) AND NOW()
                       AND tagConn.tagID IN ('$tagQueryList') AND ";
       if ($this->isTemp) {
         // Use the temporary user view tracker
@@ -139,7 +139,6 @@ class User {
       $recomQuery .= " GROUP BY entries.entryID
                         ORDER BY veryRecent DESC, COUNT(tagConn.tagID) DESC, FIELD(tagConn.tagID, '$tagQueryList'), entries.datePublished DESC";
     }
-    
     // Run the query
     $result = $conn->query($recomQuery);
     $resultCount = 0;

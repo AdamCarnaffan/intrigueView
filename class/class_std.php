@@ -134,9 +134,9 @@ class Entry {
     if (is_int($data)) {
       // Clean this up
       $entryID = $data;
-      $data = $dbConn->query("SELECT title, siteID, url, featureImage, previewText FROM entries WHERE entryID = '$entryID'")->fetch_array();
+      $data = $dbConn->query("SELECT title, siteID, url, featureImage, previewText, featured, views, rating FROM entries WHERE entryID = '$entryID'")->fetch_array();
       $data['entryID'] = $entryID;
-    } 
+    }
     // Begin building the object
     if (is_array($data)) {
       $this->source = new Source_Site($data['siteID'], $dbConn);

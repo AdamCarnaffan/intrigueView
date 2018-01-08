@@ -16,7 +16,7 @@ class Entry_Display extends Entry {
     $this->views = $dataArray['views'];
     $this->rating = $dataArray['rating'];
     $this->isRecommendation = $recommended; // means feedback needs to be included (X in the top right) and recommended banner should be there
-
+    // $this->isRecommendation = true;
     // Revise this for the triple dot context menu -> always the same menu per display, though changes dynamically per user
     if ($displayContext == "Saved") {
       $this->contextMenu = "X FOR REMOVING";
@@ -53,6 +53,11 @@ class Entry_Display extends Entry {
       $tile .= '<div class="image-container"><img class="image" src="' . $this->image . '"/>';
     } else {
       $tile .= '<div class="image-container"><img class="image fill-size" src="assets/tileFill.png"/>';
+    }
+
+    // Add the recommendation banner if necessary
+    if ($this->isRecommendation) {
+      $tile .= "<div class='recommendation-badge'>Recommended</div>";
     }
 
     // Begin site details slider
