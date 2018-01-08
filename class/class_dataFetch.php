@@ -187,9 +187,11 @@ class Entry_Data extends Entry {
       // Get the new entry's ID
       $entryID = $dbConn->store_result()->fetch_array()[0];
       // Add the tags with connections
+      $sortOrder = 1;
       foreach ($this->tags as $tag) {
         $addTag = "CALL addTag('$tag->name', '$entryID', '$sortOrder')";
         $dbConn->query($addTag);
+        $sortOrder++;
       }
       return "The entry '{$this->title}' was added successfully";
     } else if ($dbConn->errno == 1062) {

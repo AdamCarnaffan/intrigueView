@@ -180,15 +180,24 @@ while ($row = $entries->fetch_array()) {
   array_push($display, $tempTile);
   $entryDisplayNumber++;
   if ($entryDisplayNumber % 10 == 0) {
+    $addEntry = true;
     try {
-      $entry = new Entry_Display($user->recommendations[$recomNumber], $conn, $context, true);
-      $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
-      array_push($display, $tempTile);
-      $entryDisplayNumber++;
+      do {
+        // Check that the recommendation is not being displayed in this feed
+        $checkRecom = "SELECT entryID FROM entry_connections AS entryConn
+                        WHERE feedID IN ('$selectedFeedList') AND entryID = '{$user->recommendations[$recomNumber]}'";
+        if (!$conn->query($checkRecom)->fetch_array()) {
+          $entry = new Entry_Display($user->recommendations[$recomNumber], $conn, $context, true);
+          $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
+          array_push($display, $tempTile);
+          $entryDisplayNumber++;
+          $addEntry = false;
+        }
+        $recomNumber++;
+      } while ($addEntry);
     } catch (Exception $error) {
       //echo $error;
     }
-    $recomNumber++;
   }
   $entriesFound = true;
 }

@@ -11,10 +11,7 @@ class Entry_Display extends Entry {
 
   public function __construct($dataArray, $dbConn, $displayContext, $recommended = false) {
     parent::__construct($dataArray, $dbConn);
-
-    $this->isFeatured = ($dataArray['featured'] == 1) ? true : false; // Create a boolean based on the data table output. This boolean decides highlighting
-    $this->views = $dataArray['views'];
-    $this->rating = $dataArray['rating'];
+    
     $this->isRecommendation = $recommended; // means feedback needs to be included (X in the top right) and recommended banner should be there
     // $this->isRecommendation = true;
     // Revise this for the triple dot context menu -> always the same menu per display, though changes dynamically per user
@@ -156,39 +153,6 @@ class FeedDisplay {
     // Close all divs
     $tile .= "</div></div></div>";
     return $tile;
-  }
-
-}
-
-class FeedInfo {
-
-  public $title;
-  public $source;
-  public $id;
-  public $busy;
-  public $isExternal = false;
-
-  public function __construct($feedId, $dbConn, $isExternal) {
-    $this->id = $feedId;
-    if ($isExternal) {
-      $feedType = "external_feeds";
-      $includedFields = "url, title, busy";
-      $idColumn = "externalFeedID";
-      $this->isExternal = true;
-    } else {
-      $feedType = "user_feeds";
-      $includedFields = "title";
-      $idColumn = "internalFeedID";
-    }
-    $sourceQuery = "SELECT $includedFields FROM $feedType WHERE $idColumn = '$this->id' AND active = 1";
-    if ($result = $dbConn->query($sourceQuery)) {
-      $sourceInfo = $result->fetch_array();
-    } else {
-      throw new exception($dbConn->error);
-    }
-    $this->source = $sourceInfo['url'] ?? null;
-    $this->title = $sourceInfo['title'];
-    $this->busy = $sourceInfo['busy'] ?? 0;
   }
 
 }

@@ -131,7 +131,7 @@ class Entry {
 
   public function __construct($data, $dbConn) {
     // Handle an Entry ID being passed to the constructor
-    if (is_int($data)) {
+    if (is_int($data) || is_string($data)) {
       // Clean this up
       $entryID = $data;
       $data = $dbConn->query("SELECT title, siteID, url, featureImage, previewText, featured, views, rating FROM entries WHERE entryID = '$entryID'")->fetch_array();
@@ -145,6 +145,9 @@ class Entry {
       $this->image = $data['featureImage'];
       $this->synopsis = $data['previewText'];
       $this->id = $data['entryID'];
+      $this->isFeatured = ($data['featured'] == 1) ? true : false; // Create a boolean based on the data table output. This boolean decides highlighting
+      $this->views = $data['views'];
+      $this->rating = $data['rating'];
       $this->fetchTags($dbConn);
     } else {
       throw new Exception("An ID or Entry Data Package is required to build an Entry where '$data' was provided");
@@ -201,7 +204,12 @@ class Tag {
 
   public function checkPluralization() {
     if (strpos($this->name, "s", -1) !== false || strpos($this->name, "i", -1) !== false) {
-      return true;
+      // Check that the string length is greater than 2, otherwise likely not a plural
+      if (strlen($this->name) < 3) {
+        return false;
+      } else {
+        return true;
+      }
     }
     return false;
   }
@@ -258,16 +266,12 @@ class Tag {
     // Generate possible singulars
     $possibleSingulars = $this->generateTagSingulars();
     // Develop a query to find existing IDs
-    $transitionString = "";
+    $tagList = implode("','", $possibleSingulars);
     // Begin query definition
-    $getSingle = "SELECT tagID, tagName FROM tags WHERE ";
-    foreach ($possibleSingulars as $tagName) {
-      $getSingle .= "tagName = '{$tagName}'";
-      $transitionString = " OR ";
-    }
+    $getSingle = "SELECT tagID, tagName FROM tags WHERE tagName IN ('$tagList')";
     // Return only one result, the result to which other tags should link
     $getSingle .= " LIMIT 1";
-
+    
     // Run the query
     if ($existingID = $dbConn->query($getSingle)->fetch_array()) {
       // Sets the information for the tag equal to the existing singular tag
@@ -279,6 +283,38 @@ class Tag {
     }
   }
 
+}
+
+class Feed {
+  
+  public $title;
+  public $source;
+  public $id;
+  public $busy;
+  public $isExternal = false;
+  
+  public function __construct($feedId, $dbConn, $isExternal) {
+    $this->id = $feedId;
+    if ($isExternal) {
+      $feedType = "external_feeds";
+      $includedFields = "url, title, busy";
+      $idColumn = "externalFeedID";
+      $this->isExternal = true;
+    } else {
+      $feedType = "user_feeds";
+      $includedFields = "title";
+      $idColumn = "internalFeedID";
+    }
+    $sourceQuery = "SELECT $includedFields FROM $feedType WHERE $idColumn = '$this->id' AND active = 1";
+    if ($result = $dbConn->query($sourceQuery)) {
+      $sourceInfo = $result->fetch_array();
+    } else {
+      throw new exception($dbConn->error);
+    }
+    $this->source = $sourceInfo['url'] ?? null;
+    $this->title = $sourceInfo['title'];
+    $this->busy = $sourceInfo['busy'] ?? 0;
+  }
 }
 
 ?>

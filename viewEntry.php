@@ -15,5 +15,4 @@ $conn->query("UPDATE entries SET views = views + 1 WHERE entryID = '$selectedEnt
 // Add the view in the user
 
 $user->view(new Entry($selectedEntry, $conn), $conn);
-
 ?>

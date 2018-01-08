@@ -9,8 +9,8 @@ require_once('class/class_dataFetch.php');
 *   3 -> Automation (PHP -> unattended)
 */
 
-$_POST['sourceID'] = 2;
-$_POST['method'] = 1;
+// $_POST['sourceID'] = 2;
+// $_POST['method'] = 1;
 
 // Get the Source ID for database selection of feed
 $sourceID = $_POST['sourceID'];
@@ -18,7 +18,7 @@ $method = $_POST['method'];
 // IMPERSONATION FOR MIGRATION
 //$feedSudoID = 6;
 // The Export URL (RSS Feed)
-$feedSelection = new FeedInfo($sourceID, $conn, 1);
+$feedSelection = new Feed($sourceID, $conn, 1);
 
 if ($feedSelection->busy) {
   echo "The feed is currently being fetched and as such is unavailable";
@@ -100,7 +100,7 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
   if ($change > 0) {
     // Format Date Time for mySQL
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
-    echo $dateAdded . " -> " . $lastUpdate->format('Y-m-d H:i:s') . "</br>";
+    //echo $dateAdded . " -> " . $lastUpdate->format('Y-m-d H:i:s') . "</br>";
     // Get the site data as an object
     try {
       // Remove the /amp from site links where applicable

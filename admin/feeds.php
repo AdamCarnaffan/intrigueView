@@ -118,7 +118,7 @@ include('validateUser.php');
       // Execute query and prepare results
       $feedInfos = [];
       foreach ($feedsList as $feedId) {
-        array_push($feedInfos, new FeedInfo($feedId, $conn, 1));
+        array_push($feedInfos, new Feed($feedId, $conn, 1));
       }
     ?>
     <!-- EDIT FEEDS -->

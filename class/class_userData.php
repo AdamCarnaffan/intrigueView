@@ -52,6 +52,11 @@ class User {
     }
     // Track the view in a local array
     array_push($this->recentViews, $entry);
+    // Remove the entry from recommendations
+    if (($key = array_search($selectedEntry, $user->recommendations)) !== false) {
+      unset($user->recommendations[$key]);
+      $user->recommendations = array_values($user->recommendations);
+    }
     // Adjust recommendations every third view
     $this->viewCount++;
     if ($this->viewCount >= 3) {
@@ -93,7 +98,7 @@ class User {
     if (count($this->recentViews) < 10 && !$this->isTemp) {
       $result = $conn->query("SELECT entryID FROM user_views WHERE userID = '$this->id' ORDER BY viewTime DESC LIMIT 10");
       while ($row = $result->fetch_array()) {
-        array_push($this->recentViews, new Entry($row[0], $dbConn));
+        array_push($this->recentViews, new Entry($row[0], $conn));
       }
     }
     // Generate a short recent entries list for temp users or new accounts
@@ -111,13 +116,19 @@ class User {
       for ($c = count($this->recentViews) - 1, $d = 1; $d < 11; $d++, $c--) {
         $articleTags = $this->recentViews[$c]->tags;
         foreach ($articleTags as $tag) {
+          // echo $tag->databaseID . "</br>";
           // Add the tag ID to the array or incriment its frequency if it exists
-          $recommendationTags[$tag->databaseID] = isset($recommendationTags[$tag->databaseID]) ? $recommendationTags[$tag->databaseID]++ : 1;
+          $recommendationTags[$tag->databaseID] = (isset($recommendationTags[$tag->databaseID])) ? $recommendationTags[$tag->databaseID] + 1 : 1;
+          // echo "{$recommendationTags[$tag->databaseID]} </br>";
         }
       }
       // Sort the array by the frequency of occurence of the tags
       arsort($recommendationTags);
-      $tagQueryList = implode("','", $recommendationTags);
+      $tagIDs = [];
+      foreach ($recommendationTags as $id=>$occurence) {
+        array_push($tagIDs, $id);
+      }
+      $tagQueryList = implode("','", $tagIDs);
       // Get all related entries
       // Query RULES:
       //  Entry must have been published in the last 60 days
@@ -143,8 +154,11 @@ class User {
     $result = $conn->query($recomQuery);
     $resultCount = 0;
     // Only store 50 recommendations per user (they can be regenerated fairly quickly)
-    while ($data = $result->fetch_array() && $resultCount <= 50) {
+    while ($data = $result->fetch_array()) {
       array_push($this->recommendations, $data['entryID']);
+      if ($resultCount >= 51) {
+        break;
+      }
       $resultCount++;
     }
   }
