@@ -31,7 +31,7 @@ CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `addTag` (IN `newTag` VARCHAR(50), I
 			IF (thisTagID IS NULL OR thisTagID = 0) THEN
 				INSERT INTO tags (tagName) VALUES (newTag);
 				SELECT LAST_INSERT_ID() INTO finalTagID FROM tags LIMIT 1;
-            ELSE 
+            ELSE
             	SET finalTagID = thisTagID;
 			END IF;
 			INSERT INTO entry_tags (entryID, tagID, sortOrder) VALUES (newEntryID, finalTagID, sortValue);
@@ -62,7 +62,7 @@ CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `newEntryConnection` (IN `entryURL` 
 		IF (@duplicateCheck IS NULL) THEN
 			INSERT INTO entry_connections (entryID, feedID) VALUES (@entryID, sourceFeedID);
 			SET duplicate = 0;
-		ELSE 
+		ELSE
 			SET duplicate = 1;
 		END IF;
 	END$$
@@ -215,6 +215,20 @@ CREATE TABLE `permissions` (
   `permissionDescription` text COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+--
+-- Dumping data for table `permissions`
+--
+
+INSERT INTO `permissions` (`permissionID`, `permissionDescription`) VALUES
+(1, 'Manage Users'),
+(2, 'Manage Feed'),
+(3, 'Add External Feeds'),
+(4, 'Manage Entries'),
+(5, 'Contribute to the Feed (validated)'),
+(6, 'Contribute to the Feed (instant commit)'),
+(7, 'Create Group Feed'),
+(8, 'View Administrative Panel');
+
 -- --------------------------------------------------------
 
 --
@@ -303,30 +317,6 @@ CREATE TABLE `user_permissions` (
   `permissionID` int(11) NOT NULL,
   `feedID` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `user_permissions`
---
-
-INSERT INTO `user_permissions` (`userPermID`, `userID`, `permissionID`, `feedID`) VALUES
-(1, 2, 2, 1),
-(2, 2, 2, 1),
-(5, 2, 2, NULL),
-(6, 2, 8, NULL),
-(7, 2, 1, NULL),
-(8, 2, 3, NULL),
-(9, 2, 7, NULL),
-(10, 2, 4, NULL),
-(11, 3, 2, 5),
-(12, 3, 4, 5),
-(37, 24, 2, 21),
-(38, 24, 4, 21),
-(39, 25, 2, 22),
-(40, 25, 4, 22),
-(41, 26, 2, 25),
-(42, 26, 4, 25),
-(43, 27, 2, 26),
-(44, 27, 4, 26);
 
 -- --------------------------------------------------------
 
@@ -424,7 +414,7 @@ ALTER TABLE `feed_connections`
 --
 ALTER TABLE `feed_recordlocks`
   ADD PRIMARY KEY (`lockID`),
-  ADD KEY `source_id` (`feedID`),
+  ADD KEY `source_id` (`feedID`);
 
 --
 -- Indexes for table `permissions`
@@ -514,22 +504,22 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `entries`
 --
 ALTER TABLE `entries`
-  MODIFY `entryID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `entryID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `entry_connections`
 --
 ALTER TABLE `entry_connections`
-  MODIFY `connectionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `connectionID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `entry_tags`
 --
 ALTER TABLE `entry_tags`
-  MODIFY `relationID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `relationID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `feeds`
 --
 ALTER TABLE `feeds`
-  MODIFY `sourceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `sourceID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `feed_categories`
 --
@@ -539,27 +529,27 @@ ALTER TABLE `feed_categories`
 -- AUTO_INCREMENT for table `feed_connections`
 --
 ALTER TABLE `feed_connections`
-  MODIFY `connectionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `connectionID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `feed_connections`
 --
 ALTER TABLE `feed_recordlocks`
-  MODIFY `lockID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `lockID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `permissionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `permissionID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `sites`
 --
 ALTER TABLE `sites`
-  MODIFY `siteID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `siteID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `tags`
 --
 ALTER TABLE `tags`
-  MODIFY `tagID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `tagID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `tag_blacklist`
 --
@@ -569,7 +559,7 @@ ALTER TABLE `tag_blacklist`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `user_feedback`
 --
@@ -579,17 +569,17 @@ ALTER TABLE `user_feedback`
 -- AUTO_INCREMENT for table `user_permissions`
 --
 ALTER TABLE `user_permissions`
-  MODIFY `userPermID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `userPermID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `user_subscriptions`
 --
 ALTER TABLE `user_subscriptions`
-  MODIFY `subscriptionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `subscriptionID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `user_views`
 --
 ALTER TABLE `user_views`
-  MODIFY `entryViewID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+  MODIFY `entryViewID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- Constraints for dumped tables
 --
@@ -642,10 +632,23 @@ ALTER TABLE `feed_connections`
   ADD CONSTRAINT `feed_connections_ibfk_4` FOREIGN KEY (`sourceFeed`) REFERENCES `feeds` (`sourceID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `feed_recordlocks`
+--
+ALTER TABLE `feed_recordlocks`
+  ADD CONSTRAINT `feed_recordlocks_ibfk_1` FOREIGN KEY (`feedID`) REFERENCES `feeds` (`feedID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `user_feeds`
 --
 ALTER TABLE `user_feeds`
   ADD CONSTRAINT `user_feeds_ibfk_1` FOREIGN KEY (`internalFeedID`) REFERENCES `feeds` (`sourceID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `user_feedback`
+--
+ALTER TABLE `user_feedback`
+  ADD CONSTRAINT `user_feedback_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `user_feedback_ibfk_2` FOREIGN KEY (`entryID`) REFERENCES `entries` (`entryID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `user_permissions`
@@ -661,6 +664,13 @@ ALTER TABLE `user_permissions`
 ALTER TABLE `user_subscriptions`
   ADD CONSTRAINT `user_subscriptions_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`userID`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `user_subscriptions_ibfk_2` FOREIGN KEY (`internalFeedID`) REFERENCES `user_feeds` (`internalFeedID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `user_views`
+--
+ALTER TABLE `user_views`
+  ADD CONSTRAINT `user_views_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `user_views_ibfk_2` FOREIGN KEY (`entryID`) REFERENCES `entries` (`entryID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 -- Calls to add the default feeds
