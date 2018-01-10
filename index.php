@@ -101,8 +101,8 @@ require_once('manageUser.php');
   </div>
   <div class="tagging">
     <h3 class="filter-coloring move-heading heading-inline">Tags
-    <button id='and-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>AND</button>
-    <button id='or-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>OR</button>
+    <button id='and-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>USING</button>
+    <button id='or-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>INCLUDING</button>
     </h3>
     <!-- TAGS POPULATED HERE -->
     <div class="filter-coloring" id="tag-collection">

@@ -271,7 +271,7 @@ class Tag {
     $getSingle = "SELECT tagID, tagName FROM tags WHERE tagName IN ('$tagList')";
     // Return only one result, the result to which other tags should link
     $getSingle .= " LIMIT 1";
-    
+
     // Run the query
     if ($existingID = $dbConn->query($getSingle)->fetch_array()) {
       // Sets the information for the tag equal to the existing singular tag
@@ -286,18 +286,17 @@ class Tag {
 }
 
 class Feed {
-  
+
   public $title;
   public $source;
   public $id;
-  public $busy;
   public $isExternal = false;
-  
+
   public function __construct($feedId, $dbConn, $isExternal) {
     $this->id = $feedId;
     if ($isExternal) {
       $feedType = "external_feeds";
-      $includedFields = "url, title, busy";
+      $includedFields = "url, title";
       $idColumn = "externalFeedID";
       $this->isExternal = true;
     } else {
@@ -313,7 +312,32 @@ class Feed {
     }
     $this->source = $sourceInfo['url'] ?? null;
     $this->title = $sourceInfo['title'];
-    $this->busy = $sourceInfo['busy'] ?? 0;
+  }
+
+  public function checkBusy($dbConn) {
+    $checkBusyQuery = "SELECT feedID FROM feed_recordlocks WHERE feedID = '{$this->id}' AND
+                        lockTime BETWEEN DATE_ADD(NOW(), INTERVAL -60 MINUTE) AND NOW()";
+    if ($dbConn->query($checkBusyQuery)->fetch_array()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public function lock($dbConn) {
+    if ($this->isExternal) {
+      $busyFeed = "INSERT INTO feed_recordlocks (feedID) VALUES ('{$this->id}')";
+      $dbConn->query($busyFeed);
+    }
+    return;
+  }
+
+  public function release($dbConn) {
+    if ($this->isExternal) {
+      $releaseFeed = "DELETE FROM feed_recordlocks WHERE feedID = '{$this->id}'";
+      $dbConn->query($releaseFeed);
+    }
+    return;
   }
 }
 

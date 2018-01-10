@@ -20,13 +20,13 @@ $method = $_POST['method'];
 // The Export URL (RSS Feed)
 $feedSelection = new Feed($sourceID, $conn, 1);
 
-if ($feedSelection->busy) {
+if ($feedSelection->checkBusy($conn)) {
   echo "The feed is currently being fetched and as such is unavailable";
   return;
-} elseif ($feedSelection->isExternal) {
-  $busyFeed = "UPDATE external_feeds SET busy = 1 WHERE externalFeedID = '$feedSelection->id'";
-  $conn->query($busyFeed);
 }
+
+$feedSelection->lock($conn);
+
 // Time zone info to sync with DB from feed common
 $timeZone = ('-5:00');
 // Default for the error variable used in the loop
@@ -47,8 +47,7 @@ if ($method == 1) {
 // Define a shutdown function
 register_shutdown_function(function() use ($feedSelection) {
   include('dbConnect.php');
-  $unloadFeed = "UPDATE external_feeds SET busy = 0 WHERE externalFeedID = '$feedSelection->id'";
-  $conn->query($unloadFeed);
+  $feedSelection->release($conn);
 });
 
 /*
@@ -153,10 +152,7 @@ if ($logReport) {
   }
 }
 
-if ($feedSelection->isExternal) {
-  $releaseFeed = "UPDATE external_feeds SET busy = 0 WHERE externalFeedID = '$feedSelection->id'";
-  $conn->query($releaseFeed);
-}
+$feedSelection->release($conn);
 
 // Throw a file write exception if needed
 if (isset($fileException)) {
