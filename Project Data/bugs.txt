@@ -34,7 +34,7 @@ Add ability to re-order the tags on an article
 
 Add ability to manage and flag tags --> flagged tags must be confirmed before the article is displayed
 
-Make tags filter out verbs, they make poor tags
+Make tags filter out verbs, they make poor tags --> a hurculeian task
 
 3rd glance will need an SSL Certificate
 
