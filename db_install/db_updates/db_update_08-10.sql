@@ -58,7 +58,7 @@ ALTER TABLE `user_views`
 -- Introduce new constraints
 
 ALTER TABLE `feed_recordlocks`
-  ADD CONSTRAINT `feed_recordlocks_ibfk_1` FOREIGN KEY (`feedID`) REFERENCES `feeds` (`feedID`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `feed_recordlocks_ibfk_1` FOREIGN KEY (`feedID`) REFERENCES `feeds` (`sourceID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `user_feedback`
   ADD CONSTRAINT `user_feedback_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -72,4 +72,4 @@ ALTER TABLE `user_views`
 
 CALL newFeed('SmartFetch Feed', NULL, NULL, NULL, NULL, 0, 0, @outTemp);
 
--- Created by hand by Adam, 15 Queries total :) 
+-- Created by hand by Adam, 15 Queries total :)
