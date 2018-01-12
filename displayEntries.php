@@ -101,7 +101,7 @@ array_unique($selectedFeedArray);
 $selectedFeedList = implode("','", $selectedFeedArray);
 // When changing the query, remember to adjust object
 $getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, entries.siteID, entries.entryID, entries.visible, entryConn.feedID, entries.views, entries.rating FROM entries
-                 JOIN entry_connections AS Entryconn ON entries.entryID = Entryconn.entryID
+                 JOIN entry_connections AS entryConn ON entries.entryID = entryConn.entryID
                  LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
                  LEFT JOIN tags ON tags.tagID = tagConn.tagID
                  WHERE entryConn.feedID IN ('$selectedFeedList')";
