@@ -30,6 +30,8 @@ removing tag
 feedback
 context menu (triple dots)
 
+Profanity Filter Title
+
 Add ability to re-order the tags on an article
 
 Add ability to manage and flag tags --> flagged tags must be confirmed before the article is displayed

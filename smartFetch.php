@@ -6,6 +6,7 @@ require_once('dbConnect.php');
 $searchTerms = "AI"; // The value from the database for the query cycle
 $smartFetchFeedID = 36; // Value from database for smartFetch feed
 
+//$searchTerms = $_POST['searchString'];
 
 // Modifiable Variables
 $googleServiceAccPath = "F:/UniformServer/UniServerZ/Google_API/service.json";

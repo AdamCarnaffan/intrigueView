@@ -316,7 +316,7 @@ class Feed {
 
   public function checkBusy($dbConn) {
     $checkBusyQuery = "SELECT feedID FROM feed_recordlocks WHERE feedID = '{$this->id}' AND
-                        lockTime BETWEEN DATE_ADD(NOW(), INTERVAL -60 MINUTE) AND NOW()";
+                        timeSet BETWEEN DATE_ADD(NOW(), INTERVAL -60 MINUTE) AND NOW()";
     if ($dbConn->query($checkBusyQuery)->fetch_array()) {
       return true;
     } else {
