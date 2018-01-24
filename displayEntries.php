@@ -163,9 +163,11 @@ if (!$addedTag) {
 
 // Finish the query
 
+$selectEntriesValue = $selectionLimit - (floor($selectionLimit / 10));
+
 $getEntries .= "entries.visible = 1
                 ORDER BY entryConn.dateConnected DESC, entries.entryID ASC
-                LIMIT $selectionLimit OFFSET $selectionOffset";
+                LIMIT $selectEntriesValue OFFSET $selectionOffset";
 // Prepare and query
 $entriesFound = false;
 $display = [];
@@ -207,7 +209,7 @@ if (!$entriesFound && ($search == true || $tagged == true)) {
   array_push($display, "<h4>This Feed does not have any entries yet. Check out the <a href='feedBuilder.php'>Feed Builder</a> to find out how to add your own!</h4>");
 }
 $finalDisplay = implode($display);
-$fullQuery = ($entryDisplayNumber-1 == $selectionLimit) ? 'true' : 'false';
+$fullQuery = ($entryDisplayNumber-1 >= $selectionLimit) ? 'true' : 'false';
 $totalData = ['display'=>$finalDisplay, 'isFull'=>$fullQuery];
 echo json_encode($totalData);
  ?>

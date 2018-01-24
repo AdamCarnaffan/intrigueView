@@ -149,6 +149,7 @@ $(document).ready( function () {
   $(window).scroll(function() {
     // Load more entries
     if (($(document).scrollTop() / ($(document).height() - $(window).height())) > scrollCooldown && entriesDisplayed < 500 && display == true) {
+      console.log("hey");
       queryEntries(26, feedSelection, true);
     }
     // Display Settings for the Return to Top button
