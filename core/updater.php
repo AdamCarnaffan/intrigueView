@@ -1,17 +1,20 @@
 <?php
-// Access the version file for the local machine
-require('buildConfig.php');
 
 // The root of the hosted project
 $gitRoot = 'https://raw.githubusercontent.com/Thefaceofbo/intrigueView/master/';
 
+// Access the version file for the local machine
+$versionFile = fopen("versions.txt", "w");
+$versionData = fgets($versionFile);
+$versionNumber = "Local Number"
+
 // Check the version on the github master
 
 // Get the version data
-$gitVersion = fgets(download($gitRoot . "currentVersion.txt"));
+$gitVersion = "Newest Number";
 
 // Stop the run if the version number is the current
-if ($cfg->trackingVersion == $gitVersion) {
+if ($versionNumber == $gitVersion) {
   echo "The site is currently up to date";
   return;
 }
@@ -69,8 +72,8 @@ function download($gitFilePath) {
   $newFile = fopen("tempDir/$fileName", "w");
 
   fwrite($newFile, $data);
-  
-  return $newFile;
+  fclose($newFile);
+
 }
 
 // rename to move file

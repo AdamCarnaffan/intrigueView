@@ -2,6 +2,7 @@
 <html lang="en">
 <?php
 require_once('manageUser.php');
+require_once('buildConfig.php');
 ?>
 <head>
   <meta charset="utf-8">
@@ -10,7 +11,7 @@ require_once('manageUser.php');
   <meta name="author" content="Adam Carnaffan">
   <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
 
-  <title>Intrigue View Beta 1.0</title>
+  <title>Intrigue View <?php echo $cfg->displayVersion ?></title>
 
   <!-- Bootstrap core CSS -->
   <link href="styling/bootstrap.min.css" rel="stylesheet">

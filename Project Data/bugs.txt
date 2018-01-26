@@ -23,6 +23,8 @@ Make sure all pages have updated version number
 
 Add ability to rate
 
+Add dynamic versioning to all pages
+
 UI Needed for:
 ----------------
 Refetch article
@@ -56,9 +58,6 @@ Add GitHub based updating
 
 ----------------------
 
-Resource.php line 110 Google API
-
-----------------------
 To do:
 
 Allow for phrase tags

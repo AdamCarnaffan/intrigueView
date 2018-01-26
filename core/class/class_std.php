@@ -341,4 +341,41 @@ class Feed {
   }
 }
 
+class config {
+  
+  public $configDirectory;
+  public $dbLink;
+  public $dbUser;
+  public $dbPass;
+  public $dbName;
+  public $trackingVersion;
+  public $displayVersion;
+  
+  public function __construct() {
+    // Build configs directory
+    $tempTotalDir = explode('\\', __DIR__);
+    for ($c = 0; $c < 2; $c++) {
+      array_pop($tempTotalDir);
+    }
+    $this->configDirectory = implode('\\', $tempTotalDir) . "\custom\\";
+    // Get configs in directory
+    $this->fetchConfigs();
+  }
+  
+  public function fetchConfigs() {
+    // Fetch database info
+    $databaseConfig = json_decode(file_get_contents($this->configDirectory . "dbConfig.json"))->database;
+    $this->dbLink = $databaseConfig->host;
+    $this->dbUser = $databaseConfig->username;
+    $this->dbPass = $databaseConfig->password;
+    $this->dbName = $databaseConfig->database;
+    
+    // Fetch Versioning info
+    $versionInfo = json_decode(file_get_contents($this->configDirectory . "version.json", "w"))->version;
+    $this->trackingVersion = $versionInfo->trackingVersion;
+    $this->displayVersion = $versionInfo->displayVersion;
+  }
+  
+}
+
 ?>

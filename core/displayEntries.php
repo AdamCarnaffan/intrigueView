@@ -1,7 +1,8 @@
 <?php
-include('dbConnect.php');
-require_once('objectConstruction.php');
-require('manageUser.php');
+require_once('dbConnect.php');
+require_once('class/class_std.php');
+require_once('class/class_dataDisplay.php');
+require_once('manageUser.php');
 
 // $_POST['selection'] = 10;
 // $_POST['currentDisplay'] = 0;
