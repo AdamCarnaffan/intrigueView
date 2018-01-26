@@ -1,52 +1,77 @@
 <?php
+// Access the version file for the local machine
+require_once('buildConfig.php');
+require_once('dbConnect.php');
+
+mkdir("tempDir");
 
 // The root of the hosted project
 $gitRoot = 'https://raw.githubusercontent.com/Thefaceofbo/intrigueView/master/';
 
-// Access the version file for the local machine
-$versionFile = fopen("versions.txt", "w");
-$versionData = fgets($versionFile);
-$versionNumber = "Local Number"
-
 // Check the version on the github master
 
+download($gitRoot . "currentVersion.txt");
+
 // Get the version data
-$gitVersion = "Newest Number";
+$gitVersions = json_decode(file_get_contents("tempDir\currentVersion.json"));
 
 // Stop the run if the version number is the current
-if ($versionNumber == $gitVersion) {
+if ($cfg->trackingVersion == $gitVersion->sourceVersion) {
   echo "The site is currently up to date";
   return;
 }
 
-$changedFiles = [];
-
-$dbChanges = [];
-
-foreach ($changedFiles as $name) {
-  if (str_pos('db_install/', $name) !== false) {
-    $dbChanges[] = $name;
-  }
+// Pull the database scripts
+if ($conn->query("SELECT dbVersion FROM versionTracker ORDER BY dateApplied LIMIT 1") != $gitVersion->databaseVersion) {
+  // Pull the most recent script and run
 }
 
-if (count($dbChanges) > 0) {
-  // Backup the DB
 
-  // Run scripts
-  foreach ($dbChanges as $name) {
-    if (explode("/", $name)[1] != "db_finals" && explode(".", $name)[1] == "sql") {
-      $script = $fetchToTemp($name);
-      if (!$conn->multi_query($script)) {
 
-        throw new Exception("The following error occured while updating the database: '{$conn->error}'");
-      }
+// 
+// foreach ($changedFiles as $name) {
+//   if (str_pos('db_install/', $name) !== false) {
+//     $dbChanges[] = $name;
+//   }
+// }
+// 
+// if (count($dbChanges) > 0) {
+//   // Backup the DB
+// 
+//   // Run scripts
+//   foreach ($dbChanges as $name) {
+//     if (explode("/", $name)[1] != "db_finals" && explode(".", $name)[1] == "sql") {
+//       $script = $fetchToTemp($name);
+//       if (!$conn->multi_query($script)) {
+// 
+//         throw new Exception("The following error occured while updating the database: '{$conn->error}'");
+//       }
+//     }
+//   }
+// }
+// 
+// $fetchToTemp = function ($fileName) use ($gitRoot) {
+//   
+//   return "Open File in fopen format";
+// };
+
+// Remove the temporary directory
+removeDirectory("tempDir");
+
+
+function removeDirectory($directory) {
+  if (!is_dir($directory)) {
+    return;
+  }
+  $files = glob($directory . '*', GLOB_MARK);
+  foreach ($files as $file) {
+    if (is_dir($file)) {
+      removeDirectory($file);
+    } else {
+      unlink($file);
     }
   }
-}
-
-$fetchToTemp = function ($fileName) use ($gitRoot) {
-  
-  return "Open File in fopen format";
+  @rmdir($directory);
 }
 
 function download($gitFilePath) {
@@ -72,8 +97,8 @@ function download($gitFilePath) {
   $newFile = fopen("tempDir/$fileName", "w");
 
   fwrite($newFile, $data);
-  fclose($newFile);
-
+  
+  return $newFile;
 }
 
 // rename to move file
