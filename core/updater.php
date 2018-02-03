@@ -5,19 +5,30 @@ require_once('dbConnect.php');
 
 mkdir("tempDir");
 
+// Define a shutdown function
+register_shutdown_function(function() {
+  // Pause to prevent file lockup
+  sleep(8);
+  // Remove the temporary directory
+  removeDirectory("tempDir");
+});
+
 // The root of the hosted project
 $gitRoot = 'https://raw.githubusercontent.com/Thefaceofbo/intrigueView/master/';
 
-// Check the version on the github master
-
-download($gitRoot . "currentVersion.txt");
+// Download version data
+if (!download($gitRoot . "currentVersion.json")) {
+  removeDirectory("tempDir");
+  exit;
+}
 
 // Get the version data
-$gitVersions = json_decode(file_get_contents("tempDir\currentVersion.json"));
+$gitVersion = json_decode(file_get_contents("tempDir\currentVersion.json"));
 
 // Stop the run if the version number is the current
 if ($cfg->trackingVersion == $gitVersion->sourceVersion) {
   echo "The site is currently up to date";
+  removeDirectory("tempDir");
   return;
 }
 
@@ -56,11 +67,12 @@ if ($conn->query("SELECT dbVersion FROM versionTracker ORDER BY dateApplied LIMI
 //   return "Open File in fopen format";
 // };
 
-// Remove the temporary directory
 removeDirectory("tempDir");
 
-
 function removeDirectory($directory) {
+  // Pause to prevent file lockup
+  sleep(8);
+  // Begin Removal
   if (!is_dir($directory)) {
     return;
   }
@@ -82,7 +94,11 @@ function download($gitFilePath) {
   curl_setopt($curlConn, CURLOPT_RETURNTRANSFER, 1);
   $data = curl_exec($curlConn);
   curl_close($curlConn);
-
+  
+  if ($data == "404 Error: Not Found") {
+    return false;
+  }
+  
   $fileName = explode("/master/", $gitFilePath)[1];
 
   if (count(explode("/", $fileName)) > 1) {
