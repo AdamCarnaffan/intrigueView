@@ -148,6 +148,8 @@ function queryEntries(selection, feeds, scroll = false) {
       'feedsList': feedIDList
     },
     dataType: 'json',
+    attempt: 0,
+    retryLimit: 5,
     success: function (data) {
       // Remove the loading dots
       $('#loading').remove();
@@ -182,11 +184,17 @@ function queryEntries(selection, feeds, scroll = false) {
       });
     },
     error: function() {
-      // Remove the loading dots
-      $('#loading').remove();
-      clearInterval(intervalLoadId);
-      // Display the new data
-      $('#feed-view').append("<h5>An Error occured displaying the feed</h5>");
+      this.tryCount++;
+      if (this.tryCount <= this.retryLimit) {
+        $.post(this);
+        return;
+      } else {
+        // Remove the loading dots
+        $('#loading').remove();
+        clearInterval(intervalLoadId);
+        // Display the new data
+        $('#feed-view').append("<h5>An Error occured displaying the feed</h5>");
+      }
     },
     alert: "Success!",
     timeout: 10000 // 10 Second Timeout
