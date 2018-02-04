@@ -109,7 +109,7 @@ function queryFeeds(categoryID = 0) {
   var intervalLoadId = beginLoading();
   // Send the Query
   $.post({
-    url: 'fetchFeeds.php',
+    url: 'displayFeeds.php',
     data: {
       'page': 1
     },

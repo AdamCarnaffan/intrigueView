@@ -104,12 +104,12 @@ class FeedDisplay {
   public $categories = [];
 
   public function __construct($dataPackage, $dbConn) {
-    $this->id = $dataPackage[0];
-    $this->author = $dataPackage[1];
-    $this->name = $dataPackage[2];
-    $this->imagePath = $dataPackage[3];
-    $this->description = $dataPackage[4];
-    $this->size = $dataPackage[5];
+    $this->id = $dataPackage['sourceID'];
+    $this->author = $dataPackage['linkedBy'];
+    $this->name = $dataPackage['referenceTitle'];
+    $this->imagePath = $dataPackage['feedImagePath'];
+    $this->description = $dataPackage['feedDescription'];
+    //$this->size = $dataPackage[5];
     $this->getCategories($dbConn);
   }
 
