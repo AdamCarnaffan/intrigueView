@@ -34,7 +34,7 @@ html {
 
 @media (min-width: 992px) {
   .container {
-    max-width: 75%;
+    max-width: 90%;
   }
 }
 
@@ -202,10 +202,21 @@ html {
   max-width: 91.666667%;
 }
 
-.col-12 {
-  -ms-flex: 0 0 100%;
-      flex: 0 0 100%;
-  max-width: 100%;
+@media (min-width: 2px) {
+  .col-12 {
+    -ms-flex: 0 0 100%;
+        flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 600px) {
+  .col-12 {
+    max-width: 50%;
+  }
+  .col-6 {
+    max-width: 50%;
+  }
 }
 
 .order-1 {

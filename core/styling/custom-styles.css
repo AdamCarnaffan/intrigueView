@@ -90,6 +90,8 @@
   color: inherit;
   display: inline-flex;
   align-self: center;
+  width: 72%;
+  overflow: hidden;
 }
 .entry-tile {
   border: 1px solid rgba(210,210,210,0.4);
@@ -549,6 +551,7 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   align-self: center;
   z-index: 4;
   color: #afafaf;
+  padding-left: 10%;
 }
 .fa-context-style:hover {
   text-decoration: none;

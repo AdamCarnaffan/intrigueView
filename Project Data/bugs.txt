@@ -19,11 +19,7 @@ Change filler image to default intrigue view !
 
 Add view when the article is opened by middle mouse or right click
 
-Make sure all pages have updated version number
-
 Add ability to rate
-
-Add dynamic versioning to all pages
 
 UI Needed for:
 ----------------
@@ -44,8 +40,6 @@ Make tags filter out verbs, they make poor tags --> a hurculeian task
 
 Make the feed builder
 
-Inefficient require statements are used on most pages
-
 Add logging for SmartFetch
 
 Use JS to preserve the check mark on entries recently saved
@@ -53,8 +47,6 @@ Use JS to preserve the check mark on entries recently saved
 Feedback needs to be related to recommendations (recalculate trends every generation)
 
 Determine which search keys to use to fetch each day
-
-Add GitHub based updating
 
 ----------------------
 
