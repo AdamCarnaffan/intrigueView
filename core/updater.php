@@ -212,26 +212,11 @@ function convertToRelativePath($path, $cfg) {
   return str_replace($cfg->coreDirectory, "", $path);
 }
 
-// rename to move file
-// mkdir to create temp directory
-// fopen('new file', 'w') for creating a file
-
 /*
 
-UPDATE PROCEDURE
-
-1)  Create tempDir file for updated files
-2)  Download all changed files
 3) Check for DB scripts
 4) If DB scripts exist, backup DB and run them
 5) If DB scripts fails, stop and restore old db
-6) Copy old file versions to additional temp directory
-7) Create any required directories for new files
-8) Move all files
-9) Check for exceptions in files
-10) If exceptions are found, revert to old version and return failed update message
-
-
 
 */
 
