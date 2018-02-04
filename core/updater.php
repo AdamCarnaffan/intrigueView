@@ -83,7 +83,10 @@ foreach ($fileList as $target) {
 // Remove the files at the end
 removeDirectory("tempDir");
 
-
+// Remove a second time as it tends to ghost
+if (is_dir("tempDir")) {
+  removeDirectory("tempDir");
+}
 
 // FUNCTIONS
 
@@ -132,7 +135,7 @@ function download($gitFilePath) {
 
 function getFileData($gitLink) {
   $curlConn = curl_init();
-  curl_setopt($curlConn, CURLOPT_URL, $gitLink);
+  curl_setopt($curlConn, CURLOPT_URL, $gitFilePath);
   curl_setopt($curlConn, CURLOPT_SSL_VERIFYPEER, false);
   curl_setopt($curlConn, CURLOPT_RETURNTRANSFER, 1);
   $data = curl_exec($curlConn);
@@ -151,8 +154,6 @@ function getDirectoryData($path) {
   curl_setopt($curlConn, CURLOPT_SSL_VERIFYPEER, false);
   curl_setopt($curlConn, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($curlConn, CURLOPT_USERAGENT, "IntrigueView App");
-  curl_setopt($curlConn, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-  curl_setopt($curlConn, CURLOPT_USERPWD, "thefaceofbo:26062010a");
   $data = curl_exec($curlConn);
   curl_close($curlConn);
   
