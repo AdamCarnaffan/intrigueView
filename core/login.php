@@ -1,12 +1,13 @@
-<?php
-  // Check if a user is already logged in
-  require('manageUser.php');
-  if (!$user->isTemp) {
-      header('location: admin/index.php');
-  }
-?>
 <!DOCTYPE html>
 <html lang="en">
+<?php
+  // Check if a user is already logged in
+  require_once('manageUser.php');
+  require_once('buildConfig.php');
+  if (!$user->isTemp) {
+      header('location: index.php');
+  }
+?>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -14,7 +15,7 @@
   <meta name="author" content="Adam Carnaffan">
   <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
 
-  <title>Intrigue View Beta 1.0</title>
+  <title>Intrigue View <?php echo $cfg->displayVersion ?></title>
 
   <!-- Bootstrap core CSS -->
   <link href="styling/bootstrap.min.css" rel="stylesheet">
@@ -36,6 +37,9 @@
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
         <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
       </li>
     </ul>
     <ul class="navbar-nav">

@@ -3,9 +3,10 @@
  <head>
    <?php
      // Check if a user is already logged in
-     include('fixSession.php');
-     if (isset($_SESSION['user'])) {
-         header('location: admin/index.php');
+     require_once('manageUser.php');
+     require_once('buildConfig.php');
+     if (!$user->isTemp) {
+         header('location: index.php');
      }
    ?>
    <meta charset="utf-8">
@@ -14,7 +15,7 @@
    <meta name="author" content="Adam Carnaffan">
    <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
 
-   <title>Intrigue View Beta 0.6</title>
+   <title>Intrigue View <?php echo $cfg->displayVersion ?></title>
 
    <!-- Bootstrap core CSS -->
    <link href="styling/bootstrap.min.css" rel="stylesheet">
@@ -38,6 +39,9 @@
      <ul class="navbar-nav mr-auto">
        <li class="nav-item active">
          <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
+       </li>
+       <li class="nav-item active">
+         <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
        </li>
      </ul>
      <ul class="navbar-nav">

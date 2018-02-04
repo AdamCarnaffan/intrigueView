@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php
+require_once('manageUser.php');
+require_once('buildConfig.php');
+?>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -7,7 +11,7 @@
   <meta name="author" content="Adam Carnaffan">
   <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
 
-  <title>Intrigue View Beta 0.8</title>
+  <title>Intrigue View <?php echo $cfg->displayVersion ?></title>
 
   <!-- Bootstrap core CSS -->
   <link href="styling/bootstrap.min.css" rel="stylesheet">
@@ -47,11 +51,8 @@
     </ul>
     <ul class="navbar-nav">
       <?php
-        require('objectConstruction.php');
-        include('fixSession.php');
-        $user = (isset($_SESSION['user'])) ? $_SESSION['user'] : null;
         // Change the User display based on a logged in user
-        if (isset($user)) {
+        if (!$user->isTemp) {
           echo "<div class='dropdown dropdown-ontop'>";
           echo '<a class="nav-item active nav-link hover-highlight dropdown-toggle" href="#" data-toggle="dropdown">Welcome back, ' . $user->name . '</a>';
           echo '<ul class="dropdown-menu dropdown-menu-right dropdown-align">';
