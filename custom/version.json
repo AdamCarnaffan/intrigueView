@@ -2,6 +2,10 @@
   "version": {
     "trackingVersion": "10_20180125.1",
     "displayVersion": "Beta 1.0",
-    "dbVersionTrackOffset": "0"
+    "dbVersionTrackOffset": "0",
+    "files": {
+      "lib": "10_20180202.1",
+      "assets": "10_20180202.1"
+    }
   }
 }

@@ -344,20 +344,24 @@ class Feed {
 class config {
   
   public $configDirectory;
+  public $coreDirectory;
   public $dbLink;
   public $dbUser;
   public $dbPass;
   public $dbName;
   public $trackingVersion;
   public $displayVersion;
+  public $fileVersions = [];
   
   public function __construct() {
-    // Build configs directory
+    // Build main directory
     $tempTotalDir = explode('\\', __DIR__);
     for ($c = 0; $c < 2; $c++) {
       array_pop($tempTotalDir);
     }
+    // Build configured directories
     $this->configDirectory = implode('\\', $tempTotalDir) . "\custom\\";
+    $this->coreDirectory = implode('\\', $tempTotalDir) . "\core\\";
     // Get configs in directory
     $this->fetchConfigs();
   }
@@ -374,6 +378,21 @@ class config {
     $versionInfo = json_decode(file_get_contents($this->configDirectory . "version.json", "w"))->version;
     $this->trackingVersion = $versionInfo->trackingVersion;
     $this->displayVersion = $versionInfo->displayVersion;
+    foreach ($versionInfo->files as $name=>$version) {
+      $this->fileVersions[] = new File_Version($name, $version);
+    }
+  }
+  
+}
+
+class File_Version {
+  
+  public $name;
+  public $version;
+  
+  public function __construct($name, $version) {
+    $this->name = $name;
+    $this->version = $version;
   }
   
 }
