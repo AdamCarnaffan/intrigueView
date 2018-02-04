@@ -132,7 +132,7 @@ function download($gitFilePath) {
 
 function getFileData($gitLink) {
   $curlConn = curl_init();
-  curl_setopt($curlConn, CURLOPT_URL, $gitFilePath);
+  curl_setopt($curlConn, CURLOPT_URL, $gitLink);
   curl_setopt($curlConn, CURLOPT_SSL_VERIFYPEER, false);
   curl_setopt($curlConn, CURLOPT_RETURNTRANSFER, 1);
   $data = curl_exec($curlConn);
