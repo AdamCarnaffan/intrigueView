@@ -84,7 +84,7 @@ foreach ($fileList as $target) {
 removeDirectory("tempDir");
 
 // Remove a second time as it tends to ghost
-if (is_dir("tempDir")) {
+while (is_dir("tempDir")) {
   removeDirectory("tempDir");
 }
 
