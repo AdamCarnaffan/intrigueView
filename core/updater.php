@@ -33,10 +33,10 @@ if ($cfg->trackingVersion == $gitVersion->sourceVersion) {
 // UPDATE DB
 
 // Pull the database scripts
-if ($conn->query("SELECT dbVersion FROM versionTracker ORDER BY dateApplied LIMIT 1") != $gitVersion->databaseVersion) {
-  // Check the number of database versions from the original offset
-  // Pull the most recent script and run
-}
+// if ($conn->query("SELECT dbVersion FROM versionTracker ORDER BY dateApplied LIMIT 1") != $gitVersion->databaseVersion) {
+//   // Check the number of database versions from the original offset
+//   // Pull the most recent script and run
+// }
 
 // UPDATE FILES
 
