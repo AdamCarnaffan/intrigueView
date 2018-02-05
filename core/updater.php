@@ -110,7 +110,7 @@ function removeDirectory($directory) {
 
 function download($gitFilePath) {
   $data = getFileData($gitFilePath);
-  
+
   $fileName = explode("/master/", $gitFilePath)[1];
 
   if (count(explode("/", $fileName)) > 1) {
@@ -129,22 +129,22 @@ function download($gitFilePath) {
   $newFile = fopen("tempDir/$fileName", "w");
 
   fwrite($newFile, $data);
-  
+
   return $newFile;
 }
 
 function getFileData($gitLink) {
   $curlConn = curl_init();
-  curl_setopt($curlConn, CURLOPT_URL, $gitFilePath);
+  curl_setopt($curlConn, CURLOPT_URL, $gitLink);
   curl_setopt($curlConn, CURLOPT_SSL_VERIFYPEER, false);
   curl_setopt($curlConn, CURLOPT_RETURNTRANSFER, 1);
   $data = curl_exec($curlConn);
   curl_close($curlConn);
-  
+
   if ($data == "404 Error: Not Found") {
     return false;
   }
-  
+
   return $data;
 }
 
@@ -156,15 +156,15 @@ function getDirectoryData($path) {
   curl_setopt($curlConn, CURLOPT_USERAGENT, "IntrigueView App");
   $data = curl_exec($curlConn);
   curl_close($curlConn);
-  
+
   return json_decode($data);
 }
 
 function getFiles($directoryArray, $config, $isRoot = false) {
   $paths = [];
   $blacklistLink = "https://raw.githubusercontent.com/Thefaceofbo/intrigueView/master/fileBlacklist.txt";
-  $fileBlacklist = ($isRoot) ? explode(",", getFileData($blacklistLink)) : [];  
-  
+  $fileBlacklist = ($isRoot) ? explode(",", getFileData($blacklistLink)) : [];
+
   foreach ($directoryArray as $file) {
     if ($file->download_url !== null) {
       if (!in_array($file->name, $fileBlacklist)) {
@@ -177,9 +177,9 @@ function getFiles($directoryArray, $config, $isRoot = false) {
       }
       $directoryArray = getFiles(getDirectoryData($file->url), $config);
       $paths = array_merge($paths, $directoryArray);
-    }  
+    }
   }
-  
+
   return $paths;
 }
 
@@ -220,30 +220,30 @@ function convertToRelativePath($path, $cfg) {
 
 */
 
-// 
+//
 // foreach ($changedFiles as $name) {
 //   if (str_pos('db_install/', $name) !== false) {
 //     $dbChanges[] = $name;
 //   }
 // }
-// 
+//
 // if (count($dbChanges) > 0) {
 //   // Backup the DB
-// 
+//
 //   // Run scripts
 //   foreach ($dbChanges as $name) {
 //     if (explode("/", $name)[1] != "db_finals" && explode(".", $name)[1] == "sql") {
 //       $script = $fetchToTemp($name);
 //       if (!$conn->multi_query($script)) {
-// 
+//
 //         throw new Exception("The following error occured while updating the database: '{$conn->error}'");
 //       }
 //     }
 //   }
 // }
-// 
+//
 // $fetchToTemp = function ($fileName) use ($gitRoot) {
-//   
+//
 //   return "Open File in fopen format";
 // };
 
