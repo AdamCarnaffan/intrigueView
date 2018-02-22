@@ -88,6 +88,8 @@ while (is_dir("tempDir")) {
   removeDirectory("tempDir");
 }
 
+// Update the version number tracking in the json
+
 // FUNCTIONS
 
 function removeDirectory($directory) {

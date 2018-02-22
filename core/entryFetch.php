@@ -1,8 +1,8 @@
 <?php
-include_once('dbConnect.php');
+require_once('dbConnect.php');
 require_once('class/class_dataFetch.php');
 
-$_POST['target'] = "entry_7"; // The target Feed to save to
+// $_POST['target'] = "entry_7"; // The target Feed to save to
 $_POST['url'] = "";
 $_POST['method'] = 1;
 
@@ -24,12 +24,17 @@ if (strpos($target, "entry") !== false) {
   $newEntry = false;
 } else if (strpos($target, "feed") !== false) {
   // Use a target feed and url to get a new article
+  // Check that the url string exists
+  if (!isset($_POST['url'])) {
+    throw new Exception("A URL is required to fetch a new entry");
+  }
+  // Set the target URL to the string
   $targetURL = $_POST['url'];
   $targetFeed = str_replace("feed_", "", $target);
   $newEntry = true;
 } else {
-  echo "The target selection '{$target}' is invalid! Please specify 'entry_#' OR 'feed_#'";
-  throw new Exception("No valid target set");
+  // echo "The target selection '{$target}' is invalid! Please specify 'entry_#' OR 'feed_#'";
+  throw new Exception("No valid target set. '{$target}' should be formatted as either 'entry_#' or 'feed_#'");
 }
 
 // Time zone info to sync with feeding

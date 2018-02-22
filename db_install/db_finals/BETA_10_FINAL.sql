@@ -343,6 +343,18 @@ CREATE TABLE `user_views` (
   `viewTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ROW_FORMAT=COMPACT;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `version_tracker`
+--
+
+CREATE TABLE `version_tracker` (
+  `versionID` int(11) NOT NULL,
+  `dbVersion` varchar(25) COLLATE utf8_unicode_ci NOT NULL,
+  `dateApplied` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Indexes for dumped tables
 --
@@ -490,6 +502,12 @@ ALTER TABLE `user_views`
   ADD PRIMARY KEY (`entryViewID`),
   ADD KEY `entry_id` (`entryID`),
   ADD KEY `user_id` (`userID`);
+	
+--
+-- Indexes for table `version_tracker`
+--
+ALTER TABLE `version_tracker`
+  ADD PRIMARY KEY (`versionID`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -580,6 +598,11 @@ ALTER TABLE `user_subscriptions`
 --
 ALTER TABLE `user_views`
   MODIFY `entryViewID` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `version_tracker`
+--
+ALTER TABLE `version_tracker`
+  MODIFY `versionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
 --
 -- Constraints for dumped tables
 --

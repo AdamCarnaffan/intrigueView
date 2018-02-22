@@ -28,6 +28,12 @@ CREATE TABLE `user_views` (
   `viewTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ROW_FORMAT=COMPACT;
 
+CREATE TABLE `version_tracker` (
+  `versionID` int(11) NOT NULL,
+  `dbVersion` varchar(25) COLLATE utf8_unicode_ci NOT NULL,
+  `dateApplied` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 -- Add & modify indexes
 
 ALTER TABLE `feed_recordlocks`
@@ -44,6 +50,9 @@ ALTER TABLE `user_views`
   ADD KEY `entry_id` (`entryID`),
   ADD KEY `user_id` (`userID`);
 
+ALTER TABLE `version_tracker`
+  ADD PRIMARY KEY (`versionID`);
+
 -- Include increments
 
 ALTER TABLE `feed_recordlocks`
@@ -54,6 +63,10 @@ ALTER TABLE `user_feedback`
 
 ALTER TABLE `user_views`
   MODIFY `entryViewID` int(11) NOT NULL AUTO_INCREMENT;
+  
+ALTER TABLE `version_tracker`
+  MODIFY `versionID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT;
+
 
 -- Introduce new constraints
 
