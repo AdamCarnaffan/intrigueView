@@ -2,6 +2,7 @@
 
 require_once('\core\dbConnect.php');
 
+// Refetch all entries :)
 $getAllEntries = "SELECT entryID FROM entries";
 
 $result = $conn->query($getAllEntries);
