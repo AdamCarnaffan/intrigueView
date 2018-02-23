@@ -326,6 +326,8 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
     min-height: 15rem;
     height: auto;
     background-color: #343a40;
+    display: flex;
+    flex-direction: column;
   }
   .searching {
     display: inline-block;
@@ -407,6 +409,8 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
 
 @media (min-width: 1060px) {
   .shortened {
+    display: flex;
+    flex-direction: row;
     min-height: 6rem;
     height: 6.2rem;
     background-color: #343a40;
@@ -424,12 +428,13 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   }
   .tagging {
     margin-left: 0.5rem;
-    display: inline-block;
+    display: inline-flex;
     position: relative;
-    width: 69%;
     height: 100%;
     font-size: 0.95rem;
     overflow: hidden;
+    flex-grow: 1;
+    flex-direction: column;
   }
 }
 
