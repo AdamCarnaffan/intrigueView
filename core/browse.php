@@ -98,7 +98,7 @@ require_once('buildConfig.php');
 <!-- Main album view -->
 <!-- ALL ARTICLES GO HERE -->
 <div class="container no-top-offset" id='feed-content'>
-  <div class="col-12 col-md-12" id="content-display">
+  <div class="col-md-12" id="content-display">
     <div class="row" id="feed-view">
       <!-- FEEDS POPULATE HERE FIRST -->
     </div>

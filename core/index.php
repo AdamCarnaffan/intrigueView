@@ -112,7 +112,7 @@ require_once('buildConfig.php');
 </div>
 <!-- ALL ARTICLES GO HERE -->
 <div class="container no-top-offset" id='feed-content'>
-  <div class="col-12 col-md-12">
+  <div class="col-md-12">
     <div class="row" id="feed-view">
     </div><!--/row-->
   </div><!--/span-->
