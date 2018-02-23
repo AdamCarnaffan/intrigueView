@@ -426,9 +426,10 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
     margin-left: 0.5rem;
     display: inline-block;
     position: relative;
-    width: 70%;
+    width: 69%;
     height: 100%;
     font-size: 0.95rem;
+    overflow: hidden;
   }
 }
 
