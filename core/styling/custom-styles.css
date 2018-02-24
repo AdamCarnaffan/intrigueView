@@ -493,6 +493,9 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   text-decoration: underline;
   margin-left: 0.15rem;
 }
+.tag-black {
+  color: black;
+}
 .filter-coloring {
   color: #fff;
 }

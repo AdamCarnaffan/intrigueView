@@ -345,6 +345,7 @@ class config {
   
   public $configDirectory;
   public $coreDirectory;
+  public $rootDirectory;
   public $dbLink;
   public $dbUser;
   public $dbPass;
@@ -355,13 +356,14 @@ class config {
   
   public function __construct() {
     // Build main directory
-    $tempTotalDir = explode('\\', __DIR__);
+    $tempTotalDir = explode('/', __DIR__);
     for ($c = 0; $c < 2; $c++) {
       array_pop($tempTotalDir);
     }
     // Build configured directories
-    $this->configDirectory = implode('\\', $tempTotalDir) . "\custom\\";
-    $this->coreDirectory = implode('\\', $tempTotalDir) . "\core\\";
+    $this->rootDirectory = implode('/', $tempTotalDir) . '/';
+    $this->configDirectory = implode('/', $tempTotalDir) . "/custom/";
+    $this->coreDirectory = implode('/', $tempTotalDir) . "/core/";
     // Get configs in directory
     $this->fetchConfigs();
   }

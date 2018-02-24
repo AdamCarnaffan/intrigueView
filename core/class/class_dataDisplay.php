@@ -94,7 +94,7 @@ class Entry_Display extends Entry {
 
 }
 
-class FeedDisplay {
+class Feed_Display {
 
   public $name;
   public $id;
@@ -148,7 +148,7 @@ class FeedDisplay {
     // Generate Categories
     $tile .= "<b>Categories: </b>";
     foreach ($this->categories as $catID=>$category) {
-      $tile .= "<a class='tag' href='#' onclick='return sortByCategory(" . $catID . ")'>" . $category . "</a>";
+      $tile .= "<a class='tag tag-black' href='#' onclick='return sortByCategory(" . $catID . ")'>" . $category . "</a>";
     }
     // Place the Subscription button
     $tile .= "<a class='context-display' href='#' onclick='return saveFeed(this, " . $this->id . ")'><span class='fa fa-plus fa-context-style'></span></a>";

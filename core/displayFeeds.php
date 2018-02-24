@@ -1,6 +1,6 @@
 <?php
 require_once('dbConnect.php');
-require_once('class\class_dataDisplay.php');
+require_once('class/class_dataDisplay.php');
 
 $getFeeds = "SELECT feeds.sourceID, feeds.linkedBy, feeds.referenceTitle, feeds.feedImagePath, feeds.feedDescription FROM feeds
               LEFT JOIN user_feeds AS internal ON internal.internalFeedID = feeds.sourceID
@@ -9,7 +9,7 @@ $getFeeds = "SELECT feeds.sourceID, feeds.linkedBy, feeds.referenceTitle, feeds.
 
 if ($feeds = $conn->query($getFeeds)) {
   while ($feedData = $feeds->fetch_array()) {
-    $feedDisplay = new FeedDisplay($feedData, $conn);
+    $feedDisplay = new Feed_Display($feedData, $conn);
     echo $feedDisplay->generateTile();
   }
 } else {

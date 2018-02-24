@@ -120,7 +120,17 @@ function queryFeeds(categoryID = 0) {
       $('#feed-view').append(data);
     },
     error: function() {
-      console.log('An error has occured loading the feeds');
+      this.tryCount++;
+      if (this.tryCount <= this.retryLimit) {
+        $.post(this);
+        return;
+      } else {
+        // Remove the loading dots
+        $('#loading').remove();
+        clearInterval(intervalLoadId);
+        // Display the new data
+        $('#feed-view').append("<h5>An Error occured loading the feeds</h5>");
+      }
     }
   });
 }
