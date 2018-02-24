@@ -323,6 +323,7 @@ function selectFeed(feedTileLink, feedID) {
   sessionStorage.setItem("selectedFeeds", feedSelection); // Save the current feed selected to a local session
   var tile = $(feedTileLink).parent().parent();
   tile.hide("slide", {direction: "left", distance: 1000}, 700);
+  window.location.href = window.location.href + '#viewFeed';
   setTimeout(function() {
     clearEntryDisplay();
     toggleTagging();

@@ -10,6 +10,8 @@ Higher min-height for mobile Filter
 
 Mobile Filters should be hidden by default, visible by button
 
+Back button should return to main browse page
+
 Allow multi-word tags where phrases are used repeatedly (Net Neutrality)
     when a tag is used more than 3 times, check the word in front of the tag and behind the tag.
     if either of these values are repeated for the majority of instances of the tag, they become part of the tag.
@@ -35,8 +37,6 @@ Add ability to re-order the tags on an article
 Add ability to manage and flag tags --> flagged tags must be confirmed before the article is displayed
 
 Make tags filter out verbs, they make poor tags --> a hurculeian task
-
-3rd glance will need an SSL Certificate
 
 Make the feed builder
 
