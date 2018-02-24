@@ -1,15 +1,18 @@
 <html>
 <?php
-include('validateUser.php');
+require_once('../manageUser.php');
+if (!$user->isAdmin) {
+  header('location: ../index.php');
+}
 ?>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="Adam Carnaffan">
-  <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
+  <link rel="icon" href="assets/icon.png">
 
-  <title>Intrigue View 1.0</title>
+  <title>Intrigue View <?php echo $cfg->displayVersion ?></title>
 
   <!-- Bootstrap core CSS -->
   <link href="../styling/bootstrap.min.css" rel="stylesheet">
@@ -20,12 +23,6 @@ include('validateUser.php');
   <script src='../js/jquery-3.2.1.min.js'></script>
   <script src='administration.js'></script>
   <script src='../js/loginManager.js'></script>
-  <?php
-    include('../dbConnect.php');
-    include('../objectConstruction.php');
-    include('../fixSession.php');
-    $user = $_SESSION['user'];
-   ?>
 </head>
 <body class="hide-overflow">
 
@@ -41,13 +38,7 @@ include('validateUser.php');
         </li>
       </ul>
       <ul class="navbar-nav">
-        <?php
-          if ($user != null) {
-            echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="logout()">Logout</button>';
-          } else {
-            echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href=\'../login.php\';">Login</button>';
-          }
-         ?>
+        <button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="logout()">Logout</button>
       </ul>
     </div>
   </nav>
@@ -73,7 +64,7 @@ include('validateUser.php');
               </li>
               <?php
                 foreach ($user->permissions as $perm) {
-                  if ($perm->permissionId == 1) {
+                  if ($perm->permissionID == 1) {
                     echo '<li class="active">
                         <a class="" href="users.php">
                             <span>Users</span>
@@ -82,11 +73,7 @@ include('validateUser.php');
                     break;
                   }
                 }
-
-
               ?>
-
-
           </ul>
           <!-- sidebar menu end-->
       </div>

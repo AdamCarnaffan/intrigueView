@@ -24,7 +24,9 @@
   <link href="styling/custom-styles.css" rel="stylesheet">
   <!-- JavaScript -->
   <script src='js/jquery-3.2.1.min.js'></script>
+  <script src='js/popper.js'></script>
   <script src='js/bootstrap.js'></script>
+  <script src='js/loginManager.js'></script>
 </head>
 <body class="hide-overflow">
   <!-- Fixed navbar -->

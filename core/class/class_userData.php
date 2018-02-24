@@ -7,6 +7,7 @@ class User {
   public $id;
   public $name;
   public $isTemp = false; // Determine if this is a permanent user
+  public $isAdmin = false;
   public $permissions = [];
   public $feed;
   public $subscriptions;
@@ -40,6 +41,9 @@ class User {
     if ($result = $conn->query($getPerms)) {
       while ($row = $result->fetch_array()) {
         $tempPerm = new Permission($row[0],$row[1]);
+        if ($tempPerm->permissionID == 8) {
+          $this->isAdmin = true;
+        }
         array_push($this->permissions, $tempPerm);
       }
     }
@@ -182,12 +186,12 @@ class User {
 
 class Permission {
 
-  public $permissionId;
-  public $feedId; // 0/null indicates all feeds
+  public $permissionID;
+  public $feedID; // 0/null indicates all feeds
 
-  public function __construct($permId, $feedId) {
-    $this->permissionId = $permId;
-    $this->feedId = $feedId;
+  public function __construct($permID, $feedID) {
+    $this->permissionID = $permID;
+    $this->feedID = $feedID;
   }
 
 }

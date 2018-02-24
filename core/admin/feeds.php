@@ -1,15 +1,18 @@
 <html>
 <?php
-include('validateUser.php');
+require_once('../manageUser.php');
+if (!$user->isAdmin) {
+  header('location: ../index.php');
+}
 ?>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="Adam Carnaffan">
-  <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
+  <link rel="icon" href="assets/icon.png">
 
-  <title>Intrigue View 0.8</title>
+  <title>Intrigue View <?php echo $cfg->displayVersion ?></title>
 
   <!-- Bootstrap core CSS -->
   <link href="../styling/bootstrap.min.css" rel="stylesheet">
@@ -20,12 +23,6 @@ include('validateUser.php');
   <script src='../js/jquery-3.2.1.min.js'></script>
   <script src='administration.js'></script>
   <script src='../js/loginManager.js'></script>
-  <?php
-    include('../dbConnect.php');
-    include('../objectConstruction.php');
-    include('../fixSession.php');
-    $user = $_SESSION['user'];
-   ?>
 </head>
 <body class="hide-overflow">
 
@@ -41,13 +38,7 @@ include('validateUser.php');
         </li>
       </ul>
       <ul class="navbar-nav">
-        <?php
-          if ($user != null) {
-            echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="logout()">Logout</button>';
-          } else {
-            echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href=\'../login.php\';">Login</button>';
-          }
-         ?>
+        <button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="logout()">Logout</button>
       </ul>
     </div>
   </nav>
@@ -72,7 +63,7 @@ include('validateUser.php');
           </li>
           <?php
             foreach ($user->permissions as $perm) {
-              if ($perm->permissionId == 1) {
+              if ($perm->permissionID == 1) {
                 echo '<li class="active">
                     <a class="" href="users.php">
                         <span>Users</span>
@@ -94,12 +85,12 @@ include('validateUser.php');
       $feedsList = [];
       $feeds = [];
       foreach ($user->permissions as $perm) {
-        if ($perm->permissionId == 2) {
-          if ($perm->feedId == null) {
+        if ($perm->permissionID == 2) {
+          if ($perm->feedID == null) {
             $showAllFeeds = true;
             break;
           } else {
-            array_push($feeds, $perm->feedId);
+            array_push($feeds, $perm->feedID);
           }
         }
       }
@@ -153,7 +144,7 @@ include('validateUser.php');
     <?php
       // If the user is allowed to create new linked feeds, display this portion
       foreach ($user->permissions as $perm) {
-        if ($perm->permissionId == 3) {
+        if ($perm->permissionID == 3) {
           echo '<h5>Add a Linked Feed:</h5>';
           echo "<table><tr><td><b>New Feed Name</b></td><td><b>Feed Source URL</b></td></tr><tr>";
           echo "<td><input class='feed-source-input' id='addedFeedName' type='text' name='newFeedName' placeholder='New Feed Name'/></td>

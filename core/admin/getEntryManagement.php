@@ -1,6 +1,6 @@
 <?php 
-include('../dbConnect.php');
-include('../objectConstruction.php');
+require_once('../dbConnect.php');
+require_once('../class/class_dataDisplay.php');
 // Create a Data Table row for each entry to be displayed
 $feedID = $_POST['feedID'];
 

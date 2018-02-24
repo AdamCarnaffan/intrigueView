@@ -1,6 +1,6 @@
 <?php
-include('dbConnect.php');
-require('objectConstruction.php');
+require_once('dbConnect.php');
+require_once('class/class_userData.php');
 
 // NEEDS TO INCORPORATE PRELOGIN DATA
 

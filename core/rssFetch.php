@@ -1,5 +1,5 @@
 <?php
-include_once('dbConnect.php');
+require_once('dbConnect.php');
 require_once('class/class_dataFetch.php');
 
 /*
@@ -46,7 +46,7 @@ if ($method == 1) {
 
 // Define a shutdown function
 register_shutdown_function(function() use ($feedSelection) {
-  include('dbConnect.php');
+  require('dbConnect.php');
   $feedSelection->release($conn);
 });
 
@@ -152,7 +152,7 @@ if ($logReport) {
   }
 }
 
-$feedSelection->release($conn);
+//$feedSelection->release($conn);
 
 // Throw a file write exception if needed
 if (isset($fileException)) {

@@ -96,7 +96,7 @@ function reduceCooldown() {
 function logout() {
   var directory;
   if (window.location.host == "localhost") {
-    directory = "/intrigueView";
+    directory = "/intrigueView/core";
   } else {
     directory = "";
   }

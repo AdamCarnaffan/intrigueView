@@ -1,5 +1,5 @@
 <?php
-require('objectConstruction.php');
+require_once('class/class_userData.php');
 
 // NEEDS TO INCORPORATE PRELOGIN DATA
 

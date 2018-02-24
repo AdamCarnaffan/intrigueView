@@ -9,7 +9,7 @@ require_once('buildConfig.php');
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="Adam Carnaffan">
-  <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
+  <link rel="icon" href="assets/icon.png">
 
   <title>Intrigue View <?php echo $cfg->displayVersion ?></title>
 
@@ -61,13 +61,9 @@ require_once('buildConfig.php');
           echo '<li display="block"><a class="move-right dropdown-link" href="builder.php">Feed Builder</a></li>';
           echo '<li class="divider"></li>';
           echo '<li display="block"><a class="move-right dropdown-link" href="settings.php">Settings</a></li>';
-          // Only display the administration area if the user has access
-          foreach ($user->permissions as $perm) {
-            if ($perm->permissionId == 8) {
-              echo '<li class="divider"></li>';
-              echo '<li display="block"><a class="move-right dropdown-link" href="admin/splash.php">Administration</a></li>';
-              break;
-            }
+          if ($user->isAdmin) {
+            echo '<li class="divider"></li>';
+            echo '<li display="block"><a class="move-right dropdown-link" href="admin/splash.php">Administration</a></li>';
           }
           echo '<li class="divider"></li>';
           echo '<li display="block"><a class="move-right dropdown-link" href="#" onclick="return logout()">Logout</a></li>';
