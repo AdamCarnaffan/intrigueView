@@ -24,7 +24,7 @@ class Entry_Display extends Entry {
 
   public function displayEntryTile($entryDisplay, $featuredTiles) {
     // Filter title for missed HTML styling configurations
-    $this->title = str_replace('&quot;',"'", $this->title);
+    $this->title = str_replace("&amp;quot;","&#039;", $this->title);
     if (in_array($entryDisplay, $featuredTiles)) { // Decide if the article will be a feature or not
       $this->entryDisplaySize = 2;
     } else {

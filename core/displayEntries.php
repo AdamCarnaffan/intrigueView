@@ -1,6 +1,5 @@
 <?php
 require_once('dbConnect.php');
-require_once('class/class_std.php');
 require_once('class/class_dataDisplay.php');
 require_once('manageUser.php');
 

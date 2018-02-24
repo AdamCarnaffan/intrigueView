@@ -1,20 +1,10 @@
 <?php
 
-echo getFileData("https://raw.githubusercontent.com/Thefaceofbo/intrigueView/master/core/index.php");
+require_once('dbConnect.php');
+require_once('class/class_dataDisplay.php');
 
-function getFileData($gitLink) {
-  $curlConn = curl_init();
-  curl_setopt($curlConn, CURLOPT_URL, $gitLink);
-  curl_setopt($curlConn, CURLOPT_SSL_VERIFYPEER, false);
-  curl_setopt($curlConn, CURLOPT_RETURNTRANSFER, 1);
-  $data = curl_exec($curlConn);
-  curl_close($curlConn);
+$entry = new Entry_Display(22719, $conn, 'public');
 
-  if ($data == "404 Error: Not Found") {
-    return false;
-  }
-
-  return $data;
-}
+var_dump($entry);
 
 ?>
