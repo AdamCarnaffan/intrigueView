@@ -194,6 +194,9 @@ while ($row = $entries->fetch_array()) {
           array_push($display, $tempTile);
           $entryDisplayNumber++;
           $addEntry = false;
+          // Remove the recommended from the display array
+          unset($user->recommendations[$recomNumber]);
+          $user->recommendations = array_values($user->recommendations);
         }
         $recomNumber++;
       } while ($addEntry);
