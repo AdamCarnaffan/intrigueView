@@ -88,7 +88,7 @@ require_once('buildConfig.php');
 <div id='filter-display' class="container shortened">
   <div class="searching">
     <h3 class="filter-coloring move-heading">Filter Results
-      <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button>
+      <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries(true)'>Reset Filters</button>
     </h3>
     <div class='search-field'>
       <h5 class="heading-inline filter-coloring vertical-centering">Search:</h5>
@@ -136,7 +136,7 @@ var currentTagMode = 1; // Defined in a global scope to use in multiple function
 // Toggle the AND selection
 $('#and-tag').toggleClass('toggle-button-class');
 // Make initial display
-queryEntries(51, feedSelection, true);
+queryEntries(51, feedSelection, true, true);
 getTags();
 
 $(document).ready( function () {
@@ -146,8 +146,7 @@ $(document).ready( function () {
   $(window).scroll(function() {
     // Load more entries
     if (($(document).scrollTop() / ($(document).height() - $(window).height())) > scrollCooldown && entriesDisplayed < 500 && display == true) {
-      console.log("hey");
-      queryEntries(26, feedSelection, true);
+      queryEntries(26, feedSelection, true, true);
     }
     // Display Settings for the Return to Top button
     if ($(document).scrollTop() > 600 && returnButtonIsDisplayed == false) {

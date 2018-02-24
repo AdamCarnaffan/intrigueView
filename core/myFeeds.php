@@ -107,7 +107,7 @@ require_once('buildConfig.php');
 <div class="container shortened">
   <div class="searching">
     <h3 class="filter-coloring move-heading">Filter Results
-      <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries()'>Reset Filters</button>
+      <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries(false)'>Reset Filters</button>
     </h3>
     <div class='search-field'>
       <h5 class="heading-inline filter-coloring vertical-centering">Search:</h5>

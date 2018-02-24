@@ -9,6 +9,7 @@ require_once('manageUser.php');
 // $_POST['tagMode'] = 0;
 // $_POST['search'] = "";
 // $_POST['feedsList'] = "2";
+// $_POST['recommend'] = true;
 $_POST['context'] = "public";
 
 // Take Inputs from the specific call
@@ -18,7 +19,9 @@ $selectionOffset = $_POST['currentDisplay'];
 $searchKey = (isset($_POST['search']) && strlen($_POST['search']) > 0) ? $_POST['search'] : null;
 $queryTags = $_POST['tags'];
 $tagMode = $_POST['tagMode'];
+$showRecommended = ($_POST['recommend'] == "true") ? true : false;
 $context = $_POST['context'];
+
 // Generate search as tags as well
 $searchTags = (strlen($searchKey) > 1) ? explode(" ", $searchKey) : [];
 $search = false;
@@ -162,8 +165,7 @@ if (!$addedTag) {
 }
 
 // Finish the query
-
-$selectEntriesValue = $selectionLimit - (floor($selectionLimit / 10));
+$selectEntriesValue = $showRecommended ? $selectionLimit - (floor($selectionLimit / 10)) : $selectionLimit;
 
 $getEntries .= "entries.visible = 1
                 ORDER BY entryConn.dateConnected DESC, entries.entryID ASC
@@ -181,7 +183,7 @@ while ($row = $entries->fetch_array()) {
   $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
   array_push($display, $tempTile);
   $entryDisplayNumber++;
-  if ($entryDisplayNumber % 10 == 0) {
+  if ($showRecommended && $entryDisplayNumber % 10 == 0) {
     $addEntry = true;
     try {
       do {

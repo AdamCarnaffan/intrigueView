@@ -355,15 +355,20 @@ class config {
   public $fileVersions = [];
   
   public function __construct() {
+    $directorySlash = '/';
     // Build main directory
-    $tempTotalDir = explode('/', __DIR__);
+    $tempTotalDir = explode($directorySlash, __DIR__);
+    if (count($tempTotalDir) == 1) {
+      $directorySlash = '\\';
+      $tempTotalDir = explode($directorySlash, __DIR__);
+    }
     for ($c = 0; $c < 2; $c++) {
       array_pop($tempTotalDir);
     }
     // Build configured directories
-    $this->rootDirectory = implode('/', $tempTotalDir) . '/';
-    $this->configDirectory = implode('/', $tempTotalDir) . "/custom/";
-    $this->coreDirectory = implode('/', $tempTotalDir) . "/core/";
+    $this->rootDirectory = implode($directorySlash, $tempTotalDir) . $directorySlash;
+    $this->configDirectory = implode($directorySlash, $tempTotalDir) . "{$directorySlash}custom{$directorySlash}";
+    $this->coreDirectory = implode($directorySlash, $tempTotalDir) . "{$directorySlash}core{$directorySlash}";
     // Get configs in directory
     $this->fetchConfigs();
   }

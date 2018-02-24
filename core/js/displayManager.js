@@ -19,7 +19,7 @@ function beginSearch() {
   clearEntryDisplay();
   // Begin Search function
   search = $('#search-input').val();
-  queryEntries(51, feedSelection);
+  queryEntries(51, feedSelection, false);
   return false;
 }
 
@@ -85,7 +85,7 @@ function resizeCanvas() {
     canvas.height = canvas.width*0.3;
 }
 
-function resetQueries() {
+function resetQueries(recommend) {
   // Check the Tag Mode
   if (currentTagMode != 1) {
     currentTagMode = 1;
@@ -99,7 +99,7 @@ function resetQueries() {
   queryTags = [];
   // Re-initialize the display
   clearEntryDisplay();
-  queryEntries(51, feedSelection)
+  queryEntries(51, feedSelection, recommend)
   getTags();
 }
 
@@ -135,7 +135,7 @@ function queryFeeds(categoryID = 0) {
   });
 }
 
-function queryEntries(selection, feeds, scroll = false) {
+function queryEntries(selection, feeds, displayRecommended, scroll = false) {
   if (scroll) {
     scrollCooldown = 5
   }
@@ -155,7 +155,8 @@ function queryEntries(selection, feeds, scroll = false) {
       'search': search,
       'tags': queryTagString,
       'tagMode': currentTagMode,
-      'feedsList': feedIDList
+      'feedsList': feedIDList,
+      'recommend': displayRecommended
     },
     dataType: 'json',
     attempt: 0,
@@ -249,7 +250,7 @@ function addTag(tagID) {
   queryTags.push(tagID);
   getTags();
   clearEntryDisplay();
-  queryEntries(51, feedSelection);
+  queryEntries(51, feedSelection, false);
   return false;
 }
 
@@ -259,7 +260,8 @@ function removeTag(tagID) {
   queryTags.splice(index, 1);
   getTags();
   clearEntryDisplay();
-  queryEntries(51, feedSelection);
+  var noTags = (queryTags.length == 0) ? true : false;
+  queryEntries(51, feedSelection, noTags);
   return false;
 }
 
@@ -295,7 +297,7 @@ function changeTagMode() {
   }
   if (queryTags.length > 0) {
     clearEntryDisplay();
-    queryEntries(51, feedSelection);
+    queryEntries(51, feedSelection, false);
   }
 }
 
@@ -331,7 +333,7 @@ function selectFeed(feedTileLink, feedID) {
     } else {
       toggleBrowseNavigation("column");
     }
-    queryEntries(51, feedSelection);
+    queryEntries(51, feedSelection, false);
   }, 650);
   return false;
 }
