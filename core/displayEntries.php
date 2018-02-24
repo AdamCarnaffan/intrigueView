@@ -186,7 +186,8 @@ while ($row = $entries->fetch_array()) {
     try {
       do {
         if (count($user->recommendations) == 0 || $recomNumber >= count($user->recommendations)) {
-          break;
+          $user->generateRecommendations($conn);
+          $recomNumber = 0;
         }
         // Check that the recommendation is not being displayed in this feed
         $checkRecom = "SELECT entryID FROM entry_connections AS entryConn
