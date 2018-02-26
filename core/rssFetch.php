@@ -152,7 +152,7 @@ if ($logReport) {
   }
 }
 
-//$feedSelection->release($conn);
+$feedSelection->release($conn);
 
 // Throw a file write exception if needed
 if (isset($fileException)) {
