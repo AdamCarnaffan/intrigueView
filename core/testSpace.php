@@ -1,10 +1,12 @@
 <?php
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once('dbConnect.php');
-require_once('class/class_dataDisplay.php');
+include($cfg->rootDirectory . 'debug.php');
 
-$entry = new Entry_Display(22719, $conn, 'public');
-
-var_dump($entry);
+$conn->query("UPDATE external_feeds SET (active) = (0) WHERE title = 'Migration Feed'");
 
 ?>

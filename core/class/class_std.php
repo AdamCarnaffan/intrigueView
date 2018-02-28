@@ -203,6 +203,9 @@ class Tag {
   }
 
   public function checkPluralization() {
+    if (strlen($this->name) == 0) { // Check that the string exists
+      return false;
+    }
     if (strpos($this->name, "s", -1) !== false || strpos($this->name, "i", -1) !== false) {
       // Check that the string length is greater than 2, otherwise likely not a plural
       if (strlen($this->name) < 3) {
