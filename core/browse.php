@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <?php
 require_once('manageUser.php');

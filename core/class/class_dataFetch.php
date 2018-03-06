@@ -692,7 +692,7 @@ class Entry_Data extends Entry {
     }
     // Check here if a meta title is not available
     if (strpos($this->pageContent, "<title>") !== false) {
-      $titleStart = explode("<title>", $pageContents)[1];
+      $titleStart = explode("<title>", $this->pageContent)[1];
       $titleFull = explode("</title>", $titleStart)[0];
       $this->title = $titleFull;
       return;

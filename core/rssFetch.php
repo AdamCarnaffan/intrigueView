@@ -9,7 +9,7 @@ require_once('class/class_dataFetch.php');
 *   3 -> Automation (PHP -> unattended)
 */
 
-// $_POST['sourceID'] = 2;
+// $_POST['sourceID'] = 39;
 // $_POST['method'] = 1;
 
 // Get the Source ID for database selection of feed
@@ -61,7 +61,7 @@ if (isset($feedSudoID)) {
 }
 
 // Generate an XML object to represent the data collected
-$xml = simplexml_load_file($feedSelection->source) or die("Error: Could not connect to the feed");
+$xml = @simplexml_load_file($feedSelection->source) or die("Error: Could not connect to the feed");
 
 // Get the last update time (for comparison with any articles to add)
 $getLastPub = "SELECT datePublished FROM entries JOIN entry_connections AS connections ON entries.entryID = connections.entryID WHERE feedID = '$feedSelection->id' ORDER BY connections.dateConnected DESC LIMIT 1";

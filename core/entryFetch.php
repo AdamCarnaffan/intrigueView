@@ -2,7 +2,7 @@
 require_once('dbConnect.php');
 require_once('class/class_dataFetch.php');
 
-// $_POST['target'] = "entry_7"; // The target Feed to save to
+// $_POST['target'] = "entry_1005"; // The target Feed to save to
 $_POST['url'] = "";
 $_POST['method'] = 1;
 
@@ -85,6 +85,11 @@ try {
     $result = $entryInfo->submitEntry($conn, $targetFeed, $dateAdded) . $lineEnding;
   } else {
     $previousEntryData = $conn->query("SELECT url, title, featureImage, siteID, entryID, previewText FROM entries WHERE entryID = '$targetEntry' LIMIT 1")->fetch_array();
+    // Add filler data
+    $previousEntryData['featured'] = null;
+    $previousEntryData['views'] = 0;
+    $previousEntryData['rating'] = 5;
+    // Build
     $prevEntry = new Entry($previousEntryData, $conn);
     $prevEntry->updateEntry($entryInfo, $conn);
     $result = "The entry '{$prevEntry->title}' has been updated {$lineEnding}";
