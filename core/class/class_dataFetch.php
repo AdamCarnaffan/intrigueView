@@ -633,13 +633,6 @@ class Entry_Data extends Entry {
         }
       }
     }
-    if (strpos($this->pageContent,'<div class="post-body__content"><figure') !== false) {
-      $contentsTrim = substr($this->pageContent, strpos($this->pageContent, '<div class="post-body__content"><figure'), 600);
-      $targetURL = substr($contentsTrim, strpos($contentsTrim, '<img src='), 400);
-      $imageURL = explode('"',$targetURL)[1];
-      $this->image = validateImageLink($imageURL);
-      return;
-    }
     if (strpos($this->pageContent, '"og:image"') !== false || strpos($this->pageContent, "'og:image'") !== false) { // Cover Wikipedia type articles which never use schema.org but are common
       $contentByMeta = explode("<meta", $this->pageContent);
       foreach ($contentByMeta as $content) {
@@ -655,6 +648,14 @@ class Entry_Data extends Entry {
           break;
         }
       }
+      $this->image = validateImageLink($imageURL);
+      return;
+    }
+    if (strpos($this->pageContent,'<div class="post-body__content"><figure') !== false) {
+      $contentsTrim = substr($this->pageContent, strpos($this->pageContent, '<div class="post-body__content"><figure'), 600);
+      echo $contentsTrim;
+      $targetURL = substr($contentsTrim, strpos($contentsTrim, '<img src='), 400);
+      $imageURL = explode('"',$targetURL)[1];
       $this->image = validateImageLink($imageURL);
       return;
     }

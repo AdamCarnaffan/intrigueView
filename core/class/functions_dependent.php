@@ -81,7 +81,7 @@ function validateImageLink($imgURL) {
   //Protect extension validation from addition image properties on the image URL
   $extension = trim(explode("?",$extension)[0]);
   // Validate the extension or return null for the URL if the extension is invalid
-  $validURL = (in_array($extension, $supportedExtensions)) ? $imgURL : null;
+  $validURL = (in_array(strtolower($extension), $supportedExtensions)) ? $imgURL : null;
   return $validURL;
 }
 

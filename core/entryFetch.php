@@ -2,7 +2,7 @@
 require_once('dbConnect.php');
 require_once('class/class_dataFetch.php');
 
-// $_POST['target'] = "entry_1005"; // The target Feed to save to
+//$_POST['target'] = "feed_2"; // The target Feed to save to
 $_POST['url'] = "";
 $_POST['method'] = 1;
 
@@ -15,6 +15,7 @@ $_POST['method'] = 1;
 
 $target = $_POST['target'];
 $method = $_POST['method'];
+$result = "";
 
 // Determine the action
 if (strpos($target, "entry") !== false) {
@@ -56,9 +57,9 @@ if ($method == 1) {
 
 // Fetch the tag blacklist in preperation
 $getBlackList = "SELECT blacklistedTag FROM tag_blacklist";
-$result = $conn->query($getBlackList);
+$blacklist = $conn->query($getBlackList);
 $tagBlackList = []; // Initialize the array
-while ($row = $result->fetch_array()) {
+while ($row = $blacklist->fetch_array()) {
   // add each tag to the array
   array_push($tagBlackList, $row[0]);
 }
@@ -77,12 +78,13 @@ try {
     $targetURL = str_replace("/amp/", "/", $targetURL);
   }
   $entryInfo = new Entry_Data($targetURL, $conn, $tagBlackList);
+  echo $entryInfo->image;
   if ($newEntry) {
     // Format Date Time for mySQL
     $dateAdded = new DateTime();
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
     // Submit the entry and receive the result
-    $result = $entryInfo->submitEntry($conn, $targetFeed, $dateAdded) . $lineEnding;
+    //$result = $entryInfo->submitEntry($conn, $targetFeed, $dateAdded) . $lineEnding;
   } else {
     $previousEntryData = $conn->query("SELECT url, title, featureImage, siteID, entryID, previewText FROM entries WHERE entryID = '$targetEntry' LIMIT 1")->fetch_array();
     // Add filler data
