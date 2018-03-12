@@ -51,7 +51,12 @@ class Entry_Display extends Entry {
     if ($this->image != null) {
       $tile .= '<div class="image-container"><img class="image" src="' . $this->image . '"/>';
     } else {
-      $tile .= '<div class="image-container"><img class="image fill-size" src="assets/tileFill.png"/>';
+      if ($this->entryDisplaySize == 2) {
+        $imgPath = "fillerL.png";
+      } else {
+        $imgPath = "fillerS.png";
+      }
+      $tile .= '<div class="image-container"><img class="image tile-filler" src="assets/' . $imgPath . '"/>';
     }
 
     // Add the recommendation banner if necessary
@@ -62,10 +67,10 @@ class Entry_Display extends Entry {
     // Begin site details slider
     $tile .= '<div class="extra-info">';
     // Add Top Tags
-    $tile .= '<div class="entry-stats tag-display extra-info-addon">Tags: ';
+    $tile .= '<div class="entry-stats extra-tag-display extra-info-addon">Tags: ';
     $maxTags = (count($this->tags) > 3) ? 3 : count($this->tags);
     for ($c = 0; $c < $maxTags; $c++) {
-      $tile .= '<a class="tag in-extra-info" href="#" onclick="return addTag(' . $this->tags[$c]->databaseID . ')">' . $this->tags[$c]->name . '</a> ';
+      $tile .= '<a class="extra-tag in-extra-info" href="#" onclick="return addTag(' . $this->tags[$c]->databaseID . ')">' . $this->tags[$c]->name . '</a> ';
     }
     $tile .= '</div>';
     // Display Article Synopsis

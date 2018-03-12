@@ -176,12 +176,14 @@ function queryEntries(selection, feeds, displayRecommended, scroll = false) {
       $(".hover-detect").hover( function() {
         $(this).data('leaving', false);
         $(this).siblings(".image-container").children(".extra-info").addClass("extra-info-hover");
+        $(this).parents(".entry-tile").addClass("entry-tile-shadow");
       }, function() {
         $(this).data('leaving', true);
         var hoverObject = $(this);
+        hoverObject.parents(".entry-tile").removeClass("entry-tile-shadow");
         setTimeout( function() {
           closeInfo(hoverObject);
-        }, 1000);
+        }, 200);
       });
       $(".in-extra-info").hover( function() {
         $(this).parents('.image-container').siblings('.hover-detect').data('leaving', false);

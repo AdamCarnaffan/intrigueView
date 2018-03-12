@@ -34,7 +34,7 @@ while ($row = $activeTagNames->fetch_array()) {
 }
 // Display Popular Tags
 while ($row = $popTags->fetch_array()) {
-  echo "<a class='filter-coloring tag no-underline' href='#' onclick='return addTag(" . $row[0] . ")'>" . $row[1] . '(' . $row[2] . ')</a> ';
+  echo "<a class='filter-coloring tag no-underline' href='#' onclick='return addTag(" . $row[0] . ")'>" . $row[1] . '</a> ';
 }
 
 ?>

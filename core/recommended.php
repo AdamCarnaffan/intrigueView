@@ -26,33 +26,33 @@ require_once('buildConfig.php');
   <script src='js/bootstrap.js'></script>
   <script src='js/loginManager.js'></script>
 </head>
-<body class="hide-overflow dark-back" onresize='resizeCanvas'>
+<body class="hide-overflow" onresize='resizeCanvas'>
   <!-- Fixed navbar -->
-<nav class="navbar navbar-expand-md navbar-dark bg-dark dropdown-ontop">
-  <a class="icon-brand icon-sprite-white" href="index.php"></a>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4 dropdown-ontop">
+  <a class="navbar-brand" href="index.php">IntrigueView</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbarCollapse">
     <ul class="navbar-nav mr-auto nav-navigation fix-ul">
-      <li class="nav-item active nav-selected">
+      <li class="nav-item active">
         <a class="nav-link" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item active nav-hoverable">
+      <li class="nav-item active">
         <a class="nav-link" title="Scroll Through a Continuous Feed of Recommended Articles" href="recommended.php">Recommended<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item active nav-hoverable">
+      <li class="nav-item active">
         <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
       </li>
       <?php
       if (!$user->isTemp) {
-        echo '<li class="nav-item active nav-hoverable">
+        echo '<li class="nav-item active">
           <a class="nav-link" title="See Your Personalized Feed Selection" href="myFeeds.php">My Feeds<span class="sr-only">(current)</span></a>
         </li>';
       }
       ?>
       <li class="nav-item active">
-        <a class="nav-link nav-activate" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=' + feedSelection.join('+'))">Export RSS<span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=' + feedSelection.join('+'))">Export RSS<span class="sr-only">(current)</span></a>
       </li>
     </ul>
     <ul class="navbar-nav mr-auto fix-ul">
@@ -87,11 +87,7 @@ require_once('buildConfig.php');
 </nav>
 
 <!-- Main album view -->
-<div id='tag-display' class='container tag-scroller'>
-  <div class='tags-title'>Popular Tags:</div>
-  <div id='tag-collection' class='tag-block'></div>
-</div>
-<!-- <div id='filter-display' class="container shortened">
+<div id='filter-display' class="container shortened">
   <div class="searching">
     <h3 class="filter-coloring move-heading">Filter Results
       <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries(true)'>Reset Filters</button>
@@ -107,10 +103,11 @@ require_once('buildConfig.php');
     <button id='and-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>USING</button>
     <button id='or-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>INCLUDING</button>
     </h3>
+    <!-- TAGS POPULATED HERE -->
     <div class="filter-coloring" id="tag-collection">
     </div>
   </div>
-</div> -->
+</div>
 <!-- ALL ARTICLES GO HERE -->
 <div class="container no-top-offset" id='feed-content'>
   <div class="col-md-12">
@@ -171,31 +168,3 @@ $('#search-input').keypress(function(event) {
 });
 </script>
 </html>
-
-<!--
-<div class="container">
-  <div class="jumbotron">
-    <h1>Navbar example</h1>
-    <p class="lead">This example is a quick exercise to illustrate how the top-aligned navbar works. As you scroll, this navbar remains in its original position and moves with the rest of the page.</p>
-  </div>
-</div>
-
-<div class="col-6 col-lg-3 tile-wrapper">
-  <div class="feed-tile">
-    <a href="http://google.ca" class="hover-detect"><span class="entry-url"></span></a>
-    <h4 class="entry-heading">Article Heading</h4>
-    <div class="image"><img src="https://hbr.org/resources/images/article_assets/2017/09/sept17-14-668999778.jpg"/></div>
-    <div class="entry-stats">
-      <p class="site-info">
-        <img src="http://jsfiddle.net/favicon.png" class="site-icon"/>
-        <a class="site-info-url" href="https://getpocket.com/a/queue/">google.ca</a>
-      </p>
-    </div>
-  </div>
-</div>
-
-<form class="form-inline mt-2 mt-md-0">
-  <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-  <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-</form>
--->
