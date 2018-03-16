@@ -163,12 +163,6 @@ $(document).ready( function () {
     }
   });
 });
-// Allow the Search to begin on enter keypress
-$('#search-input').keypress(function(event) {
-  if (event.keyCode == 13) {
-    beginSearch();
-  }
-});
 </script>
 </html>
 

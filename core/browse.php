@@ -21,47 +21,43 @@ require_once('buildConfig.php');
   <link href="styling/custom-styles.css" rel="stylesheet">
   <!-- Javascript -->
   <script src='js/jquery-3.2.1.min.js'></script>
-  <script src='js/jqueryUI.min.js'></script>
   <script src='js/displayManager.js'></script>
-  <script src='js/loginManager.js'></script>
   <script src='js/popper.js'></script>
   <script src='js/bootstrap.js'></script>
+  <script src='js/loginManager.js'></script>
 </head>
-<body class="hide-overflow" onresize='resizeCanvas'>
+<body class="hide-overflow dark-back" onresize='resizeCanvas'>
   <!-- Fixed navbar -->
-<nav id='navigator' class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
-  <a class="navbar-brand" href="index.php">IntrigueView</a>
+<nav id='navigator' class="navbar navbar-expand-md navbar-dark bg-dark dropdown-ontop">
+  <a class="icon-brand icon-sprite-white" href="index.php"></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbarCollapse">
     <ul class="navbar-nav mr-auto nav-navigation fix-ul">
-      <li class="nav-item active">
+      <li class="nav-item active nav-hoverable">
         <a class="nav-link" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item active">
+      <li class="nav-item active nav-hoverable">
+        <a class="nav-link" title="Scroll Through a Continuous Feed of Recommended Articles" href="recommended.php">Recommended<span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item active nav-selected">
         <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
       </li>
       <?php
       if (!$user->isTemp) {
-        echo '<li class="nav-item active">
+        echo '<li class="nav-item active nav-hoverable">
           <a class="nav-link" title="See Your Personalized Feed Selection" href="myFeeds.php">My Feeds<span class="sr-only">(current)</span></a>
         </li>';
       }
       ?>
       <li class="nav-item active">
-        <a class="nav-link" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=' + feedSelection.join('+'))">Export RSS<span class="sr-only">(current)</span></a>
+        <a class="nav-link nav-activate" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=' + feedSelection.join('+'))">Export RSS<span class="sr-only">(current)</span></a>
       </li>
     </ul>
     <ul class="navbar-nav mr-auto fix-ul">
-      <!-- <li class="nav-item active fix-li">
-        <input class="feed-source-input nav-input nav-link btn nav-search" id='search-input' type="text" placeholder="Article Search">
-      </li>
-      <li class='nav-item active fix-li'>
-        <button class='feed-source-input nav-input nav-link btn btn-outline-success-blue inline-button fix-mobile' id='search-button' onclick='beginSearch()'>Go</button><!-- ADD ICON -->
-      <!--</li>-->
     </ul>
-    <ul class="navbar-nav">
+    <ul class="navbar-nav dropdown-ontop">
       <?php
         // Change the User display based on a logged in user
         if (!$user->isTemp) {
@@ -110,7 +106,7 @@ require_once('buildConfig.php');
 // Define Variable display buttons
 var ReturnButton = "<div class='button-holder' id='return-button'><a class='return-button front' href='#' onclick='returnToTop()'><img class='return-button front' src='assets/returnToTop.png'></a></div>";
 var loadingCanvas = "<div id='loading'><canvas id='loading-dots' width='900' height='600'>Loading...</canvas></div>";
-var taggingDisplay = "\n<div id='filter-display' class='container shortened'>\n<div class='searching'>\n<h3 class='filter-coloring move-heading'>Filter Results\n<button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries(false)'>Reset Filters</button></h3>\n<div class='search-field'><h5 class='heading-inline filter-coloring vertical-centering'>Search:</h5>\n<input class='feed-source-input nav-input btn nav-search' id='search-input' type='text' placeholder='Article Search'>\n<button class='feed-source-input nav-input btn btn-outline-success-blue inline-button' id='search-button' onclick='beginSearch()'>Go</button></div></div><div class='tagging'><h3 class='filter-coloring move-heading heading-inline'>Tags\n<button id='and-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>USING</button>\n<button id='or-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>INCLUDING</button></h3><!-- TAGS POPULATED HERE --><div class='filter-coloring' id='tag-collection'></div></div></div>";
+var taggingDisplay = "\n<div id='tag-display' class='container tag-scroller'>\n<div class='tags-title'>Popular Tags:</div>\n<div id='tag-collection' class='tag-block'></div>\n</div>";
 var browseButtons = "<div id='browse-nav'>\n<div id='browse-back' class='nav-button'><a href='#' onclick='return showBrowsePanel()'><span class='entry-url'></span></a>\n< Back\n</div><div id='save-feed-button' class='nav-button second-absolute-button'><a href='#' onclick='return saveFeed(this, feedSelection[0], false)'><span class='entry-url'></span></a>Save Feed</div></div>";
 // Instantiate necessary global variables
 var returnButtonIsDisplayed = false;
@@ -160,12 +156,6 @@ $(document).ready( function () {
       returnButtonIsDisplayed = false;
     }
   });
-});
-// Allow the Search to begin on enter keypress
-$('#search-input').keypress(function(event) {
-  if (event.keyCode == 13) {
-    beginSearch();
-  }
 });
 
 </script>

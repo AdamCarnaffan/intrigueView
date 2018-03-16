@@ -23,6 +23,10 @@ Add view when the article is opened by middle mouse or right click
 
 Add ability to rate
 
+Update ViewFeed.php
+
+#viewFeed appending in browse
+
 UI Needed for:
 ----------------
 Refetch article

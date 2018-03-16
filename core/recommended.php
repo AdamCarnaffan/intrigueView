@@ -26,33 +26,33 @@ require_once('buildConfig.php');
   <script src='js/bootstrap.js'></script>
   <script src='js/loginManager.js'></script>
 </head>
-<body class="hide-overflow" onresize='resizeCanvas'>
+<body class="hide-overflow dark-back" onresize='resizeCanvas'>
   <!-- Fixed navbar -->
-<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4 dropdown-ontop">
-  <a class="navbar-brand" href="index.php">IntrigueView</a>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark dropdown-ontop">
+  <a class="icon-brand icon-sprite-white" href="index.php"></a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbarCollapse">
     <ul class="navbar-nav mr-auto nav-navigation fix-ul">
-      <li class="nav-item active">
+      <li class="nav-item active nav-hoverable">
         <a class="nav-link" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item active">
+      <li class="nav-item active nav-selected">
         <a class="nav-link" title="Scroll Through a Continuous Feed of Recommended Articles" href="recommended.php">Recommended<span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item active">
+      <li class="nav-item active nav-hoverable">
         <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
       </li>
       <?php
       if (!$user->isTemp) {
-        echo '<li class="nav-item active">
+        echo '<li class="nav-item active nav-hoverable">
           <a class="nav-link" title="See Your Personalized Feed Selection" href="myFeeds.php">My Feeds<span class="sr-only">(current)</span></a>
         </li>';
       }
       ?>
       <li class="nav-item active">
-        <a class="nav-link" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=' + feedSelection.join('+'))">Export RSS<span class="sr-only">(current)</span></a>
+        <a class="nav-link nav-activate" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=' + feedSelection.join('+'))">Export RSS<span class="sr-only">(current)</span></a>
       </li>
     </ul>
     <ul class="navbar-nav mr-auto fix-ul">
@@ -87,28 +87,10 @@ require_once('buildConfig.php');
 </nav>
 
 <!-- Main album view -->
-<div id='filter-display' class="container shortened">
-  <div class="searching">
-    <h3 class="filter-coloring move-heading">Filter Results
-      <button class='btn btn-outline-success-blue separate fix-button-margin reset-button' onclick='resetQueries(true)'>Reset Filters</button>
-    </h3>
-    <div class='search-field'>
-      <h5 class="heading-inline filter-coloring vertical-centering">Search:</h5>
-      <input class="nav-input btn nav-search" id='search-input' type="text" placeholder="Article Search">
-      <button class='nav-input btn btn-outline-success-blue inline-button' id='search-button' onclick='beginSearch()'>Go</button>
-    </div>
-  </div>
-  <div class="tagging">
-    <h3 class="filter-coloring move-heading heading-inline">Tags
-    <button id='and-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>USING</button>
-    <button id='or-tag' class='btn btn-outline-success-blue separate fix-button-margin' onclick='changeTagMode()'>INCLUDING</button>
-    </h3>
-    <!-- TAGS POPULATED HERE -->
-    <div class="filter-coloring" id="tag-collection">
-    </div>
-  </div>
+<div id='tag-display' class='container tag-scroller'>
+  <div class='tags-title'>Popular Tags:</div>
+  <div id='tag-collection' class='tag-block'></div>
 </div>
-<!-- ALL ARTICLES GO HERE -->
 <div class="container no-top-offset" id='feed-content'>
   <div class="col-md-12">
     <div class="row" id="feed-view">
@@ -159,12 +141,6 @@ $(document).ready( function () {
       returnButtonIsDisplayed = false;
     }
   });
-});
-// Allow the Search to begin on enter keypress
-$('#search-input').keypress(function(event) {
-  if (event.keyCode == 13) {
-    beginSearch();
-  }
 });
 </script>
 </html>

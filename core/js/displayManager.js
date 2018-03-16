@@ -38,7 +38,7 @@ function beginLoading() { // Display a loading bar in the generated Canvas
     load.dot[selector].translate(0.5, 0.5);
     load.dot[selector].beginPath();
     load.dot[selector].arc(4*dotRadius*selector+initalOffset,dotRadius*15,dotRadius,0, 2*Math.PI);
-    load.dot[selector].fillStyle = 'rgb(40,136,167)';
+    load.dot[selector].fillStyle = 'rgb(56,170,206)';
     load.dot[selector].fill();
   }
 
@@ -104,6 +104,7 @@ function resetQueries(recommend) {
 }
 
 function queryFeeds(categoryID = 0) {
+  //window.location.href = window.location.href.replace("#viewFeed", "");
   // Display the loading dots
   $('#feed-view').append(loadingCanvas);
   var intervalLoadId = beginLoading();
@@ -118,6 +119,18 @@ function queryFeeds(categoryID = 0) {
       $('#loading').remove();
       clearInterval(intervalLoadId);
       $('#feed-view').append(data);
+      // Apply the hover detection to all feed tiles
+      $(".hover-detect").hover( function() {
+        $(this).data('leaving', false);
+        $(this).parents(".feed-tile").addClass("feed-tile-shadow");
+      }, function() {
+        $(this).data('leaving', true);
+        var hoverObject = $(this);
+        hoverObject.parents(".feed-tile").removeClass("feed-tile-shadow");
+        setTimeout( function() {
+          closeInfo(hoverObject);
+        }, 200);
+      });
     },
     error: function() {
       this.tryCount++;
@@ -248,19 +261,21 @@ function clearEntryDisplay() {
   entriesDisplayed = 0;
 }
 
-function addTag(tagID) {
+function addTag(tagObject, tagID) {
   queryTags.push(tagID);
-  getTags();
+  $(tagObject).addClass("tag-active");
+  tagObject.setAttribute("onclick", "return removeTag(this, " + tagID + ")");
   clearEntryDisplay();
   queryEntries(51, feedSelection, false);
   return false;
 }
 
-function removeTag(tagID) {
+function removeTag(tagObject, tagID) {
   // Remove the tagID from the queryTags array
   var index = queryTags.indexOf(tagID);
   queryTags.splice(index, 1);
-  getTags();
+  $(tagObject).removeClass("tag-active");
+  tagObject.setAttribute("onclick", "return addTag(this, " + tagID + ")");
   clearEntryDisplay();
   var noTags = (queryTags.length == 0) ? true : false;
   queryEntries(51, feedSelection, noTags);
@@ -324,13 +339,14 @@ function selectFeed(feedTileLink, feedID) {
   feedSelection = [feedID];
   sessionStorage.setItem("selectedFeeds", feedSelection); // Save the current feed selected to a local session
   var tile = $(feedTileLink).parent().parent();
-  tile.hide("slide", {direction: "left", distance: 1000}, 700);
+  //tile.hide("slide", {direction: "left", distance: 1000}, 700);
   window.location.href = window.location.href + '#viewFeed';
   setTimeout(function() {
     clearEntryDisplay();
     toggleTagging();
-    leftMarginSpace = $('#filter-display').css('margin-left');
-    var leftMarginVal = leftMarginSpace.replace("px", "");
+    leftMarginSpace = $('#tag-display').css('margin-left');
+    //var leftMarginVal = leftMarginSpace.replace("px", "");
+    var leftMarginVal = 300;
     if (leftMarginVal > 200) {
       toggleBrowseNavigation();
     } else {
@@ -342,12 +358,10 @@ function selectFeed(feedTileLink, feedID) {
 }
 
 function toggleTagging() {
-  if ($('#filter-display').length) {
-    $('#filter-display').remove();
+  if ($('#tag-display').length) {
+    $('#tag-display').remove();
   } else {
     $('#navigator').after(taggingDisplay);
-    // Toggle the AND selection
-    $('#and-tag').toggleClass('toggle-button-class');
     getTags();
   }
   return;

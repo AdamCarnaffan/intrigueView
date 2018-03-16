@@ -380,8 +380,8 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   .entry-tile-shadow {
     box-shadow: 0px 2px #38aace;
   }
-  .hover-detect:hover + .feed-tile-title {
-    color: #2888a7 !important;
+  .hover-detect:hover + .feed-tile {
+    border-bottom: 2px solid red;
   }
   .fix-link-color:hover {
     color: rgba(255,255,255,.5);
@@ -397,9 +397,6 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   }
   .nav-navigation {
     flex-direction: row !important;
-  }
-  .tag:hover {
-    color: #2888a7 !important;
   }
   .no-underline:hover {
     text-decoration: none;
@@ -418,28 +415,26 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   }
 }
 
-@media (min-width: 1060px) {
+@media (min-width: 600px) {
   .tag-scroller {
     display: flex;
     flex-direction: row;
-    min-height: 2.4rem;
+    height: 2.4rem;
+    min-height: 2.4rem !important;
+    max-height: 2.4rem !important;
     background-color: #343a40;
   }
 }
 .tags-title {
   color: white;
   font-size: 1.2rem;
-  margin-top: auto;
-  margin-bottom: auto;
+  margin-top: 0.2rem;
   margin-left: -0.4rem;
-  width: 8rem;
+  width: 8.5rem;
 }
 .tag-block {
   overflow-x: scroll;
   display: flex;
-  /*flex-grow: 1;*/
-  height: 75%;
-  margin: auto 0 0 1rem;
 }
 .tag-block::-webkit-scrollbar {
   background: transparent;
@@ -449,9 +444,20 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   background: orange;
 }
 .tag {
-  margin: auto 0.2rem auto 0.2rem;
-  padding: 0 0.1rem 0.1rem 0.1rem;
-  background-color: red;
+  margin: 0.5rem 0.2rem 0.35rem 0.2rem;
+  padding: 0 0.1rem 0 0.1rem;
+  transition: border-bottom .15s ease-in-out;
+  color: #dedede;
+  border-bottom: 0px solid #38aace;
+}
+.tag:hover {
+  border-bottom: 2px solid #38aace;
+  margin-top: 0.5rem;
+  margin-bottom: 0.35rem;
+  color: white;
+}
+.tag-active {
+  border-bottom: 2px solid #2888a7;
 }
 .vertical-center {
   margin-top: auto;
@@ -501,6 +507,9 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   text-decoration: underline;
   margin-left: 0.15rem;
 }
+.extra-tag:hover {
+  color: #2888a7;
+}
 .extra-tag-display {
   min-height: 1.8rem;
   padding-top: 0.2rem;
@@ -510,9 +519,6 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
 }
 .tag-black {
   color: black;
-}
-.filter-coloring {
-  color: #fff;
 }
 .move-heading {
   padding-top: 8px;
@@ -533,11 +539,6 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
 }
 .no-underline {
   text-decoration: none;
-}
-.active-tag {
-  padding: 0px 2px 0px 2px;
-  background-color: #2888a7 !important;
-  border-radius: 2px;
 }
 .fix-button-margin {
   padding: 2px;
@@ -595,9 +596,13 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   display: inline-flex;
   height: 10rem;
   position: relative;
-  border: 1px solid rgba(210,210,210,0.4);
-  background-color: #fafdf5;
-  box-shadow: 0.05rem 0.05rem rgba(128,128,128,0.35);
+  background-color: #343a40;
+  margin-bottom: 2px;
+}
+.feed-tile-shadow {
+  height: calc(10rem + 2px);
+  border-bottom: 2px solid #38aace;
+  margin-bottom: 0;
 }
 .feed-tile-image-container {
   display: flex;
@@ -607,7 +612,6 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   width: 10rem;
   position: relative;
   overflow: hidden;
-  background-color: rgba(0,0,0,0.9);
 }
 .feed-tile-image {
   height: 100%;
@@ -621,6 +625,7 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
 .feed-tile-title {
   margin-left: 0.8rem;
   margin-top: 0.3rem;
+  color: white;
 }
 .feed-tile-desc {
   margin-left: 0.8rem;
@@ -629,6 +634,7 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   flex-wrap: wrap;
   word-break: break-all;
   margin-bottom: 0.1rem;
+  color: #c3c3c3;
 }
 .feed-tile-info {
   display: inline-flex;
@@ -638,6 +644,7 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
 }
 .feed-tile-align {
   margin-left: 26%;
+  color: white;
 }
 .feed-tile-footer {
   display: inline-flex;
@@ -646,6 +653,7 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   text-align: center;
   margin-left: 0.8rem;
   margin-bottom: 0.1rem;
+  color: white;
 }
 .sticky-top {
   margin-top: -1rem;

@@ -12,7 +12,7 @@ $feeds = $_POST['feeds'];
 $feedArray = explode('+', $feeds);
 $activeFeeds = implode("','", $feedArray);
 
-$popularTagCount = 20 - count($tagArray);
+$popularTagCount = 40 - count($tagArray);
 
 $getTags = "SELECT tags.tagID, tags.tagName, COUNT(DISTINCT tagConn.entryID) FROM entry_tags AS tagConn
 	           JOIN tags ON tags.tagID = tagConn.tagID
@@ -28,13 +28,9 @@ $conn->multi_query($getTags);
 $popTags = $conn->store_result();
 $conn->next_result();
 $activeTagNames = $conn->store_result();
-// Display Active Tags
-while ($row = $activeTagNames->fetch_array()) {
-  echo "<a class='filter-coloring tag no-underline active-tag' href='#' onclick='return removeTag(" . $row[0] . ")'>" . $row[1] . "</a>  ";
-}
 // Display Popular Tags
 while ($row = $popTags->fetch_array()) {
-  echo "<a class='filter-coloring tag no-underline' href='#' onclick='return addTag(" . $row[0] . ")'>" . $row[1] . '</a> ';
+  echo "<a class='tag no-underline' href='#' onclick='return addTag(this, " . $row[0] . ")'>" . $row[1] . '</a> ';
 }
 
 ?>

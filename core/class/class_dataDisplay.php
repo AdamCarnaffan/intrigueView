@@ -11,7 +11,7 @@ class Entry_Display extends Entry {
 
   public function __construct($dataArray, $dbConn, $displayContext, $recommended = false) {
     parent::__construct($dataArray, $dbConn);
-    
+
     $this->isRecommendation = $recommended; // means feedback needs to be included (X in the top right) and recommended banner should be there
     // $this->isRecommendation = true;
     // Revise this for the triple dot context menu -> always the same menu per display, though changes dynamically per user
@@ -153,7 +153,7 @@ class Feed_Display {
     // Generate Categories
     $tile .= "<b>Categories: </b>";
     foreach ($this->categories as $catID=>$category) {
-      $tile .= "<a class='tag tag-black' href='#' onclick='return sortByCategory(" . $catID . ")'>" . $category . "</a>";
+      $tile .= "<a class='tag' href='#' onclick='return sortByCategory(" . $catID . ")'>" . $category . "</a>";
     }
     // Place the Subscription button
     $tile .= "<a class='context-display' href='#' onclick='return saveFeed(this, " . $this->id . ")'><span class='fa fa-plus fa-context-style'></span></a>";
