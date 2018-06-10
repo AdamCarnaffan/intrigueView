@@ -188,9 +188,10 @@ while ($row = $entries->fetch_array()) {
     try {
       do {
         if (count($user->recommendations) == 0 || $recomNumber >= count($user->recommendations)) {
+          $prevRecom = $user->recommendations;
           $user->generateRecommendations($conn);
           $recomNumber = 0;
-          if (count($user->recommendations) == 0) {
+          if (count($user->recommendations) == 0 || $prevRecom == $user->recommendations) {
             break;
           }
         }

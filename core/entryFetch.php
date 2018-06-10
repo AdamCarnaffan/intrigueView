@@ -2,8 +2,8 @@
 require_once('dbConnect.php');
 require_once('class/class_dataFetch.php');
 
-//$_POST['target'] = "feed_2"; // The target Feed to save to
-$_POST['url'] = "";
+$_POST['target'] = "feed_1"; // The target Feed to save to
+$_POST['url'] = "https://www.wired.com/story/the-race-to-send-robots-to-mine-the-ocean-floor/";
 $_POST['method'] = 1;
 
 /*
@@ -78,13 +78,12 @@ try {
     $targetURL = str_replace("/amp/", "/", $targetURL);
   }
   $entryInfo = new Entry_Data($targetURL, $conn, $tagBlackList);
-  echo $entryInfo->image;
   if ($newEntry) {
     // Format Date Time for mySQL
     $dateAdded = new DateTime();
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
     // Submit the entry and receive the result
-    //$result = $entryInfo->submitEntry($conn, $targetFeed, $dateAdded) . $lineEnding;
+    $result = $entryInfo->submitEntry($conn, $targetFeed, $dateAdded) . $lineEnding;
   } else {
     $previousEntryData = $conn->query("SELECT url, title, featureImage, siteID, entryID, previewText FROM entries WHERE entryID = '$targetEntry' LIMIT 1")->fetch_array();
     // Add filler data
