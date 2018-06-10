@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <?php
   // Check if a user is already logged in
