@@ -78,6 +78,11 @@ if ($lastUpdateValue != null) {
 // Entry Submission result tracker
 $results = [];
 
+// Get tag blacklist
+if (Tag_Potential::getBlackList() == null) {
+  Tag_Potential::setBlackList($dbConn);
+}
+
 // Check each Entry from bottom to top (Added chronologically)
 for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNumber--) {
   // Set the $item tag as is done in a foreach loop (Pathing from RSS Feed)
@@ -103,7 +108,7 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
         // Replace an amp in the middle with a single slash
         $item->link = str_replace("/amp/", "/", $item->link);
       }
-      $entryInfo = new Entry_Data($item->link, $conn, $tagBlackList);
+      $entryInfo = new Entry_Data($item->link, $conn);
       // Check for title in RSS Feed, and fetch if not present
       if (isset($item->title)) {
         $entryInfo->title = $item->title;

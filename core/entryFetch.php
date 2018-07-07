@@ -55,13 +55,9 @@ if ($method == 1) {
   $logReport = true;
 }
 
-// Fetch the tag blacklist in preperation
-$getBlackList = "SELECT blacklistedTag FROM tag_blacklist";
-$blacklist = $conn->query($getBlackList);
-$tagBlackList = []; // Initialize the array
-while ($row = $blacklist->fetch_array()) {
-  // add each tag to the array
-  array_push($tagBlackList, $row[0]);
+// Get tag blacklist
+if (Tag_Potential::getBlackList() == null) {
+  Tag_Potential::setBlackList($dbConn);
 }
 
 // Insert the item into the database
@@ -77,7 +73,7 @@ try {
     // Replace an amp in the middle with a single slash
     $targetURL = str_replace("/amp/", "/", $targetURL);
   }
-  $entryInfo = new Entry_Data($targetURL, $conn, $tagBlackList);
+  $entryInfo = new Entry_Data($targetURL, $conn);
   if ($newEntry) {
     // Format Date Time for mySQL
     $dateAdded = new DateTime();

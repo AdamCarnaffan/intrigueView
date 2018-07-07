@@ -71,10 +71,6 @@ class Entry_Data extends Entry {
     if ($this->source->icon == null || $this->source->icon == "") {
       $this->source->getData($dbConn, $this->pageContent);
     }
-    // Get tag blacklist
-    if (Tag_Potential::getBlackList() == null) {
-      Tag_Potential::setBlackList($dbConn);
-    }
     // Get the title from the page
     $this->getTitle();
     // Find the feature image on the page
