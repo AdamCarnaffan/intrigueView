@@ -5,11 +5,28 @@ require_once('class_std.php');
 class Tag_Potential extends Tag {
 
   public $frequency = 1;
+  private static $blacklist;
 
   public function makeWeighted() {
     $weighted = new Tag_Weighted($this->name, $this->databaseID);
     $weighted->frequency = $this->frequency; // Conserve previous frequency
     return $weighted;
+  }
+  
+  public static function setBlackList($dbConn) {
+    self::$blacklist = [];
+    // Fetch the tag blacklist
+    $getBlackList = "SELECT blacklistedTag FROM tag_blacklist";
+    $result = $dbConn->query($getBlackList);
+    while ($row = $result->fetch_array()) {
+      // add each tag to the array
+      self::$blacklist[] = $row[0];
+    }
+    return;
+  }
+  
+  public static function getBlackList() {
+    return self::$blacklist;
   }
 }
 
@@ -30,7 +47,7 @@ class Entry_Data extends Entry {
   public $pageContent;
   public $articleText;
 
-  public function __construct($url, $dbConn, $tagBlackList) {
+  public function __construct($url, $dbConn) {
     $this->url = $url;
     // Get the contents of the site page
     $this->pageContent = getPageContents($url);
@@ -54,6 +71,10 @@ class Entry_Data extends Entry {
     if ($this->source->icon == null || $this->source->icon == "") {
       $this->source->getData($dbConn, $this->pageContent);
     }
+    // Get tag blacklist
+    if (Tag_Potential::getBlackList() == null) {
+      Tag_Potential::setBlackList($dbConn);
+    }
     // Get the title from the page
     $this->getTitle();
     // Find the feature image on the page
@@ -67,91 +88,20 @@ class Entry_Data extends Entry {
     if (strlen($this->synopsis) < 20) {
       $this->synopsis = "Click the article to see what it's about!";
     }
-    // Build tags
-    $tagBuilder = function (&$tagArray, $frequency) use ($tagBlackList) {
-      foreach ($tagArray as $tagKey=>&$tag) {
-        // Convert the tag to the proper output formatting (string appearance)
-        // Check if the second letter of a string is uppercase (indicates acronym)
-        if (strlen($tag) > 1) {
-          $secondChar = str_split($tag)[1];
-          if (!in_array($secondChar, range('A','Z'))) {
-            $tag = strtolower($tag);
-          }
-        }
-        $tag = str_replace('-', ' ', $tag);
-        $letters = str_split($tag);
-        // Capitalize the first letter of each word
-        foreach ($letters as $key=>&$letter) {
-          $val = $key - 1;
-          if ($val < 0 || $letters[$val] == null || $letters[$val] == " ") {
-            $letter = strtoupper($letter);
-          }
-        }
-        // Put the word back together
-        $tag = implode($letters);
-        // Remove tags that appear in the tag blacklist
-        if (in_array($tag, $tagBlackList)) {
-          unset($tagArray[$tagKey]);
-        }
-      }
-      // Convert all remaining tags into PotentialTag objects
-      foreach ($tagArray as &$tag) {
-        $tag = new Tag_Potential($tag);
-        $tag->frequency = $frequency;
-      }
-      // Order and index submission array
-      if (count($tagArray) > 1 && $frequency == 1) {
-        $tagArray = array_values($tagArray);
-      }
-    };
     // Call functions to build tag arrays
     $authorTags = $this->getAuthorTags($this->pageContent); // Try to ommit author name from these tags on return
-    $titleKeywords = $this->getTags($this->title);
+    $titleTags = $this->getTags($this->title);
     $contentTags = $this->getTags($this->articleText);
     $urlTags = $this->getURLTags($url);
     $siteMainURL = explode('.',$this->source->url)[0]; // Get ONLY the main URL
-    //$soughtTags = seekTags($articleContent);
-    // Convert all tags
-    $articleTags = [];
-    foreach ($contentTags as $tag=>$frequency) {
-      // Make a fake array to use in an array based reference function
-      $fakeArray = [$tag];
-      $tagBuilder($fakeArray, $frequency);
-      // Push each individual tag to the array after computation
-      if (count($fakeArray) > 0) {
-        array_push($articleTags, $fakeArray[0]);
-      }
-    }
-
-    // Convert URL tags to the weighted tag format
-    if (count($urlTags) > 0) {
-      $tagBuilder($urlTags, 1);
-    }
-
-    // Convert Author tags to the weighted tag format
-    if (count($authorTags) > 0) {
-      $tagBuilder($authorTags, 1);
-    }
-
-    // Convert title tags to the weighted tag format
-    $titleTags = [];
-    foreach ($titleKeywords as $tag=>$frequency) {
-      // Make a fake array to use in an array based reference function
-      $fakeArray = [$tag];
-      $tagBuilder($fakeArray, $frequency);
-      // Push each individual tag to the array after computation
-      if (count($fakeArray) > 0) {
-        array_push($titleTags, $fakeArray[0]);
-      }
-    }
+    // $soughtTags = seekTags($articleContent);
     // Weight the tags based on factors
 
     // Author Tags --> INPUT 1
     // Content Tags --> INPUT 2
     // Title Tags --> INPUT 3
-    // URL Tags --> INPUT
-    $weightedTags = $this->checkCommonality($authorTags, $articleTags, $titleTags, $urlTags, $siteMainURL);
-    //print_r($weightedTags);
+    // URL Tags --> INPUT 4
+    $weightedTags = $this->checkCommonality($authorTags, $contentTags, $titleTags, $urlTags, $siteMainURL);
     // Determine final order
     $this->tags = $this->computeWeighting($weightedTags);
     // Check for Plural tags
@@ -262,30 +212,42 @@ class Entry_Data extends Entry {
     return stripHTMLTags($finalContent);
   }
 
-  // public function stripPunctuation($string) {
-  //   $punctuation = ['?', ".", "!", ",", "-", '"', "&quot;", "]", "[", "(", ")", "'s", "&#x27;s"];
-  //   // Replace dashes with spaces to separate words
-  //   $wordConnectors = ['—', '-'];
-  //   $string = str_replace($wordConnectors, " ", $string);
-  //   return str_replace($punctuation, "", $string);
-  // }
-
-  // public function stripHTMLTags($contents) {
-  //   // Find and remove any script from the excerpt (scripting happens inbetween tags and isn't caught by the other method)
-  //   $contentNoScript = $this->stripScripting($contents);
-  //   // Remove Styling info
-  //   $contentNoStyling = preg_replace("/<style\b[^>]*>(.*?)<\/style>/is", " ", $contentNoScript);
-  //   // Remove html tags and formatting from the excerpt
-  //   $contentNoHTML = preg_replace("#\<[^\>]+\>#", " ", $contentNoStyling);
-  //   // Clean additional whitespaces
-  //   return preg_replace("#\s+#", " ", $contentNoHTML);
-  // }
-
-  // public function stripScripting($contents) {
-  //   return preg_replace("/<script\b[^>]*>(.*?)<\/script>/is", " ", $contents);
-  // }
-
   // TAGGING RELATED FUNCTIONS
+
+  public function buildTags(array $tagArray) {
+    // tagArray format is [tagName]=>[frequency]
+    $tagObjectList = [];
+    #region Clean String
+    // Build tags
+    foreach ($tagArray as $tag=>$frequency) {
+      // Convert the tag to the proper output formatting (string appearance)
+      // Check if the second letter of a string is uppercase (indicates acronym)
+      if (strlen($tag) > 1) {
+        $secondChar = str_split($tag)[1];
+        if (!in_array($secondChar, range('A','Z'))) {
+          $tag = strtolower($tag);
+        }
+      }
+      $tag = str_replace('-', ' ', $tag);
+      $letters = str_split($tag);
+      // Capitalize the first letter of each word
+      foreach ($letters as $key=>&$letter) {
+        $val = $key - 1;
+        if ($val < 0 || $letters[$val] == null || $letters[$val] == " ") {
+          $letter = strtoupper($letter);
+        }
+      }
+      // Put the word back together
+      $tag = implode($letters);
+      // Add to cleaned array
+      $tempTag = new Tag_Potential($tag);
+      if (in_array($tempTag->name, $tempTag->getBlackList())) continue;
+      $tempTag->frequency = $frequency;
+      $tagObjectList[] = $tempTag;
+    }
+    #endregion
+    return $tagObjectList;
+  }
 
   public function getURLTags($inputURL) {
     $noDashes = explode("-", $inputURL); // All URLs with content pertanent to the article separate these words with dashes
@@ -294,7 +256,11 @@ class Entry_Data extends Entry {
     $lastIndex = count($noDashes)-1;
     $noDashes[$lastIndex] = explode('/', $noDashes[$lastIndex])[0]; // Break the last word from any remaining URL
     $noDashes[$lastIndex] = explode('.', $noDashes[$lastIndex])[0]; // Remove the File Type should the words be the end of the URL
-    return $noDashes;
+    $finalArray = [];
+    foreach ($noDashes as $tagName) {
+      $finalArray[$tagName] = 1;
+    }
+    return $this->buildTags($finalArray);
   }
 
   public function eliminateBadTags($string) {
@@ -349,7 +315,7 @@ class Entry_Data extends Entry {
         $tags[$tag] = $frequency;
       }
     }
-    return $tags;
+    return $this->buildTags($tags);
   }
 
   public function getAuthorTags($pageContent) {
@@ -371,10 +337,10 @@ class Entry_Data extends Entry {
       // Explode the list into individual elements of an array
       $initialTagArray = explode(',', $removeTagQuotes);
       foreach ($initialTagArray as $tag) {
-        array_push($tags, trim($tag));
+        $tags[$tag] = 1;
       }
     }
-    return $tags;
+    return $this->buildTags($tags);
   }
 
   // Tag Evaluations

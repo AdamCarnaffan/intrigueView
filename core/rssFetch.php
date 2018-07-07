@@ -78,14 +78,6 @@ if ($lastUpdateValue != null) {
 // Entry Submission result tracker
 $results = [];
 
-// Fetch the tag blacklist in preperation
-$getBlackList = "SELECT blacklistedTag FROM tag_blacklist";
-$result = $conn->query($getBlackList);
-$tagBlackList = []; // Initialize the array
-while ($row = $result->fetch_array()) {
-  // add each tag to the array
-  array_push($tagBlackList, $row[0]);
-}
 // Check each Entry from bottom to top (Added chronologically)
 for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNumber--) {
   // Set the $item tag as is done in a foreach loop (Pathing from RSS Feed)
