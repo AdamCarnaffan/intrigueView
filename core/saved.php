@@ -1,17 +1,13 @@
 <?php
-  // Check if a user is already logged in
-  require_once('manageUser.php');
-  require_once('buildConfig.php');
-  if (!$user->isTemp) {
-      header('location: index.php');
-  }
+require_once('manageUser.php');
+require_once('buildConfig.php');
 ?>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="Adam Carnaffan">
-  <link rel="icon" href="https://getpocket.com/a/i/pocketlogo.svg">
+  <link rel="icon" href="assets/icon.png">
 
   <title>Intrigue View <?php echo $cfg->displayVersion ?></title>
 
@@ -20,13 +16,14 @@
   <link href="styling/bootstrap-grid.css" rel="stylesheet">
   <!-- Custom styles -->
   <link href="styling/custom-styles.css" rel="stylesheet">
-  <!-- JavaScript -->
+  <!-- Javascript -->
   <script src='js/jquery-3.2.1.min.js'></script>
+  <script src='js/displayManager.js'></script>
+  <script src='js/loginManager.js'></script>
   <script src='js/popper.js'></script>
   <script src='js/bootstrap.js'></script>
-  <script src='js/loginManager.js'></script>
 </head>
-<body class="hide-overflow dark-back">
+<body class="hide-overflow dark-back" onresize='resizeCanvas'>
   <!-- Fixed navbar -->
   <nav class="navbar navbar-expand-md navbar-dark bg-dark dropdown-ontop">
     <a class="icon-brand icon-sprite-white" href="index.php"></a>
@@ -46,8 +43,8 @@
         </li>
         <?php
         if (!$user->isTemp) {
-          echo '<li class="nav-item active nav-hoverable">
-            <a class="nav-link nav-underline" title="See Your Saved Tiles" href="saved.php">Saved<span class="sr-only">(current)</span></a>
+          echo '<li class="nav-item active nav-selected">
+            <a class="nav-link" title="See Your Saved Tiles" href="saved.php">Saved<span class="sr-only">(current)</span></a>
           </li>';
         }
         ?>
@@ -85,38 +82,87 @@
       </ul>
     </div>
   </nav>
+   <!-- Sticky Bar for feed selection -->
+   <!-- <div id='feed-selection-bar' class='sticky-top'>
+     <a id='default-active-feed' class="feed-selector" href='#' onclick="return setActiveFeed('Comps', this)">Compilations</a>
+     <a class="feed-selector" href='#' onclick="return setActiveFeed('Saved', this)">Saved</a>
+     <a class="feed-selector" href='#' onclick="return setActiveFeed('Sub', this)">Subscriptions</a>
+     <a class="feed-selector" href='#' onclick="return setActiveFeed('Faves', this)">Favourites</a>
+     <a class="feed-selector" href='#' onclick="return setActiveFeed('Cat', this)">Categories</a>
+   </div> -->
 
-<!-- Login Box (same as main album view)-->
-  <div class="container login-top-pad remove-scrolling">
-    <div class="col-12 col-md-10 login-centered">
-      <div class="row" id="feed-view">
-        <div class="col-12 col-lg-6 tile-wrapper login-center">
-          <div class="feed-tile login-adjust">
-            <h3 class="entry-heading heading-pad">IntrigueView Login</h3>
-            <form method="post" class="mt-2 mt-md-0">
-              <input class="form-control mr-sm-2 text-box-input input-length" id="username-input" type="text" placeholder="Username" aria-label="Username">
-            </br>
-              <input class="form-control mr-sm-2 text-box-input input-length" id="password-input" type="password" placeholder="Password" aria-label="Password">
-              <p class="user-error-message" id="login-error"></p>
-              <input class="btn btn-outline-success-blue my-2 my-sm-0 text-box-input" type="button" onclick='validateLogin()' value="Login">
-            </form>
-          </div>
-        </div><!--/span-->
-      </div>
-    </div><!--/row-->
-  </div><!--/span-->
-</div>
+   <!-- Main album view -->
+   <div id='tag-display' class='container tag-scroller'>
+     <div class='tags-title'>Popular Tags:</div>
+     <div id='tag-collection' class='tag-block'></div>
+   </div>
+   <!-- ALL ARTICLES GO HERE -->
+   <div class="container no-top-offset" id='feed-content'>
+     <div class="col-md-12">
+       <div class="row" id="feed-view">
+       </div><!--/row-->
+     </div><!--/span-->
+   </div>
 
-
+<!-- Bottom Bar -->
+<footer class="navbar-dark btm-info bg-dark">
+  <a class="fix-link-color nav-link nav-underline" href="https://github.com/Thefaceofbo">By Adam Carnaffan<span class="sr-only">(current)</span></a>
+</footer>
 </body>
 <!-- Scripting -->
-<script src="js/loginManager.js"></script>
-</html>
+<script>
+// Define Variable display buttons
+var ReturnButton = "<div class='button-holder' id='return-button'><a class='return-button front' href='#' onclick='returnToTop()'><img class='return-button front' src='assets/returnToTop.png'></a></div>";
+var loadingCanvas = "<div id='loading'><canvas id='loading-dots' width='900' height='600'>Loading...</canvas></div>";
+// Instantiate necessary global variables
+var returnButtonIsDisplayed = false;
+var cooldown = 0.8;
+var entriesDisplayed = 0;
+var search = "";
+var queryTags = [];
+var display = true;
+var currentTagMode = 1; // Defined in a global scope to use in multiple functions
+// Define different feed selections
+var feedSelection = [<?php echo $user->feed; ?>]; // Default feed selection is the user's feed
+var selectionOptions = {
+  comps: 4,
+  saved: <?php echo $user->feed ?>,
+  subs: 4, // This is all of the sub-feeds connected to the compilations
+  favs: 4, // This is the current feed, though only where isFavourite = 1
+  cats: 4 // This is a list of categories for the sub-feeds. All related sub-feeds are displayed
+};
+// Toggle the AND selection
+$('#and-tag').toggleClass('toggle-button-class');
+// Make initial display
+setActiveFeed('All', $('#default-active-feed'));
+queryEntries(51, feedSelection, true);
+getTags();
 
-<!--
-<div class="container">
-  <div class="jumbotron">
-    <h1>Navbar example</h1>
-    <p class="lead">This example is a quick exercise to illustrate how the top-aligned navbar works. As you scroll, this navbar remains in its original position and moves with the rest of the page.</p>
-  </div>
-</div>
+$(document).ready( function () {
+  // Reset scroll before watching for scroll changes
+  $(this).scrollTop(0);
+  // Begin waiting for the scroll
+  $(window).scroll(function() {
+    // Load more entries
+    if (($(document).scrollTop() / ($(document).height() - $(window).height())) > cooldown && entriesDisplayed < 150 && display == true) {
+      queryEntries(26, feedSelection, true);
+    }
+    // Display Settings for the Return to Top button
+    if ($(document).scrollTop() > 600 && returnButtonIsDisplayed == false) {
+      returnButtonIsDisplayed = true;
+      $(document.body).append(ReturnButton);
+    } else if ($(document).scrollTop() < 200) {
+      $('#return-button').remove();
+      returnButtonIsDisplayed = false;
+    }
+  });
+});
+// Allow the Search to begin on enter keypress
+$('#search-input').keypress(function(event) {
+  if (event.keyCode == 13) {
+    beginSearch();
+  }
+});
+</script>
+
+</html>

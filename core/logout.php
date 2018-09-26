@@ -1,5 +1,5 @@
 <?php
-  require('fixSession.php');
+  require_once('fixSession.php');
   session_unset('user');
-  require('manageUser.php');
+  require_once('manageUser.php');
  ?>

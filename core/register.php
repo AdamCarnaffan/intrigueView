@@ -1,13 +1,12 @@
- <html lang="en">
- <head>
-   <?php
-     // Check if a user is already logged in
-     require_once('manageUser.php');
-     require_once('buildConfig.php');
-     if (!$user->isTemp) {
-         header('location: index.php');
-     }
-   ?>
+<?php
+// Check if a user is already logged in
+require_once('manageUser.php');
+require_once('buildConfig.php');
+if (!$user->isTemp) {
+   header('location: index.php');
+}
+?>
+<head>
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
    <meta name="description" content="">
@@ -26,29 +25,66 @@
    <script src='js/popper.js'></script>
    <script src='js/bootstrap.js'></script>
    <script src='js/loginManager.js'></script>
- </head>
- <body class="hide-overflow">
+</head>
+<body class="hide-overflow dark-back">
    <!-- Fixed navbar -->
- <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
-   <a class="navbar-brand" href="index.php">IntrigueView</a>
-   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-     <span class="navbar-toggler-icon"></span>
-   </button>
-   <div class="collapse navbar-collapse" id="navbarCollapse">
-     <ul class="navbar-nav mr-auto">
-       <li class="nav-item active">
-         <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
-       </li>
-       <li class="nav-item active">
-         <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
-       </li>
-     </ul>
-     <ul class="navbar-nav">
-       <button class="btn btn-outline-success-blue my-2 my-sm-0 separate" onclick="location.href='register.php';">Register</button>
-       <button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href='login.php';">Login</button>
-     </ul>
-   </div>
- </nav>
+   <nav class="navbar navbar-expand-md navbar-dark bg-dark dropdown-ontop">
+     <a class="icon-brand icon-sprite-white" href="index.php"></a>
+     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+       <span class="navbar-toggler-icon"></span>
+     </button>
+     <div class="collapse navbar-collapse" id="navbarCollapse">
+       <ul class="navbar-nav mr-auto nav-navigation fix-ul">
+         <li class="nav-item active nav-hoverable">
+           <a class="nav-link nav-underline" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
+         </li>
+         <li class="nav-item active nav-hoverable">
+           <a class="nav-link nav-underline" title="Scroll Through a Continuous Feed of Recommended Articles" href="recommended.php">Recommended<span class="sr-only">(current)</span></a>
+         </li>
+         <li class="nav-item active nav-hoverable">
+           <a class="nav-link nav-underline" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
+         </li>
+         <?php
+         if (!$user->isTemp) {
+            echo '<li class="nav-item active nav-hoverable">
+              <a class="nav-link nav-underline" title="See Your Saved Tiles" href="saved.php">Saved<span class="sr-only">(current)</span></a>
+            </li>';
+         }
+         ?>
+         <li class="nav-item active">
+           <a class="nav-link nav-underline nav-activate" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=' + feedSelection.join('+'))">Export RSS<span class="sr-only">(current)</span></a>
+         </li>
+       </ul>
+       <ul class="navbar-nav mr-auto fix-ul">
+       </ul>
+       <ul class="navbar-nav dropdown-ontop">
+         <?php
+           // Change the User display based on a logged in user
+           if (!$user->isTemp) {
+             echo "<div class='dropdown'>";
+             echo '<a class="nav-item active nav-link nav-underline hover-highlight dropdown-toggle" href="#" data-toggle="dropdown">Welcome back, ' . $user->name . '</a>';
+             echo '<ul class="dropdown-menu dropdown-menu-right dropdown-align">';
+             echo '<li display="block"><a class="move-right dropdown-link" href="profile.php">My Profile</a></li>';
+             echo '<li class="divider"></li>';
+             echo '<li display="block"><a class="move-right dropdown-link" href="builder.php">Feed Builder</a></li>';
+             echo '<li class="divider"></li>';
+             echo '<li display="block"><a class="move-right dropdown-link" href="settings.php">Settings</a></li>';
+             if ($user->isAdmin) {
+               echo '<li class="divider"></li>';
+               echo '<li display="block"><a class="move-right dropdown-link" href="admin/splash.php">Administration</a></li>';
+             }
+             echo '<li class="divider"></li>';
+             echo '<li display="block"><a class="move-right dropdown-link" href="#" onclick="return logout()">Logout</a></li>';
+             echo "</ul>";
+             echo "</div>";
+           } else {
+             echo '<button class="btn btn-outline-success-blue my-2 my-sm-0 separate" onclick="location.href=\'register.php\';">Register</button>';
+             echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href=\'login.php\';">Login</button>';
+           }
+          ?>
+       </ul>
+     </div>
+   </nav>
 
  <!-- Login Box (same as main album view)-->
    <div class="container login-top-pad remove-scrolling">
@@ -66,7 +102,7 @@
              </br>
                <input class="form-control mr-sm-2 text-box-input input-length" id="email-input" type="text" placeholder="Email" aria-label="Email">
                <p class="user-error-message" id="register-error"></p>
-               <input class="btn btn-outline-success my-2 my-sm-0 text-box-input" type="button" onclick='validateRegister()' value="Register">
+               <input class="btn btn-outline-success-blue my-2 my-sm-0 text-box-input" type="button" onclick='validateRegister()' value="Register">
              </form>
            </div>
          </div><!--/span-->
@@ -76,13 +112,5 @@
  </div>
 
 
- </body>
- </html>
-
- <!--
- <div class="container">
-   <div class="jumbotron">
-     <h1>Navbar example</h1>
-     <p class="lead">This example is a quick exercise to illustrate how the top-aligned navbar works. As you scroll, this navbar remains in its original position and moves with the rest of the page.</p>
-   </div>
- </div>
+</body>
+</html>

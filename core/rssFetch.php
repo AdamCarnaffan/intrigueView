@@ -80,7 +80,7 @@ $results = [];
 
 // Get tag blacklist
 if (Tag_Potential::getBlackList() == null) {
-  Tag_Potential::setBlackList($dbConn);
+  Tag_Potential::setBlackList($conn);
 }
 
 // Check each Entry from bottom to top (Added chronologically)

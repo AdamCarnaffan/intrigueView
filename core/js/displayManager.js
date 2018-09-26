@@ -320,7 +320,6 @@ function changeTagMode() {
 
 function setActiveFeed(myFeedMode, clickedButtonObject) {
   // Set the active feed if it differs, then complete a new query
-
   toggleFeedButton(clickedButtonObject);
   return false;
 }

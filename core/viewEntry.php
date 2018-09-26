@@ -1,7 +1,7 @@
 <?php
 require_once('class/class_userData.php');
-include('fixSession.php');
-include('dbConnect.php');
+require_once('fixSession.php');
+require_once('dbConnect.php');
 
 // Add the view in the post
 

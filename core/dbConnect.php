@@ -1,7 +1,7 @@
 <?php 
 
 if (!isset($cfg)) {
-  require('buildConfig.php');
+  require_once('buildConfig.php');
 }
 
 require_once('class/class_std.php');

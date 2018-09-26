@@ -8,7 +8,7 @@ require_once('manageUser.php');
 // $_POST['tags'] = "";
 // $_POST['tagMode'] = 0;
 // $_POST['search'] = "";
-// $_POST['feedsList'] = "2";
+// $_POST['feedsList'] = "1";
 // $_POST['recommend'] = true;
 $_POST['context'] = "public";
 

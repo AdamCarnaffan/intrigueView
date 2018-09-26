@@ -1,5 +1,6 @@
 .hide-overflow {
   overflow-x: hidden;
+  min-height: 100%;
 }
 .dark-back {
   background-color: #475058;
@@ -25,8 +26,15 @@
 .nav-coloring {
   color: #fff;
 }
+.nav-underline {
+   margin-bottom: 2px;
+}
+.nav-underline:hover {
+   margin-bottom: 0px;
+}
 .nav-selected {
   border-bottom: 2px solid #2888a7;
+  margin-bottom: 0px !important;
 }
 .nav-hoverable {
   transition: border-bottom 0.25s ease-in-out;
@@ -216,9 +224,6 @@
 html, body {
   height: 100%;
 }
-.container {
-  min-height: 100%;
-}
 .extra-info {
   width: 100%;
   height: 100%;
@@ -354,7 +359,11 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   .no-top-offset {
     padding-top: 0;
     margin-bottom: 2rem;
+    margin-top: 0.4rem;
   }
+  .tag-scroller {
+     padding-top: 0.1rem;
+ }
   #save-feed-button {
     display: none;
   }
@@ -368,6 +377,9 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
 }
 /* Hover effects are only applied on the desktop version of the site */
 @media (min-width: 770px) {
+   .container {
+     min-height: 100%;
+   }
   .btn-outline-success-blue:hover {
       color: #fff;
       background-color: #2888a7;
@@ -703,4 +715,12 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   color: white;
   text-decoration: bold;
   padding: .01rem .2rem .01rem .2rem;
+}
+.btm-info {
+   width: 100%;
+   z-index: 100;
+   top: 100%;
+   bottom: 0;
+   position: -webkit-sticky;
+   position: sticky;
 }

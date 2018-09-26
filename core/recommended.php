@@ -1,7 +1,6 @@
-<html lang="en">
 <?php
-require_once('manageUser.php');
 require_once('buildConfig.php');
+require_once('manageUser.php');
 ?>
 <head>
   <meta charset="utf-8">
@@ -36,23 +35,23 @@ require_once('buildConfig.php');
   <div class="collapse navbar-collapse" id="navbarCollapse">
     <ul class="navbar-nav mr-auto nav-navigation fix-ul">
       <li class="nav-item active nav-hoverable">
-        <a class="nav-link" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
+        <a class="nav-link nav-underline" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item active nav-selected">
         <a class="nav-link" title="Scroll Through a Continuous Feed of Recommended Articles" href="recommended.php">Recommended<span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item active nav-hoverable">
-        <a class="nav-link" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
+        <a class="nav-link nav-underline" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
       </li>
       <?php
       if (!$user->isTemp) {
-        echo '<li class="nav-item active nav-hoverable">
-          <a class="nav-link" title="See Your Personalized Feed Selection" href="myFeeds.php">My Feeds<span class="sr-only">(current)</span></a>
-        </li>';
+         echo '<li class="nav-item active nav-hoverable">
+           <a class="nav-link nav-underline" title="See Your Saved Tiles" href="saved.php">Saved<span class="sr-only">(current)</span></a>
+         </li>';
       }
       ?>
       <li class="nav-item active">
-        <a class="nav-link nav-activate" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=' + feedSelection.join('+'))">Export RSS<span class="sr-only">(current)</span></a>
+        <a class="nav-link nav-underline nav-activate" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=' + feedSelection.join('+'))">Export RSS<span class="sr-only">(current)</span></a>
       </li>
     </ul>
     <ul class="navbar-nav mr-auto fix-ul">
@@ -62,7 +61,7 @@ require_once('buildConfig.php');
         // Change the User display based on a logged in user
         if (!$user->isTemp) {
           echo "<div class='dropdown'>";
-          echo '<a class="nav-item active nav-link hover-highlight dropdown-toggle" href="#" data-toggle="dropdown">Welcome back, ' . $user->name . '</a>';
+          echo '<a class="nav-item active nav-link nav-underline hover-highlight dropdown-toggle" href="#" data-toggle="dropdown">Welcome back, ' . $user->name . '</a>';
           echo '<ul class="dropdown-menu dropdown-menu-right dropdown-align">';
           echo '<li display="block"><a class="move-right dropdown-link" href="profile.php">My Profile</a></li>';
           echo '<li class="divider"></li>';
@@ -99,9 +98,9 @@ require_once('buildConfig.php');
 </div>
 
 <!-- Bottom Bar -->
-<div class="navbar-dark navbar bg-dark">
-  <a class="fix-link-color nav-link" href="https://github.com/Thefaceofbo">By Adam Carnaffan<span class="sr-only">(current)</span></a>
-</div>
+<footer class="navbar-dark btm-info bg-dark">
+  <a class="fix-link-color nav-link nav-underline" href="https://github.com/Thefaceofbo">By Adam Carnaffan<span class="sr-only">(current)</span></a>
+</footer>
 </body>
 <!-- Scripting -->
 <script>
