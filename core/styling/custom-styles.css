@@ -578,6 +578,7 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   display: inline-flex;
   margin-left: auto;
   margin-right: -0.4rem;
+  transition: transform 0.2s;
 }
 .context-display:hover {
   text-decoration: none;
@@ -589,6 +590,12 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
   z-index: 3;
   color: #afafaf;
   padding-left: 10%;
+}
+.fa-highlight-blue {
+   color: #2888a7;
+}
+.fa-highlight-blue:hover {
+   color: blue;
 }
 .fa-context-style:hover {
   text-decoration: none;

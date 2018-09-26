@@ -3,14 +3,14 @@ require_once('dbConnect.php');
 require_once('class/class_dataDisplay.php');
 require_once('manageUser.php');
 
-// $_POST['selection'] = 10;
+// $_POST['selection'] = 100;
 // $_POST['currentDisplay'] = 0;
 // $_POST['tags'] = "";
 // $_POST['tagMode'] = 0;
 // $_POST['search'] = "";
-// $_POST['feedsList'] = "1";
+// $_POST['feedsList'] = "2";
 // $_POST['recommend'] = true;
-$_POST['context'] = "public";
+// $_POST['context'] = "public";
 
 // Take Inputs from the specific call
 $selectedFeed = str_replace('+', ',', $_POST['feedsList']); // Currently Set to display Thompson's pocket in Featured
@@ -20,7 +20,7 @@ $searchKey = (isset($_POST['search']) && strlen($_POST['search']) > 0) ? $_POST[
 $queryTags = $_POST['tags'];
 $tagMode = $_POST['tagMode'];
 $showRecommended = ($_POST['recommend'] == "true") ? true : false;
-$context = $_POST['context'];
+// $context = $_POST['context'];
 
 // Generate search as tags as well
 $searchTags = (strlen($searchKey) > 1) ? explode(" ", $searchKey) : [];
@@ -103,7 +103,8 @@ array_unique($selectedFeedArray);
 // Consolidate the array for query
 $selectedFeedList = implode("','", $selectedFeedArray);
 // When changing the query, remember to adjust object
-$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, entries.siteID, entries.entryID, entries.visible, entryConn.feedID, entries.views, entries.rating FROM entries
+$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, entries.siteID, entries.entryID, entries.visible, entryConn.feedID, entries.views, entries.rating, 
+                 IF((SELECT COUNT(*) FROM entry_connections enConn JOIN entries en ON en.entryID = enConn.entryID WHERE enConn.entryID = entries.entryID AND enConn.feedID = $user->feed) > 0, 1, 0) AS context FROM entries
                  JOIN entry_connections AS entryConn ON entries.entryID = entryConn.entryID
                  LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
                  LEFT JOIN tags ON tags.tagID = tagConn.tagID
@@ -179,7 +180,7 @@ $entries = $conn->query($getEntries);
 // echo "</br>";
 // echo $getEntries;
 while ($row = $entries->fetch_array()) {
-  $entry = new Entry_Display($row, $conn, $context);
+  $entry = new Entry_Display($row, $conn);
   $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
   array_push($display, $tempTile);
   $entryDisplayNumber++;

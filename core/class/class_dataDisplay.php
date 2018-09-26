@@ -9,16 +9,20 @@ class Entry_Display extends Entry {
   public $isFeatured;
   public $isRecommendation;
 
-  public function __construct($dataArray, $dbConn, $displayContext, $recommended = false) {
+  public function __construct($dataArray, $dbConn, $recommended = false) {
     parent::__construct($dataArray, $dbConn);
-
+    
+    // Get context from entries fetch query
+    $displayContext = $dataArray["context"];
+    
     $this->isRecommendation = $recommended; // means feedback needs to be included (X in the top right) and recommended banner should be there
     // $this->isRecommendation = true;
     // Revise this for the triple dot context menu -> always the same menu per display, though changes dynamically per user
-    if ($displayContext == "Saved") {
-      $this->contextMenu = "X FOR REMOVING";
+    // Saved is 1 for context
+    if ($displayContext == 1) {
+      $this->contextMenu = "<a href='#' class='context-display' onclick='return rmvEntry(this, " . $this->id . ")' rt='0'><span class='fa fa-times fa-context-style fa-highlight-blue'></span></a>";
     } else {
-      $this->contextMenu = "<a href='#' class='context-display' onclick='return saveEntry(this, " . $this->id . ")'><span class='fa fa-plus fa-context-style'></span></a>";
+      $this->contextMenu = "<a href='#' class='context-display' onclick='return saveEntry(this, " . $this->id . ")' rt='0'><span class='fa fa-plus fa-context-style'></span></a>";
     }
   }
 

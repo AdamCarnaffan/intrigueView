@@ -379,22 +379,6 @@ function toggleBrowseNavigation(orientation = "row") {
   return;
 }
 
-function saveEntry(thisLink, entryID) {
-  $.post({
-    url: 'connectEntry.php',
-    data: {
-      'entryID': entryID
-    },
-    success: function() {
-      $(thisLink).replaceWith("<div class='context-display'><span class='fa fa-check fa-context-style-added'></span></div>");
-    },
-    error: function() {
-      console.log("An error has occured");
-    }
-  });
-  return false;
-}
-
 function saveFeed(thisLink, feedID, isIcon = true) {
   $.post({
     url: 'connectFeed.php',
@@ -413,4 +397,49 @@ function saveFeed(thisLink, feedID, isIcon = true) {
     }
   });
   return false;
+}
+
+function saveEntry(thisLink, entryID) {
+  $.post({
+    url: 'connectEntry.php',
+    data: {
+      'entryID': entryID
+    },
+    success: function() {
+      changeAddButton(thisLink, true, entryID);
+    },
+    error: function() {
+      console.log("An error has occured");
+    }
+  });
+  return false;
+}
+
+function rmvEntry(thisLink, entryID) {
+   $.post({
+     url: 'deleteEntry.php',
+     data: {
+       'entryID': entryID
+     },
+     success: function() {
+       changeAddButton(thisLink, false, entryID);
+     },
+     error: function() {
+       console.log("An error has occured");
+     }
+   });
+   return false;
+}
+
+function changeAddButton(btn, isAdding, id) {
+   $(btn).attr("rt", parseInt($(btn).attr("rt")) + 45);
+   $(btn).css("transform", "rotate(" + parseInt($(btn).attr("rt")) + "deg)");
+   if (isAdding) {
+      $(btn).attr("onclick", "return rmvEntry(this, " + id + ")");
+      $(btn).find("span").addClass("fa-highlight-blue") // Need to add fa-highlight-blue
+   } else {
+      $(btn).attr("onclick", "return addEntry(this, " + id + ")");
+      $(btn).find("span").removeClass("fa-highlight-blue") // Need to add fa-highlight-blue
+   }
+   return false;
 }
