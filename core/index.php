@@ -34,7 +34,7 @@ require_once('manageUser.php');
   </button>
   <div class="collapse navbar-collapse" id="navbarCollapse">
     <ul class="navbar-nav mr-auto nav-navigation fix-ul">
-      <li class="nav-item active nav-selected">
+      <!-- <li class="nav-item active nav-selected">
         <a class="nav-link" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item active nav-hoverable">
@@ -52,12 +52,12 @@ require_once('manageUser.php');
       ?>
       <li class="nav-item active">
         <a class="nav-link nav-underline nav-activate" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=' + feedSelection.join('+'))">Export RSS<span class="sr-only">(current)</span></a>
-      </li>
+      </li> -->
     </ul>
     <ul class="navbar-nav mr-auto fix-ul">
     </ul>
     <ul class="navbar-nav dropdown-ontop">
-      <?php
+      <!-- <?php
         // Change the User display based on a logged in user
         if (!$user->isTemp) {
           echo "<div class='dropdown'>";
@@ -80,7 +80,7 @@ require_once('manageUser.php');
           echo '<button class="btn btn-outline-success-blue my-2 my-sm-0 separate" onclick="location.href=\'register.php\';">Register</button>';
           echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href=\'login.php\';">Login</button>';
         }
-       ?>
+       ?> -->
     </ul>
   </div>
 </nav>
