@@ -595,7 +595,7 @@ button:focus, button:active, .btn.active.focus, .btn.active:focus, .btn.focus, .
    color: #2888a7;
 }
 .fa-highlight-blue:hover {
-   color: blue;
+   color: blue !important;
 }
 .fa-context-style:hover {
   text-decoration: none;

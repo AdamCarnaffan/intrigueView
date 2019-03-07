@@ -22,7 +22,7 @@ class Entry_Display extends Entry {
     if ($displayContext == 1) {
       $this->contextMenu = "<a href='#' class='context-display' onclick='return rmvEntry(this, " . $this->id . ")' rt='0'><span class='fa fa-times fa-context-style fa-highlight-blue'></span></a>";
     } else {
-      $this->contextMenu = "<a href='#' class='context-display' onclick='return saveEntry(this, " . $this->id . ")' rt='0'><span class='fa fa-plus fa-context-style'></span></a>";
+      $this->contextMenu = "<a href='#' class='context-display' onclick='return saveEntry(this, " . $this->id . ")' rt='0' style='transform: rotate(45deg);'><span class='fa fa-times fa-context-style'></span></a>";
     }
   }
 
