@@ -5,6 +5,16 @@ require_once('buildConfig.php');
 if (!$user->isTemp) {
    header('location: index.php');
 }
+/*
+WANTS
+-----
+Press enter to submit
+Dynamic username fetches (after switching fields)
+Submit user with new proc (Check-out sendRegistration.php)
+Shift validations from PHP to js
+Send data from proc to User class (Class may need some work xd) (class/class_userData.php)
+Fix logo on pages that don't use mine :L
+*/
 ?>
 <head>
    <meta charset="utf-8">
