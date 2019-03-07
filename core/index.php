@@ -86,10 +86,10 @@ require_once('manageUser.php');
 </nav>
 
 <!-- Main album view -->
-<div id='tag-display' class='container tag-scroller'>
+<!-- <div id='tag-display' class='container tag-scroller'>
   <div class='tags-title'>Popular Tags:</div>
   <div id='tag-collection' class='tag-block'></div>
-</div>
+</div> -->
 <!-- <div id='filter-display' class="container shortened">
   <div class="searching">
     <h3 class="filter-coloring move-heading">Filter Results

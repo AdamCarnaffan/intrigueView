@@ -19,11 +19,11 @@ class Entry_Display extends Entry {
     // $this->isRecommendation = true;
     // Revise this for the triple dot context menu -> always the same menu per display, though changes dynamically per user
     // Saved is 1 for context
-    if ($displayContext == 1) {
-      $this->contextMenu = "<a href='#' class='context-display' onclick='return rmvEntry(this, " . $this->id . ")' rt='0'><span class='fa fa-times fa-context-style fa-highlight-blue'></span></a>";
-    } else {
-      $this->contextMenu = "<a href='#' class='context-display' onclick='return saveEntry(this, " . $this->id . ")' rt='0' style='transform: rotate(45deg);'><span class='fa fa-times fa-context-style'></span></a>";
-    }
+    // if ($displayContext == 1) {
+    //   $this->contextMenu = "<a href='#' class='context-display' onclick='return rmvEntry(this, " . $this->id . ")' rt='0'><span class='fa fa-times fa-context-style fa-highlight-blue'></span></a>";
+    // } else {
+    //   $this->contextMenu = "<a href='#' class='context-display' onclick='return saveEntry(this, " . $this->id . ")' rt='0' style='transform: rotate(45deg);'><span class='fa fa-times fa-context-style'></span></a>";
+    // }
   }
 
   public function displayEntryTile($entryDisplay, $featuredTiles) {
