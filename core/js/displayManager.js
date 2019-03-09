@@ -1,3 +1,10 @@
+var mainPath = location.href;
+v = mainPath.split('/');
+v.splice(-1,1);
+v.splice(0, 3);
+mainPath = v.join('/');
+mainPath = '/' + mainPath;
+
 function openInNewTab(url, entryID) {
   var tab = window.open(url, '_blank');
   tab.focus();
@@ -161,7 +168,7 @@ function queryEntries(selection, feeds, displayRecommended, scroll = false) {
   var feedIDList = feeds.join('+');
   // Send the Query
   $.post({
-    url: "displayEntries.php",
+    url: mainPath + "/bin/displayEntries.php",
     data: {
       'selection': selection,
       'currentDisplay': entriesDisplayed,
@@ -289,7 +296,7 @@ function getTags() {
   // Empty the current Tags field
   $('#tag-collection').html('');
   $.post({
-    url: 'displayTags.php',
+    url: mainPath + '/bin/displayTags.php',
     data: {
       'tags': tagString,
       'feeds': feedString

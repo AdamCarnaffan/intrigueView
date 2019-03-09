@@ -1,9 +1,9 @@
 // Listen for enter keypress to submit to validation function
-$(document).keypress(function(event) {
-  if (event.keyCode == 13) {
-    validateLogin();
-  }
-});
+// $(document).keypress(function(event) {
+//   if (event.keyCode == 13) {
+//     validateLogin();
+//   }
+// });
 
 // apply a cooldown to prevent spam login attempts
 var cooldown = 0;

@@ -1,16 +1,17 @@
 <?php
-require_once('dbConnect.php');
-require_once('class/class_dataDisplay.php');
-require_once('manageUser.php');
+require_once('../config.php');
+require_once(ROOT_PATH . '/bin/dbConnect.php');
+require_once(ROOT_PATH . '/class/class_dataDisplay.php');
+require_once(ROOT_PATH . '/bin/manageUser.php');
 
-$_POST['selection'] = 100;
-$_POST['currentDisplay'] = 0;
-$_POST['tags'] = "";
-$_POST['tagMode'] = 0;
-$_POST['search'] = "";
-$_POST['feedsList'] = "2";
-$_POST['recommend'] = true;
-$_POST['context'] = "public";
+// $_POST['selection'] = 100;
+// $_POST['currentDisplay'] = 0;
+// $_POST['tags'] = "";
+// $_POST['tagMode'] = 0;
+// $_POST['search'] = "";
+// $_POST['feedsList'] = "2";
+// $_POST['recommend'] = true;
+// $_POST['context'] = "public";
 
 // Take Inputs from the specific call
 $selectedFeed = str_replace('+', ',', $_POST['feedsList']); // Currently Set to display Thompson's pocket in Featured

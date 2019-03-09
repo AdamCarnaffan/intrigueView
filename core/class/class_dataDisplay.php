@@ -1,6 +1,5 @@
 <?php
-
-require_once('class_std.php');
+require_once(ROOT_PATH . '/class/class_std.php');
 
 class Entry_Display extends Entry {
 

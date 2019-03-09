@@ -1,6 +1,6 @@
 <?php
-require_once('buildConfig.php');
-require_once('manageUser.php');
+require_once('config.php');
+require_once(ROOT_PATH . '/bin/manageUser.php');
 ?>
 <head>
   <meta charset="utf-8">
