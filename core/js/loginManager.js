@@ -5,6 +5,13 @@
 //   }
 // });
 
+var mainPath = location.href;
+v = mainPath.split('/');
+v.splice(-1,1);
+v.splice(0, 3);
+mainPath = v.join('/');
+mainPath = '/' + mainPath;
+
 // apply a cooldown to prevent spam login attempts
 var cooldown = 0;
 setInterval(reduceCooldown, 1000);
@@ -41,7 +48,58 @@ function validateLogin() {
 // Define isRunning as a global
 var isRunning = false;
 
+
 function validateRegister() {
+  var input_username = $('#username-input').val();  // trim white-space on user
+  var input_password = $('#password-input').val();
+  var confirm_password = $('#password-confirm').val();
+  var input_email = $('#email-input').val();
+  var error = false;
+  var check_username = /[\W]/;
+  var check_password1 = /\s\t/;
+  var check_password2 = /\d/;
+  var check_password3 = /[A-z]/;
+  [$('#username-error'), $('#password-error'), $('#confirm-password-error'), $('#email-error')].forEach(function (val) {
+    val.html('');
+  });
+  if (input_username.length < 5) {
+    $('#username-error').html('minimum username length is 5 characters');
+    error = true;
+  }
+  else if (input_username.length > 20) {
+    $('#username-error').html('maximum usernmame length is 20 characters');
+    error = true;
+  }
+  else if (check_username.test(input_username) == true) {
+    $('#username-error').html('invalid characters in username');
+    error = true;
+  }
+  if (input_password.length < 6) {
+    $('#password-error').html('minimum password length is 6 characters');
+    error = true
+  }
+  else if (check_password1.test(input_password) == true ) {
+    $('#password-error').html('invalid charactors in password');
+    error = true;
+  }
+  else if ((check_password2.test(input_password) == false) || (check_password3.test(input_password) == false)) {
+    $('#password-error').html('password should contain altleast 1 alphanumeric character');
+    error = true;
+  }
+  if (input_password !== confirm_password) {  // validate password
+    $('#confirm-password-error').html('passwords do not match');
+    error = true;
+  }
+  if (input_email == '') {
+    $('#email-error').html('invalid email');
+    error = true;
+  }
+  if (error) {
+    return false;
+  }
+}
+
+function validateRegister2() {
   // Set username and password equal to input
   var inputUsername = document.getElementById('username-input').value;
   var inputPassword = document.getElementById('password-input').value;
@@ -64,7 +122,7 @@ function validateRegister() {
     isRunning = true;
     // Query the script
     $.post({
-      url: "sendRegistration.php",
+      url: mainPath + "/bin/sendRegistration.php",
       datatype: 'json',
       data: {
         'username': inputUsername,

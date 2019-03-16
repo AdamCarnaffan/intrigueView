@@ -1,7 +1,8 @@
 <?php
 // Check if a user is already logged in
-require_once('manageUser.php');
-require_once('buildConfig.php');
+require_once('config.php');
+require_once(ROOT_PATH . '/bin/manageUser.php');
+
 if (!$user->isTemp) {
    header('location: index.php');
 }
@@ -10,7 +11,7 @@ WANTS
 -----
 Press enter to submit
 Dynamic username fetches (after switching fields)
-Submit user with new proc (Check-out sendRegistration.php)
+Submit user with new procedure (Check-out sendRegistration.php)
 Shift validations from PHP to js
 Send data from proc to User class (Class may need some work xd) (class/class_userData.php)
 Fix logo on pages that don't use mine :L
@@ -45,7 +46,7 @@ Fix logo on pages that don't use mine :L
      </button>
      <div class="collapse navbar-collapse" id="navbarCollapse">
        <ul class="navbar-nav mr-auto nav-navigation fix-ul">
-         <li class="nav-item active nav-hoverable">
+         <!-- <li class="nav-item active nav-hoverable">
            <a class="nav-link nav-underline" title="See the Most Popular Articles From the Last Few Days" href="index.php">Featured<span class="sr-only">(current)</span></a>
          </li>
          <li class="nav-item active nav-hoverable">
@@ -53,7 +54,7 @@ Fix logo on pages that don't use mine :L
          </li>
          <li class="nav-item active nav-hoverable">
            <a class="nav-link nav-underline" title="Browse a Compilation of All Public Feeds" href="browse.php">Browse<span class="sr-only">(current)</span></a>
-         </li>
+         </li> -->
          <?php
          if (!$user->isTemp) {
             echo '<li class="nav-item active nav-hoverable">
@@ -61,14 +62,14 @@ Fix logo on pages that don't use mine :L
             </li>';
          }
          ?>
-         <li class="nav-item active">
+         <!-- <li class="nav-item active">
            <a class="nav-link nav-underline nav-activate" href="#" title="Export the Current Feed as RSS" onclick="return openInNewTab('feed.php?size=10&selection=' + feedSelection.join('+'))">Export RSS<span class="sr-only">(current)</span></a>
-         </li>
+         </li> -->
        </ul>
        <ul class="navbar-nav mr-auto fix-ul">
        </ul>
        <ul class="navbar-nav dropdown-ontop">
-         <?php
+         <!-- <?php
            // Change the User display based on a logged in user
            if (!$user->isTemp) {
              echo "<div class='dropdown'>";
@@ -91,34 +92,35 @@ Fix logo on pages that don't use mine :L
              echo '<button class="btn btn-outline-success-blue my-2 my-sm-0 separate" onclick="location.href=\'register.php\';">Register</button>';
              echo '<button class="btn btn-outline-success-blue my-2 my-sm-0" onclick="location.href=\'login.php\';">Login</button>';
            }
-          ?>
+          ?> -->
        </ul>
      </div>
    </nav>
 
  <!-- Login Box (same as main album view)-->
-   <div class="container login-top-pad remove-scrolling">
-     <div class="col-12 col-md-10 login-centered">
-       <div class="row" id="feed-view">
-         <div class="col-12 col-lg-6 tile-wrapper login-center">
-           <div class="feed-tile login-adjust">
-             <h3 class="entry-heading heading-pad">IntrigueView Registration</h3>
-             <form method="post" class="mt-2 mt-md-0">
-               <input class="form-control mr-sm-2 text-box-input input-length" id="username-input" type="text" placeholder="Username" aria-label="Username">
-             </br>
-               <input class="form-control mr-sm-2 text-box-input input-length" id="password-input" type="password" placeholder="Password" aria-label="Password">
-             </br>
-               <input class="form-control mr-sm-2 text-box-input input-length" id="password-confirm" type="password" placeholder="Confirm Password" aria-label="Confirm Password">
-             </br>
-               <input class="form-control mr-sm-2 text-box-input input-length" id="email-input" type="text" placeholder="Email" aria-label="Email">
-               <p class="user-error-message" id="register-error"></p>
-               <input class="btn btn-outline-success-blue my-2 my-sm-0 text-box-input" type="button" onclick='validateRegister()' value="Register">
-             </form>
-           </div>
-         </div><!--/span-->
-       </div>
-     </div><!--/row-->
-   </div><!--/span-->
+  <div class="container login-top-pad remove-scrolling">
+    <div class="col-12 col-md-10 login-centered">
+      <div class="row" id="feed-view">
+        <div class="col-12 col-lg-6 tile-wrapper login-center">
+          <div class="feed-tile login-adjust">
+            <h3 class="entry-heading heading-pad">Registration</h3>
+            <input class="form-control mr-sm-2 text-box-input input-length" id="username-input" type="text" placeholder="Username" aria-label="Username">
+            <p class="user-error-message" id="username-error"></p>
+            <br>
+            <input class="form-control mr-sm-2 text-box-input input-length" id="password-input" type="password" placeholder="Password" aria-label="Password">
+            <p class="user-error-message" id="password-error"></p>
+            <br>
+            <input class="form-control mr-sm-2 text-box-input input-length" id="password-confirm" type="password" placeholder="Confirm Password" aria-label="Confirm Password">
+            <p class="user-error-message" id="confirm-password-error"></p>
+            <br>
+            <input class="form-control mr-sm-2 text-box-input input-length" id="email-input" type="text" placeholder="Email" aria-label="Email">
+            <p class="user-error-message" id="email-error"></p>
+            <input class="btn btn-outline-success-blue my-2 my-sm-0 text-box-input" type="button" onclick='validateRegister()' value="Register">
+          </div>
+        </div><!--/span-->
+      </div>
+    </div><!--/row-->
+  </div><!--/span-->
  </div>
 
 
