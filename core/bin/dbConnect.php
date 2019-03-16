@@ -4,8 +4,6 @@ if (!isset($cfg)) {
   require_once('../config.php');
 }
 
-require_once(ROOT_PATH . '/class/class_std.php');
-
 // Database connection string
 $conn = new mysqli($cfg->dbLink,$cfg->dbUser,$cfg->dbPass,$cfg->dbName);
 

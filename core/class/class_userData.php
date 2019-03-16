@@ -110,9 +110,9 @@ class User {
     if (count($this->recentViews) < 10) {
       // Use a completely different query for general recommendations
       // View number should be scaled based on average views of an entry
-      $recomQuery = "SELECT entryID, (CASE WHEN datePublished BETWEEN DATE_ADD(NOW(), INTERVAL -2 DAY) AND NOW() THEN 1 ELSE 0 END) AS veryRecent FROM entries
-                      WHERE datePublished BETWEEN DATE_ADD(NOW(), INTERVAL -40 DAY) AND NOW() AND entryID NOT IN ('$recentEntries')
-                      ORDER BY veryRecent DESC, views DESC, datePublished DESC";
+      $recomQuery = "SELECT entry_id, (CASE WHEN published BETWEEN DATE_ADD(NOW(), INTERVAL -2 DAY) AND NOW() THEN 1 ELSE 0 END) AS veryRecent FROM entries
+                      WHERE published BETWEEN DATE_ADD(NOW(), INTERVAL -40 DAY) AND NOW() AND entry_id NOT IN ('$recentEntries')
+                      ORDER BY veryRecent DESC, published DESC"; // Should incorporate views
     } else {
       // generate recommendations with recent views
       // Get the tags from the last 10 articles viewed (general preference coming soon)
@@ -139,27 +139,27 @@ class User {
       //  The entries that are very recent (last 5 days) are prioritized
       //  If an entry has more than one of the tags, it is sorted as such based on the first tag found
       //  The entries are then sorted based on recency
-      $recomQuery = "SELECT tagConn.entryID, tagConn.tagID, entries.datePublished, COUNT(tagConn.tagID),
-                      (CASE WHEN entries.datePublished BETWEEN DATE_ADD(NOW(), INTERVAL -5 DAY) AND NOW() THEN 1 ELSE 0 END) AS veryRecent
+      $recomQuery = "SELECT tagConn.entry_id, tagConn.tag_id, entries.published, COUNT(tagConn.tag_id),
+                      (CASE WHEN entries.published BETWEEN DATE_ADD(NOW(), INTERVAL -5 DAY) AND NOW() THEN 1 ELSE 0 END) AS veryRecent
                       FROM entry_tags AS tagConn
-                      JOIN entries ON entries.entryID = tagConn.entryID
-                      WHERE entries.datePublished BETWEEN DATE_ADD(NOW(), INTERVAL -60 DAY) AND NOW()
-                      AND tagConn.tagID IN ('$tagQueryList') AND ";
+                      JOIN entries ON entries.entry_id = tagConn.entry_id
+                      WHERE entries.published BETWEEN DATE_ADD(NOW(), INTERVAL -60 DAY) AND NOW()
+                      AND tagConn.tag_id IN ('$tagQueryList') AND ";
       if ($this->isTemp) {
         // Use the temporary user view tracker
-        $recomQuery .= "tagConn.entryID NOT IN ('$recentEntries')";
+        $recomQuery .= "tagConn.entry_id NOT IN ('$recentEntries')";
       } else {
-        $recomQuery .= "tagConn.entryID NOT IN (SELECT views.entryID FROM user_views AS `views` WHERE views.userID = '$this->id')";
+        $recomQuery .= "tagConn.entry_id NOT IN (SELECT views.entry_id FROM user_views AS views WHERE views.user_id = '$this->id')";
       }
-      $recomQuery .= " GROUP BY entries.entryID
-                        ORDER BY veryRecent DESC, COUNT(tagConn.tagID) DESC, FIELD(tagConn.tagID, '$tagQueryList'), entries.datePublished DESC";
+      $recomQuery .= " GROUP BY entries.entry_id
+                        ORDER BY veryRecent DESC, COUNT(tagConn.tag_id) DESC, FIELD(tagConn.tag_id, '$tagQueryList'), entries.published DESC";
     }
     // Run the query
     $result = $conn->query($recomQuery);
     $resultCount = 0;
     // Only store 50 recommendations per user (they can be regenerated fairly quickly)
     while ($data = $result->fetch_array()) {
-      array_push($this->recommendations, $data['entryID']);
+      array_push($this->recommendations, $data['entry_id']);
       if ($resultCount >= 51) {
         break;
       }

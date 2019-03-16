@@ -18,7 +18,7 @@ class Source_Site {
       if (is_null($dbConn)) {
         throw new Exception ("A Database Connection Object (MySQLI Object) is required to fetch by ID for '{$reference}'");
       }
-      if ($result = $dbConn->query("SELECT url, icon FROM sites WHERE siteID = '$this->id' LIMIT 1")->fetch_array()) {
+      if ($result = $dbConn->query("SELECT url, icon FROM sites WHERE site_id = '$this->id' LIMIT 1")->fetch_array()) {
         $this->url = $result[0];
         $this->icon = $result[1];
       }
@@ -33,7 +33,7 @@ class Source_Site {
 
   public function getData(mysqli $dbConn, $siteContent = null) {
     // Check the DB for the URL
-    if ($returnData = $dbConn->query("SELECT siteID, icon FROM sites WHERE url = '$this->url' LIMIT 1")->fetch_array()) {
+    if ($returnData = $dbConn->query("SELECT site_id, icon FROM sites WHERE url = '$this->url' LIMIT 1")->fetch_array()) {
       $this->id = $returnData[0];
       $this->icon = $returnData[1];
       return;
@@ -134,20 +134,18 @@ class Entry {
     if (is_int($data) || is_string($data)) {
       // Clean this up
       $entryID = $data;
-      $data = $dbConn->query("SELECT title, siteID, url, featureImage, previewText, featured, views, rating FROM entries WHERE entryID = '$entryID'")->fetch_array();
-      $data['entryID'] = $entryID;
+      $data = $dbConn->query("SELECT title, site_id, url, thumbnail, synopsis FROM entries WHERE entry_id = '$entryID' LIMIT 1")->fetch_array();
+      $data['entry_id'] = $entryID;
     }
     // Begin building the object
     if (is_array($data)) {
-      $this->source = new Source_Site($data['siteID'], $dbConn);
+      $this->source = new Source_Site($data['site_id'], $dbConn);
       $this->title = $data['title'];
       $this->url = $data['url'];
-      $this->image = $data['featureImage'];
-      $this->synopsis = $data['previewText'];
-      $this->id = $data['entryID'];
-      $this->isFeatured = ($data['featured'] == 1) ? true : false; // Create a boolean based on the data table output. This boolean decides highlighting
-      $this->views = $data['views'];
-      $this->rating = $data['rating'];
+      $this->image = $data['thumbnail'];
+      $this->synopsis = $data['synopsis'];
+      $this->id = $data['entry_id'];
+      // $this->views = $data['views'];
       $this->fetchTags($dbConn);
     } else {
       throw new Exception("An ID or Entry Data Package is required to build an Entry where '$data' was provided");
@@ -155,20 +153,31 @@ class Entry {
   }
 
   public function fetchTags($dbConn) {
-    $tagQuery = $dbConn->query("SELECT tags.tagName, tags.tagID FROM entry_tags AS tagConn JOIN tags ON tags.tagID = tagConn.tagID WHERE entryID = '$this->id' ORDER BY tagConn.sortOrder DESC");
+    $tagQuery = $dbConn->query("SELECT tags.tag, tags.tag_id FROM entry_tags AS tagConn JOIN tags ON tags.tag_id = tagConn.tag_id WHERE entry_id = '$this->id' ORDER BY tagConn.sort_order ASC");
     while ($data = $tagQuery->fetch_array()) {
       array_push($this->tags, new Tag($data[0], $data[1]));
     }
     return;
   }
 
-  public function updateEntry(Entry $newInfo, $dbConn) {
+  public function updateEntry(Entry $newInfo, mysqli $dbConn) {
     // Update Entry Data
     $this->url = $newInfo->url;
     $this->synopsis = $newInfo->synopsis;
     $this->image = ($newInfo->image != null) ? $newInfo->image : $this->image;
     $this->title = $newInfo->title;
-    $dbConn->query("UPDATE entries SET url = '$this->url', title = '$this->title', featureImage = '$this->image', previewText = '$this->synopsis' WHERE entryID = '$this->id'");
+    try {
+      $upd = "UPDATE entries SET url = '$this->url', title = '$this->title', thumbnail = '$this->image', synopsis = '$this->synopsis' WHERE entry_id = '$this->id'";
+      if (!$dbConn->query($upd)) {
+        throw new exception($conn->error);
+      } else {
+        $logErr = "Updating the entry succeeded";
+        $dbConn->query("INSERT INTO entry_log (entry_id, status, success) VALUES ('$this->id', '$logErr', 1)");
+      }
+    } catch (exception $e) {
+      $logErr = $conn->real_escape_string("Adding the entry to the database failed on url: {$item->link} by -> {$e}");
+      $dbConn->query("INSERT INTO entry_log (entry_id, status, success) VALUES (NULL, '$logErr', 0)");
+    }
     // Determine new tags
     $newTags = [];
     $newEntryTags = [];
@@ -181,11 +190,14 @@ class Entry {
     }
     $newTags = array_diff($newEntryTags, $prevTags);
     // Get the current sort order position
-    $sortOrder = $dbConn->query("SELECT sortOrder FROM entry_tags WHERE entryID = '$this->id' ORDER BY sortOrder DESC LIMIT 1")->fetch_array()[0];
+    $sortOrder = $dbConn->query("SELECT sort_order FROM entry_tags WHERE entry_id = '$this->id' ORDER BY sort_order DESC LIMIT 1")->fetch_array()[0];
     // Add the tags
+    print_r($newTags);
     foreach ($newTags as $tag) {
       $sortOrder++;
-      $dbConn->query("CALL addTag('$tag', '$this->id', '$sortOrder')");
+      $callStr = "CALL addTag('$tag', '$this->id', '$sortOrder')";
+      $dbConn->query($callStr);
+      echo "Added {$tag} </br>";
     }
     return;
   }
@@ -293,33 +305,35 @@ class Feed {
   public $title;
   public $source;
   public $id;
-  public $isExternal = false;
 
-  public function __construct($feedId, $dbConn, $isExternal) {
+  public function __construct($feedId, $dbConn) {
     $this->id = $feedId;
-    if ($isExternal) {
-      $feedType = "external_feeds";
-      $includedFields = "url, title";
-      $idColumn = "externalFeedID";
-      $this->isExternal = true;
-    } else {
-      $feedType = "user_feeds";
-      $includedFields = "title";
-      $idColumn = "internalFeedID";
-    }
-    $sourceQuery = "SELECT $includedFields FROM $feedType WHERE $idColumn = '$this->id' AND active = 1";
+    $sourceQuery = "SELECT url, title FROM feeds WHERE feed_id = '$this->id' AND active = 1";
     if ($result = $dbConn->query($sourceQuery)) {
       $sourceInfo = $result->fetch_array();
     } else {
       throw new exception($dbConn->error);
     }
     $this->source = $sourceInfo['url'] ?? null;
-    $this->title = $sourceInfo['title'];
+    $this->title = $sourceInfo['title'] ?? "No title provided";
+  }
+
+  public function fetchXML() {
+    $curl_obj = curl_init();
+    curl_setopt($curl_obj, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl_obj, CURLOPT_URL, $this->source); // Set target
+    $data = curl_exec($curl_obj); // execute request
+    // Check for curl errors
+    if (curl_error($curl_obj)) {
+      throw new exception(curl_error($curl_obj));
+    }
+    curl_close($curl_obj); // Cleanup
+    return simplexml_load_string($data);
   }
 
   public function checkBusy($dbConn) {
-    $checkBusyQuery = "SELECT feedID FROM feed_recordlocks WHERE feedID = '{$this->id}' AND
-                        timeSet BETWEEN DATE_ADD(NOW(), INTERVAL -60 MINUTE) AND NOW()";
+    $checkBusyQuery = "SELECT feed_id FROM feed_recordlocks WHERE feed_id = '$this->id' AND
+                        time_set BETWEEN DATE_ADD(NOW(), INTERVAL -60 MINUTE) AND NOW()";
     if ($dbConn->query($checkBusyQuery)->fetch_array()) {
       return true;
     } else {
@@ -328,17 +342,17 @@ class Feed {
   }
 
   public function lock($dbConn) {
-    if ($this->isExternal) {
-      $busyFeed = "INSERT INTO feed_recordlocks (feedID) VALUES ('{$this->id}')";
-      $dbConn->query($busyFeed);
+    $busyFeed = "INSERT INTO feed_recordlocks (feed_id) VALUES ('$this->id')";
+    if (!$dbConn->query($busyFeed)) {
+      throw new exception($dbConn->error);
     }
     return;
   }
 
   public function release($dbConn) {
-    if ($this->isExternal) {
-      $releaseFeed = "DELETE FROM feed_recordlocks WHERE feedID = '{$this->id}'";
-      $dbConn->query($releaseFeed);
+    $releaseFeed = "DELETE FROM feed_recordlocks WHERE feed_id = '{$this->id}'";
+    if (!$dbConn->query($releaseFeed)) {
+      throw new exception($dbConn->error);
     }
     return;
   }

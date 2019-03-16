@@ -1,54 +1,72 @@
 <?php
-require_once('dbConnect.php');
-require_once('class/class_dataFetch.php');
+require_once('../config.php');
+require_once(ROOT_PATH . '/bin/dbConnect.php');
+require_once(ROOT_PATH . '/class/class_dataFetch.php');
 
-/*
-*   METHOD INDEX
-*   1 -> Manual testing (PHP)
-*   2 -> Forced (Javascript)
-*   3 -> Automation (PHP -> unattended)
-*/
+$_POST['sourceID'] = 1;
 
-// $_POST['sourceID'] = 39;
-// $_POST['method'] = 1;
 
 // Get the Source ID for database selection of feed
 $sourceID = $_POST['sourceID'];
-$method = $_POST['method'];
+$expectShutdown = false;
 // IMPERSONATION FOR MIGRATION
-//$feedSudoID = 6;
-// The Export URL (RSS Feed)
-$feedSelection = new Feed($sourceID, $conn, 1);
+// $feedSudoID = 6;
 
-if ($feedSelection->checkBusy($conn)) {
-  echo "The feed is currently being fetched and as such is unavailable";
+// LOG -> Began to fetch a feed
+$conn->multi_query("CALL startFetchLog('$sourceID', @fetchSess); SELECT @fetchSess;");
+$conn->next_result();
+$fetchSession = $conn->store_result()->fetch_array()[0];
+
+try {
+  $feedSelection = new Feed($sourceID, $conn);
+} catch (exception $e) {
+  // LOG -> Feed fetch failed on connection error
+  $logErr = "Failed to access feed data";
+  $conn->query("INSERT INTO fetch_log (fetch_id, feed_id, status, success) VALUES ('$fetchSession', '$sourceID', '$logErr', 0)");
   return;
 }
 
-$feedSelection->lock($conn);
+// Check if the feed is busy
+if ($feedSelection->checkBusy($conn)) {
+  // LOG -> Feed busy
+  $logErr = "The Feed is currently busy with another fetch (record_lock)";
+  $conn->query("INSERT INTO fetch_log (fetch_id, feed_id, status, success) VALUES ('$fetchSession', '$sourceID', '$logErr', 0)");
+  return;
+}
 
-// Time zone info to sync with DB from feed common
-$timeZone = ('-5:00');
-// Default for the error variable used in the loop
-$error = false;
-
-// Use query method to determine reporting methodology
-$logReport = false;
-
-if ($method == 1) {
-  $lineEnding = "</br>";
-} else if ($method == 2) {
-  $lineEnding = "\n";
-} else {
-  $lineEnding = "\r\n";
-  $logReport = true;
+// Attempt to record lock the feed
+try {
+  //$feedSelection->lock($conn);
+} catch (exception $e) {
+  // LOG -> Couldn't lock feed
+  $logErr = "Failed to lock the feed";
+  $conn->query("INSERT INTO fetch_log (fetch_id, feed_id, status, success) VALUES ('$fetchSession', '$sourceID', '$logErr', 0)");
+  return;
 }
 
 // Define a shutdown function
-register_shutdown_function(function() use ($feedSelection) {
-  require('dbConnect.php');
-  $feedSelection->release($conn);
-});
+register_shutdown_function(function() use ($feedSelection, $fetchSession, $conn, $expectShutdown) {
+  try {
+    $feedSelection->release($conn);
+    // LOG -> shutdown time
+    if (!$expectShutdown) {
+      $logErr = "Encountered an unexpected shutdown";
+      $succ = 0;
+      $conn->query("INSERT INTO fetch_log (fetch_id, feed_id, status, success) VALUES ('$fetchSession', '$feedSelection->id', '$logErr', 0)");
+    }
+  } catch (exception $e) {
+    // LOG -> Release lock failed
+    $logErr = "Releasing record lock failed on: {$e}";
+    $conn->query("INSERT INTO fetch_log (fetch_id, feed_id, status, success) VALUES ('$fetchSession', '$feedSelection->id', '$logErr', 0)");
+
+  }
+  });
+
+// Time zone info to sync with DB from feed common
+$timeZone = ('-5:00');
+// Default for the status variables in logging
+$error = false;
+$entriesAdded = 0;
 
 /*
 RSS Feed xml attributes come from xml->[title][description][link]->attributes->ITEM PROPERTY
@@ -61,99 +79,74 @@ if (isset($feedSudoID)) {
 }
 
 // Generate an XML object to represent the data collected
-$xml = @simplexml_load_file($feedSelection->source) or die("Error: Could not connect to the feed");
-
-// Get the last update time (for comparison with any articles to add)
-$getLastPub = "SELECT datePublished FROM entries JOIN entry_connections AS connections ON entries.entryID = connections.entryID WHERE feedID = '$feedSelection->id' ORDER BY connections.dateConnected DESC LIMIT 1";
-
-// Get the one data point in a single line and convert to a DateTime object
-// GET TIMEZONE on insert (The data entering the database will be of the same timezone as that leaving the database) --> pocket doesn't offer this offset so matching is the best way
-$lastUpdateValue = $conn->query($getLastPub)->fetch_array()[0];
-
-if ($lastUpdateValue != null) {
-  $lastUpdate = new DateTime($lastUpdateValue, new DateTimeZone($timeZone));
-} else {
-  $lastUpdate = new DateTime('0000-00-00 00:00:00');
+try {
+  $xml = $feedSelection->fetchXML();
+} catch (exception $e) {
+  // LOG -> Failed to get XML data
+  $logErr = "Failed to get XML data from feed";
+  $conn->query("INSERT INTO fetch_log (fetch_id, feed_id, status, success) VALUES ('$fetchSession', '$sourceID', '$logErr', 0)");
+  return;
 }
-// Entry Submission result tracker
-$results = [];
 
 // Get tag blacklist
 if (Tag_Potential::getBlackList() == null) {
   Tag_Potential::setBlackList($conn);
 }
 
-// Check each Entry from bottom to top (Added chronologically)
+// Cycle each possible entry source
 for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNumber--) {
+  // echo "</br> LAST ERROR: " . $conn->error;
   // Set the $item tag as is done in a foreach loop (Pathing from RSS Feed)
   $item = $xml->channel->item[$entryNumber];
   // Convert the Date to a DateTime Object
   $dateAdded = new DateTime($item->pubDate);
-  $interval = $lastUpdate->diff($dateAdded);
-  $change = $interval->format('%R%a');
-  //$dateAdded > $lastUpdate
+  // Remove the /amp from site links where applicable (this process should be generalized)
+  if (strpos($item->link, "wired.com") !== false || strpos($item->link, "engadget.com") !== false) {
+    // remove amp at the end of the URL
+    if (strpos($item->link, "/amp") == strlen($item->link) - 4) {
+      $item->link = str_replace("/amp", "", $item->link);
+    }
+    // Replace an amp in the middle with a single slash
+    $item->link = str_replace("/amp/", "/", $item->link);
+  }
   // Check if the entry is a new addition to the feed
-  if ($change > 0) {
+  if (!Entry_Data::doesExist($item->link, $feedSelection->id, $conn)) {
     // Format Date Time for mySQL
     $dateAdded = $dateAdded->format('Y-m-d H:i:s');
-    //echo $dateAdded . " -> " . $lastUpdate->format('Y-m-d H:i:s') . "</br>";
     // Get the site data as an object
     try {
-      // Remove the /amp from site links where applicable
-      if (strpos($item->link, "wired.com") !== false || strpos($item->link, "engadget.com") !== false) {
-        // remove amp at the end of the URL
-        if (strpos($item->link, "/amp") == strlen($item->link) - 4) {
-          $item->link = str_replace("/amp", "", $item->link);
-        }
-        // Replace an amp in the middle with a single slash
-        $item->link = str_replace("/amp/", "/", $item->link);
-      }
       $entryInfo = new Entry_Data($item->link, $conn);
       // Check for title in RSS Feed, and fetch if not present
       if (isset($item->title)) {
         $entryInfo->title = $item->title;
       }
-      // Filter text for SQL injection
-      $submissionResult = $entryInfo->submitEntry($conn, $feedSelection->id, $dateAdded) . " {$lineEnding}";
-      array_push($results, $submissionResult);
+      $entryInfo->submitEntry($conn, $feedSelection->id, $dateAdded);
+      // LOG -> Entry added to db successfully
+      $logErr = "Adding the entry succeeded";
+      $conn->query("INSERT INTO entry_log (entry_id, status, success) VALUES ('$entryInfo->id', '$logErr', 0)");
+      $entriesAdded++;
     } catch (Exception $e) {
-      unset($entryInfo);
-      $submissionResult = "{$e->getMessage()} occured on URL '{$item->link}' {$lineEnding}";
-      array_push($results, $submissionResult);
+      // LOG -> Exception with getting entry data or submitting
+      $logErr = $conn->real_escape_string("Adding the entry to the database failed on url: {$item->link} by -> {$e}");
+      $conn->query("INSERT INTO entry_log (entry_id, status, success) VALUES (NULL, '$logErr', 0)");
       $error = true;
+      unset($entryInfo);
       continue;
     }
+    unset($entryInfo);
   }
 }
 
-if ($logReport) {
-  // Designate and load a file
-  $logTarget = "entryLog.txt";
-  try {
-    $file = fopen($logTarget, 'a');
-  } catch (Exception $fileException) {}
-  // Write to the log file
-  if (isset($file)) {
-    foreach ($results as $entryData) {
-      fwrite($file, "Fetch > $entryData");
-    }
-  }
+if (!$error) {
+  // LOG -> Success with feed fetch (Added {NUMBER} entries)
+  $res = "Fetching feed successful: " . $entriesAdded . " entries added";
+  $conn->query("INSERT INTO fetch_log (fetch_id, feed_id, status, success) VALUES ('$fetchSession', '$sourceID', '$res', 1)");
 } else {
-  if (count($results) > 0) {
-    // Display the report
-    foreach ($results as $line) {
-      echo $line;
-    }
-  } else {
-    echo "Feed ID {$feedSelection->id} is up to date at this time {$lineEnding}";
-  }
+  // LOG -> Feed fetch finished with some errors
+  $logErr = "Feed fetch complete with entry errors: " . $entriesAdded . " entries added";
+  $conn->query("INSERT INTO fetch_log (fetch_id, feed_id, status, success) VALUES ('$fetchSession', '$sourceID', '$logErr', 0)");
 }
 
-$feedSelection->release($conn);
-
-// Throw a file write exception if needed
-if (isset($fileException)) {
-  throw new Exception ($fileException->getMessage());
-}
+$expectShutdown = true;
 
 ?>

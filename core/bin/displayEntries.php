@@ -4,13 +4,13 @@ require_once(ROOT_PATH . '/bin/dbConnect.php');
 require_once(ROOT_PATH . '/class/class_dataDisplay.php');
 require_once(ROOT_PATH . '/bin/manageUser.php');
 
-// $_POST['selection'] = 100;
-// $_POST['currentDisplay'] = 0;
-// $_POST['tags'] = "";
-// $_POST['tagMode'] = 0;
-// $_POST['search'] = "";
-// $_POST['feedsList'] = "2";
-// $_POST['recommend'] = true;
+$_POST['selection'] = 100;
+$_POST['currentDisplay'] = 0;
+$_POST['tags'] = "";
+$_POST['tagMode'] = 0;
+$_POST['search'] = "";
+$_POST['feedsList'] = "1";
+$_POST['recommend'] = true;
 // $_POST['context'] = "public";
 
 // Take Inputs from the specific call
@@ -79,39 +79,28 @@ foreach ($features as $feature) {
   $pos++;
 }
 
-// Check for feed access
-$checkPrivate = "SELECT isPrivate, internalFeedID FROM user_feeds WHERE internalFeedID IN('$selectedFeed')";
-
-$securityReturn = $conn->query($checkPrivate);
-while ($secure = $securityReturn->fetch_array()) {
-  if ($secure[0] == 1) {
-
-  }
-}
-
-// Get Feed IDs of the origin feeds
-$getFeeds = "SELECT sourceFeed FROM feed_connections WHERE internalFeed IN('$selectedFeed')";
-$feedsListReturn = $conn->query($getFeeds);
-// Break down the feed selection list
+// // Get Feed IDs of the origin feeds
+// $getFeeds = "SELECT sourceFeed FROM feed_connections WHERE internalFeed IN('$selectedFeed')";
+// $feedsListReturn = $conn->query($getFeeds);
+// // Break down the feed selection list
 $selectedFeedArray = explode(',', $selectedFeed);
-// add to the list
-while ($row = $feedsListReturn->fetch_array()) {
-  // Add all connected feeds to the selection list
-  array_push($selectedFeedArray, $row[0]);
-}
+// // add to the list
+// while ($row = $feedsListReturn->fetch_array()) {
+//   // Add all connected feeds to the selection list
+//   array_push($selectedFeedArray, $row[0]);
+// }
 // Make sure the array does not have any duplicates
 array_unique($selectedFeedArray);
 // Consolidate the array for query
 $selectedFeedList = implode("','", $selectedFeedArray);
 // When changing the query, remember to adjust object
-$getEntries = "SELECT entries.title, entries.url, entries.datePublished, entries.featureImage, entries.previewText, entries.featured, entries.siteID, entries.entryID, entries.visible, entryConn.feedID, entries.views, entries.rating, 
-                 IF((SELECT COUNT(*) FROM entry_connections enConn JOIN entries en ON en.entryID = enConn.entryID WHERE enConn.entryID = entries.entryID AND enConn.feedID = 0) > 0, 1, 0) AS context FROM entries
-                 JOIN entry_connections AS entryConn ON entries.entryID = entryConn.entryID
-                 LEFT JOIN entry_tags AS tagConn ON tagConn.entryID = entries.entryID
-                 LEFT JOIN tags ON tags.tagID = tagConn.tagID
-                 WHERE entryConn.feedID IN ('$selectedFeedList')"; // Removed a segment in the large conditional
+$getEntries = "SELECT entries.title, entries.url, entries.published, entries.thumbnail, entries.synopsis, entries.site_id, entries.entry_id, entries.visible, entryConn.feed_id FROM entries
+                 JOIN feed_entries AS entryConn ON entries.entry_id = entryConn.entry_id
+                 LEFT JOIN entry_tags AS tagConn ON tagConn.entry_id = entries.entry_id
+                 LEFT JOIN tags ON tags.tag_id = tagConn.tag_id
+                 WHERE entryConn.feed_id IN ('$selectedFeedList')"; // Removed a segment in the large conditional
 // Add the GROUP BY following all WHERE Statements
-$getEntries .= " GROUP BY entries.entryID";
+$getEntries .= " GROUP BY entries.entry_id";
 // Add the Tag Query
 $addedTag = false;
 if ($queryTags != "" && $queryTags != null) {
@@ -124,7 +113,7 @@ if ($queryTags != "" && $queryTags != null) {
   }
   $tags = explode("+", $queryTags);
   foreach ($tags as $tagID) {
-    $tempCondition = "SUM(CASE WHEN tagConn.tagID = '$tagID' THEN 1 ELSE 0 END) > 0";
+    $tempCondition = "SUM(CASE WHEN tagConn.tag_id = '$tagID' THEN 1 ELSE 0 END) > 0";
     if (!$addedTag) {
       $getEntries .= " HAVING " . $tempCondition;
       // Only the first tag condition is first
@@ -155,7 +144,7 @@ if (count($searchTags) > 0) {
     $condition = " OR ";
   }
   foreach ($searchTags as $tagString) {
-    $tempCondition = "SUM(CASE WHEN tags.tagName = '$tagString' THEN 1 ELSE 0 END) > 0";
+    $tempCondition = "SUM(CASE WHEN tags.tag = '$tagString' THEN 1 ELSE 0 END) > 0";
     $getEntries .= $condition . $tempCondition;
   }
   $addedTag = true;
@@ -170,7 +159,7 @@ if (!$addedTag) {
 $selectEntriesValue = $showRecommended ? $selectionLimit - (floor($selectionLimit / 10)) : $selectionLimit;
 
 $getEntries .= "entries.visible = 1
-                ORDER BY entryConn.dateConnected DESC, entries.entryID ASC
+                ORDER BY entryConn.connected DESC, entries.published DESC
                 LIMIT $selectEntriesValue OFFSET $selectionOffset";
 // Prepare and query
 $entriesFound = false;
@@ -198,8 +187,8 @@ while ($row = $entries->fetch_array()) {
           }
         }
         // Check that the recommendation is not being displayed in this feed
-        $checkRecom = "SELECT entryID FROM entry_connections AS entryConn
-                        WHERE feedID IN ('$selectedFeedList') AND entryID = '{$user->recommendations[$recomNumber]}'";
+        $checkRecom = "SELECT entry_id FROM feed_entries AS entryConn
+                        WHERE feed_id IN ('$selectedFeedList') AND entry_id = '{$user->recommendations[$recomNumber]}'";
         if (!$conn->query($checkRecom)->fetch_array()) {
           $entry = new Entry_Display($user->recommendations[$recomNumber], $conn, $context, true);
           $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);

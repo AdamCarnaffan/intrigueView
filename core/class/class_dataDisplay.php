@@ -5,16 +5,15 @@ class Entry_Display extends Entry {
 
   public $entryDisplaySize;
   public $contextMenu;
-  public $isFeatured;
   public $isRecommendation;
 
-  public function __construct($dataArray, $dbConn, $recommended = false) {
+  public function __construct($dataArray, $dbConn) {
     parent::__construct($dataArray, $dbConn);
     
     // Get context from entries fetch query
-    $displayContext = $dataArray["context"];
+    // $displayContext = $dataArray["context"];
     
-    $this->isRecommendation = $recommended; // means feedback needs to be included (X in the top right) and recommended banner should be there
+    // $this->isRecommendation = $recommended; // means feedback needs to be included (X in the top right) and recommended banner should be there
     // $this->isRecommendation = true;
     // Revise this for the triple dot context menu -> always the same menu per display, though changes dynamically per user
     // Saved is 1 for context
@@ -41,9 +40,9 @@ class Entry_Display extends Entry {
     }
     // Add entry tile Class
     $tile .= '<div class="entry-tile';
-    if ($this->isFeatured) {
-      $tile .= ' featured-tile';
-    }
+    // if ($this->isFeatured) {
+    //   $tile .= ' featured-tile';
+    // }
     $tile .= '">';
     // Add Article URL
     $tile .= '<a href="' . $this->url . '" onclick="return openInNewTab(\'' . $this->url . '\', \'' . $this->id . '\')" class="hover-detect" id="lol-test"><span class="entry-url"></span></a>';
@@ -79,7 +78,7 @@ class Entry_Display extends Entry {
     // Display Article Synopsis
     $tile .= '<div class="extra-info-addon extra-info-synopsis">' . $this->synopsis . '</div>';
     // Display Entry Stats
-    $tile .= '<div class="extra-info-addon extra-info-bottom-data"><div class="extra-info-views">Views: ' . $this->views . '</div><div class="extra-info-rating">Rating: ' . $this->rating . '/5</div></div>';
+    //$tile .= '<div class="extra-info-addon extra-info-bottom-data"><div class="extra-info-views">Views: ' . $this->views . '</div><div class="extra-info-rating">Rating: ' . $this->rating . '/5</div></div>';
     $tile .= '</div></div>';
 
     // Add Site Stats

@@ -8,6 +8,8 @@ Admin area needs to be re-done (manage some things in regular UI) (edit button)
 
 Higher min-height for mobile Filter
 
+Website doesn't open in new tab
+
 Mobile Filters should be hidden by default, visible by button
 
 Back button should return to main browse page

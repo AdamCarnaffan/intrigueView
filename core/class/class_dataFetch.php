@@ -16,12 +16,12 @@ class Tag_Potential extends Tag {
   public static function setBlackList($dbConn) {
     self::$blacklist = [];
     // Fetch the tag blacklist
-    $getBlackList = "SELECT blacklistedTag FROM tag_blacklist";
-    $result = $dbConn->query($getBlackList);
-    while ($row = $result->fetch_array()) {
-      // add each tag to the array
-      self::$blacklist[] = $row[0];
-    }
+    // $getBlackList = "SELECT blacklistedTag FROM tag_blacklist";
+    // $result = $dbConn->query($getBlackList);
+    // while ($row = $result->fetch_array()) {
+    //   // add each tag to the array
+    //   self::$blacklist[] = $row[0];
+    // }
     return;
   }
   
@@ -105,16 +105,16 @@ class Entry_Data extends Entry {
       // Convert all tags to generic tag objects
       $tagObject = new Tag($tagFinal);
       // Begin comparing tags for singulars
-      if (!$tagObject->consolidate($dbConn)) {
-        if ($tagObject->checkPluralization()) {
-          // Check article for singulars
-          foreach ($tagObject->generateTagSingulars() as $single) {
-            if (stripos($this->pageContent, " {$single} ") !== false) {
-              $tagObject->name = $single;
-            }
-          }
-        }
-      }
+      // if (!$tagObject->consolidate($dbConn)) {
+      //   if ($tagObject->checkPluralization()) {
+      //     // Check article for singulars
+      //     foreach ($tagObject->generateTagSingulars() as $single) {
+      //       if (stripos($this->pageContent, " {$single} ") !== false) {
+      //         $tagObject->name = $single;
+      //       }
+      //     }
+      //   }
+      // }
       // Turn each tag into a Tag object
       $tagFinal = $tagObject;
     }
@@ -135,24 +135,12 @@ class Entry_Data extends Entry {
       // Add the tags with connections
       $sortOrder = 1;
       foreach ($this->tags as $tag) {
-        $addTag = "CALL addTag('$tag->name', '$entryID', '$sortOrder')";
-        $dbConn->query($addTag);
+        $dbConn->query("CALL addTag('$tag->name', '$entryID', '$sortOrder')");
         $sortOrder++;
       }
-      return "The entry '{$this->title}' was added successfully";
-    } else if ($dbConn->errno == 1062) {
-      // Make the Connection to the feed, instead of adding the entry
-      $connectEntry = "CALL newEntryConnection('$this->url', '$feedID', @duplicate)";
-      // Run the query and handle responses
-      if ($dbConn->query($connectEntry)) {
-        return "The entry '{$this->title}' was connected to the Feed with ID {$feedID}";
-      } elseif ($dbConn->errno == 1048) {
-        return "The entry is not a duplicate but was handled as such for URL '{$this->url}'";
-      } else {
-        return "{$dbConn->error} with URL '{$this->url}'";
-      }
+      return true;
     } else { // The inital multi-query failed
-      return "{$dbConn->error} with URL '{$this->url}'";
+      throw new exception($dbConn->error);
     }
   }
 
@@ -692,6 +680,17 @@ class Entry_Data extends Entry {
     }
     return;
   }
+  
+  public static function doesExist($url, $feedID, $dbConn) {
+    $getDuplicateEntry = "SELECT IF(COUNT(*) > 0, TRUE, FALSE) as res FROM entries WHERE url = '$url'";
+    if ($dbConn->query($getDuplicateEntry)->fetch_array()[0]) {
+      // Connect the url to the feed if it isn't already
+      $dbConn->query("CALL connectEntry('$url', '$feedID')");
+      return true;
+    }
+    return false;
+  }
+  
 }
 
  ?>
