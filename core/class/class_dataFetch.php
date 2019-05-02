@@ -16,12 +16,12 @@ class Tag_Potential extends Tag {
   public static function setBlackList($dbConn) {
     self::$blacklist = [];
     // Fetch the tag blacklist
-    // $getBlackList = "SELECT blacklistedTag FROM tag_blacklist";
-    // $result = $dbConn->query($getBlackList);
-    // while ($row = $result->fetch_array()) {
-    //   // add each tag to the array
-    //   self::$blacklist[] = $row[0];
-    // }
+    $getBlackList = "SELECT tags.name FROM tag_blacklist AS tb JOIN tags ON tb.tag_id = tags.tag_id";
+    $result = $dbConn->query($getBlackList);
+    while ($row = $result->fetch_array()) {
+      // add each tag to the array
+      self::$blacklist[] = $row[0];
+    }
     return;
   }
   
