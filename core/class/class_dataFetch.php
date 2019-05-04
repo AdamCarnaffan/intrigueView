@@ -1,6 +1,6 @@
 <?php
 
-require_once('class_std.php');
+require_once(ROOT_PATH . '/class/class_std.php');
 
 class Tag_Potential extends Tag {
 
@@ -11,12 +11,12 @@ class Tag_Potential extends Tag {
     $weighted = new Tag_Weighted($this->name, $this->databaseID);
     $weighted->frequency = $this->frequency; // Conserve previous frequency
     return $weighted;
-  }
+  } 
   
   public static function setBlackList($dbConn) {
     self::$blacklist = [];
     // Fetch the tag blacklist
-    $getBlackList = "SELECT tags.name FROM tag_blacklist AS tb JOIN tags ON tb.tag_id = tags.tag_id";
+    $getBlackList = "SELECT tags.tag FROM tag_blacklist AS tb JOIN tags ON tb.tag_id = tags.tag_id";
     $result = $dbConn->query($getBlackList);
     while ($row = $result->fetch_array()) {
       // add each tag to the array
@@ -46,6 +46,8 @@ class Entry_Data extends Entry {
   // Data exclusive
   public $pageContent;
   public $articleText;
+  public $schema;
+  public $meta;
 
   public function __construct($url, $dbConn) {
     $this->url = $url;
@@ -61,6 +63,8 @@ class Entry_Data extends Entry {
       }
     }
     $this->articleText = $this->getArticleContents();
+    $this->schema = extractSchema($this->pageContent);
+    $this->meta = Meta::extractMeta($this->pageContent);
     // get the Site URL for a cross check with the database
     $siteURL = explode("/",$url)[2];
     // Remove the www subdomain if it occurs
@@ -69,7 +73,7 @@ class Entry_Data extends Entry {
     $this->source = new Source_Site($siteURL);
     // Fetch any data from the site if needed
     if ($this->source->icon == null || $this->source->icon == "") {
-      $this->source->getData($dbConn, $this->pageContent);
+      $this->source->getData($dbConn, $this);
     }
     // Get the title from the page
     $this->getTitle();
@@ -84,6 +88,8 @@ class Entry_Data extends Entry {
     if (strlen($this->synopsis) < 20) {
       $this->synopsis = "Click the article to see what it's about!";
     }
+    
+    
     // Call functions to build tag arrays
     $authorTags = $this->getAuthorTags($this->pageContent); // Try to ommit author name from these tags on return
     $titleTags = $this->getTags($this->title);
@@ -144,7 +150,23 @@ class Entry_Data extends Entry {
     }
   }
 
-  public function getArticleContents($needReadable = false) {
+  public function getArticleContents($needReadable = false) { // FIX THIS FUNCTION
+    if ($needReadable) {
+      // Check for schema.org inclusion (this is used to determine compatibility)
+      if ($this->schema != null) {
+        if (property_exists($this->schema, "description")) {
+          return $this->schema->description;
+        }
+      }
+      // Check Meta inclusion
+      if ($this->meta != null) {
+        foreach ($this->meta as $dat) {
+          if ($dat->name == "og:description") {
+            return $dat->value;
+          }
+        }
+      }
+    }
     $articleContent = ['defaultClassing' => '']; // Initialize default as the value when no classes are present
     $input = stripScripting($this->pageContent);
     $pTagSeparated = explode("<p", $input);
@@ -554,52 +576,24 @@ class Entry_Data extends Entry {
 
   public function getImage() {
     // Check for schema.org inclusion (this is used to determine compatibility)
-    if (strpos($this->pageContent, 'schema.org"') !== false && strpos($this->pageContent, '"image":') !== false || strpos($this->pageContent, '"image" :') !== false) {
-      // Remove whitespaces for uniformity of string searches
-      $noWhiteContent = preg_replace('/\s*/m','',$this->pageContent);
-      // Select the beginning position of the required section
-      $beginningPos = strpos($noWhiteContent, '"@context":"http://schema.org"');
-      $beginningPos = ($beginningPos == null) ? strpos($noWhiteContent, '"@context":"https://schema.org"') : $beginningPos;
-      // Find the end and create a string that includes only required properties
-      $contentsTrim = substr($noWhiteContent, $beginningPos, strpos($noWhiteContent,'</script>', $beginningPos) - $beginningPos);
-      // Remove the [] in cases where developers decided to throw those in
-      $noBracketing = str_replace('[','',$contentsTrim);
-      $noBracketingFinal = str_replace(']','',$noBracketing);
-      // Select each instance of ":{" --> if it is preceeded by "image", it contains the image url.
-      $nextContainsURL = false; // Define the variable to prevent exceptions
-      foreach (explode(":{",$noBracketingFinal) as $segment) {
-        if ($nextContainsURL) {
-          $honedURL = substr($segment, strpos($segment, "url"),-1);
-          // If the image is subdivided into another object, progress to that segment instead
-          if (isset(explode('"',$honedURL)[2])) {
-            $imageURL = explode('"',$honedURL)[2];
-            $this->image = validateImageLink($imageURL);
-            return;
-          }
+    if ($this->schema != null) {
+      if (property_exists($this->schema, "image")) {
+        if (is_array($this->schema->image)) {
+          $this->image = validateImageLink($this->schema->image[0]->url);
+        } else {
+          $this->image = validateImageLink($this->schema->image->url);
         }
-        if (substr($segment, strlen($segment) - 7, 7) == '"image"') { // Check if the last characters of a segment are the correct ones for an "image":{} property
-          // Flag the next segment as that with the URL
-          $nextContainsURL = true;
-        }
+        return;
       }
     }
-    if (strpos($this->pageContent, '"og:image"') !== false || strpos($this->pageContent, "'og:image'") !== false) { // Cover Wikipedia type articles which never use schema.org but are common
-      $contentByMeta = explode("<meta", $this->pageContent);
-      foreach ($contentByMeta as $content) {
-        if (strpos($content, '"og:image"') || strpos($content, "'og:image'")) {
-          $contentTrim = explode("/>", $content)[0];
-          $contentTag = substr($contentTrim, strpos($contentTrim, " content="));
-          // Cover cases where single quotes are used to define content (outliers)
-          if (isset(explode('"', $contentTag)[1])) {
-            $imageURL = explode('"', $contentTag)[1];
-          } else {
-            $imageURL = explode("'", $contentTag)[1];
-          }
-          break;
+    // Check Meta inclusion
+    if ($this->meta != null) {
+      foreach ($this->meta as $dat) {
+        if ($dat->name == "og:image") {
+          $this->image = validateImageLink($dat->value);
+          return;
         }
       }
-      $this->image = validateImageLink($imageURL);
-      return;
     }
     if (strpos($this->pageContent,'<div class="post-body__content"><figure') !== false) {
       $contentsTrim = substr($this->pageContent, strpos($this->pageContent, '<div class="post-body__content"><figure'), 600);
@@ -614,31 +608,13 @@ class Entry_Data extends Entry {
   }
 
   public function getTitle() {
-    // Begin by checking meta tags for the title
-    $linkTagSelection = explode("<meta", $this->pageContent);
-    // Remove content from before the <link> tag
-    array_shift($linkTagSelection);
-    // Remove the content after the close of the last />
-    if (count($linkTagSelection) > 0) {
-      $lastTagIndex = count($linkTagSelection)-1;
-      $linkTagSelection[$lastTagIndex] = explode("/>", $linkTagSelection[$lastTagIndex])[0];
-    }
-    foreach ($linkTagSelection as $tag) {
-      if (strpos($tag, '"og:title"') !== false) {
-        if (isset(explode('content="', $tag)[1])) {
-          $titleStart = explode('content="', $tag)[1];
-          $titleFull = explode('"', $titleStart)[0];
-        } else {
-          $titleStart = explode("content='", $tag)[1];
-          $titleFull = explode("'", $titleStart)[0];
+    // Check Meta for Title
+    if ($this->meta != null) {
+      foreach ($this->meta as $dat) {
+        if ($dat->name == "og:title") {
+          $this->title = $dat->value;
+          return;
         }
-        $this->title = $titleFull;
-        return;
-      } else if (strpos($tag, "'og:title'") !== false) { // Use the single quotation mark in the case where it is used in the rel
-        $titleStart = explode("content='", $tag)[1];
-        $titleFull = explode("'", $titleStart)[0];
-        $this->title = $titleFull;
-        return;
       }
     }
     // Check here if a meta title is not available
@@ -648,34 +624,11 @@ class Entry_Data extends Entry {
       $this->title = $titleFull;
       return;
     }
-    // Arriving here indicated that the Title was not found in the <meta> tags OR <title> tags
-    if (strpos($this->pageContent, 'schema.org"') !== false && strpos($this->pageContent, '"headline":') !== false || strpos($this->pageContent, '"headline" :') !== false) {
-      // Remove whitespaces for uniformity of string searches
-      $noWhiteContent = preg_replace('/\s*/m','',$this->pageContent);
-      // Select the beginning position of the required section
-      $beginningPos = strpos($noWhiteContent, '"@context":"http://schema.org"');
-      $beginningPos = ($beginningPos == null) ? strpos($noWhiteContent, '"@context":"https://schema.org"') : $beginningPos;
-      // Find the end and create a string that includes only required properties
-      $contentsTrim = substr($noWhiteContent, $beginningPos, strpos($noWhiteContent,'</script>', $beginningPos) - $beginningPos);
-      // Remove the [] in cases where developers decided to throw those in
-      $noBracketing = str_replace('[','',$contentsTrim);
-      $noBracketingFinal = str_replace(']','',$noBracketing);
-      // Select each instance of ":{" --> if it is preceeded by "image", it contains the image url.
-      $nextContainsURL = false; // Define the variable to prevent exceptions
-      foreach (explode(":{",$noBracketingFinal) as $segment) {
-        if ($nextContainsTitle) {
-          $honedURL = substr($segment, strpos($segment, "headline"),-1);
-          // If the image is subdivided into another object, progress to that segment instead
-          if (isset(explode('"',$honedURL)[2])) {
-            $titleFull = explode('"',$honedURL)[2];
-            $this->title = $titleFull;
-            return;
-          }
-        }
-        if (substr($segment, strlen($segment) - 10, 10) == '"headline"') { // Check if the last characters of a segment are the correct ones for an "image":{} property
-          // Flag the next segment as that with the URL
-          $nextContainsTitle = true;
-        }
+    // Check for schema.org inclusion
+    if ($this->schema != null) {
+      if (property_exists($this->schema, "headline")) {
+        $this->title = $this->schema->headline;
+        return;
       }
     }
     return;

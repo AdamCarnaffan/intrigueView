@@ -16,20 +16,45 @@ function getPageContents($url) {
 function getContentsAsUser($url) {
   // Mimic a user browser request to work around potential 401 FORBIDDEN errors
   $userAgent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36';
+  $header = Array("User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.15) Gecko/20080623 Firefox/2.0.0.15");
   // Instantiate and configure a cURL to mimic a user request (uses the cURL library)
   $curl = curl_init();
   curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+  curl_setopt($curl, CURLOPT_NOBODY, false);
   curl_setopt($curl, CURLOPT_VERBOSE, true);
   curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
   curl_setopt($curl, CURLOPT_USERAGENT, $userAgent);
+  curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
   curl_setopt($curl, CURLOPT_URL, $url);
   // Run a query to the page for source contents using a viewer context
   $pageContents = curl_exec($curl);
+  curl_close($curl);
   // If the page content is still null following this, the site is unreachable, null should be returned
   if ($pageContents == null || $pageContents == false) {
     return null;
   }
   return $pageContents;
+}
+
+function extractSchema($pageContent) { // Returns obj of properties
+  $scrpts = explode("<script", $pageContent);
+  $schem = null;
+  $data = [];
+  foreach ($scrpts as $scr) {
+    if (($ps = strpos($scr, "schema.org")) !== false) {
+      if ($ps < strpos($scr, "</script>")) {
+        $schem = $scr;
+        break;
+      }
+    }
+  }
+  if ($schem == null) {
+    return $data;
+  }
+  $schem = explode("</script>", $schem)[0];
+  $schem = explode(">", $schem, 2)[1];
+  return json_decode($schem);
 }
 
 function validateImageLink($imgURL) {

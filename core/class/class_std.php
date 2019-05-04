@@ -31,7 +31,7 @@ class Source_Site {
     }
   }
 
-  public function getData(mysqli $dbConn, $siteContent = null) {
+  public function getData(mysqli $dbConn, $entryData = null) {
     // Check the DB for the URL
     if ($returnData = $dbConn->query("SELECT site_id, icon FROM sites WHERE url = '$this->url' LIMIT 1")->fetch_array()) {
       $this->id = $returnData[0];
@@ -39,12 +39,15 @@ class Source_Site {
       return;
     }
     // Fetch the info if not available
-    if (is_null($siteContent)) {
-      $pageContent = getPageContents($this->url);
+    $data = (object) array();
+    if (is_null($entryData)) {
+      $data->pageContent = getPageContents($this->url);
+      $data->schema = extractSchema($pageContent);
+      $data->meta = Meta::extractMeta($pageContent);
     } else {
-      $pageContent = $siteContent;
+      $data = $entryData;
     }
-    $this->icon = validateImageLink($this->getPageIcon($pageContent));
+    $this->getPageIcon($data);
     // Submit to database
     if ($dbConn->query("INSERT INTO sites (url, icon) VALUES ('$this->url','$this->icon')")) {
       $this->id = $dbConn->insert_id;
@@ -54,58 +57,37 @@ class Source_Site {
     return;
   }
 
-  public function getPageIcon($pageContents) {
-    // Arriving here indicated that the URL was not found in the <link> tags
-    if (strpos($pageContents, 'schema.org"') !== false && strpos($pageContents, '"logo":') !== false || strpos($pageContents, '"logo" :') !== false) {
-      // Remove whitespaces for uniformity of string searches
-      $noWhiteContent = preg_replace('/\s*/m','',$pageContents);
-      // Select the beginning position of the required section
-      $beginningPos = strpos($noWhiteContent, '"@context":"http://schema.org"');
-      $beginningPos = ($beginningPos == null) ? strpos($noWhiteContent, '"@context":"https://schema.org"') : $beginningPos;
-      // Find the end and create a string that includes only required properties
-      $contentsTrim = substr($noWhiteContent, $beginningPos, strpos($noWhiteContent,'</script>', $beginningPos) - $beginningPos);
-      // Remove the [] in cases where developers decided to throw those in
-      $noBracketing = str_replace('[','',$contentsTrim);
-      $noBracketingFinal = str_replace(']','',$noBracketing);
-      // Select each instance of ":{" --> if it is preceeded by "image", it contains the image url.
-      $nextContainsURL = false; // Define the variable to prevent exceptions
-      foreach (explode(":{",$noBracketingFinal) as $segment) {
-        if ($nextContainsURL) {
-          $honedURL = substr($segment, strpos($segment, "url"),-1);
-          // If the image is subdivided into another object, progress to that segment instead
-          if (isset(explode('"',$honedURL)[2])) {
-            $imageURL = explode('"',$honedURL)[2];
-            return $imageURL;
-          }
+  public function getPageIcon($pageData) {
+    // Check Schema
+    if ($pageData->schema != null) {
+      if (property_exists($pageData->schema, "logo")) {
+        if (is_array($pageData->schema->logo)) {
+          $this->icon = $this->fixURLPathing(validateImageLink($pageData->schema->logo[0]->url));
+        } else {
+          $this->icon = $this->fixURLPathing(validateImageLink($pageData->schema->logo->url));
         }
-        if (substr($segment, strlen($segment) - 6, 6) == '"logo"') { // Check if the last characters of a segment are the correct ones for an "image":{} property
-          // Flag the next segment as that with the URL
-          $nextContainsURL = true;
+        return;
+      }
+    }
+    // Check Meta inclusion
+    if ($pageData->meta != null) {
+      // Check higher res first
+      foreach ($pageData->meta as $dat) {
+        if ($dat->name == "logo" || $dat->name == "icon") {
+          $this->icon = $this->fixURLPathing(validateImageLink($dat->value));
+          return;
+        }
+      }
+      // Then get backups
+      foreach ($pageData->meta as $dat) {
+        if ($dat->name == "shortcut icon" || $dat->name == "apple-touch-icon") {
+          $this->icon = $this->fixURLPathing(validateImageLink($dat->value));
+          return;
         }
       }
     }
-    $linkTagSelection = explode("<link",$pageContents);
-    // Remove content from before the <link> tag
-    array_shift($linkTagSelection);
-    // Remove the content after the close of the last />
-    if (count($linkTagSelection) > 0) {
-      $lastTagIndex = count($linkTagSelection)-1;
-      $linkTagSelection[$lastTagIndex] = explode(">", $linkTagSelection[$lastTagIndex])[0];
-    }
-    foreach ($linkTagSelection as $tag) {
-      if (strpos($tag, '"icon"') !== false || strpos($tag, " icon") !== false || strpos($tag, "icon ") !== false) {
-        $iconURL = explode('href="', $tag)[1];
-        $iconURL = explode('"', $iconURL)[0];
-        $iconURLFinal = $this->fixURLPathing($iconURL);
-        return $iconURLFinal;
-      } elseif (strpos($tag, "'icon'") !== false) { // Use the single quotation mark in the case where it is used in the rel
-        $iconURL = explode("href='", $tag)[1];
-        $iconURL = explode("'", $iconURL)[0];
-        $iconURLFinal = $this->fixURLPathing($iconURL);
-        return $iconURLFinal;
-      }
-    }
-    return null;
+    $this->icon = null;
+    return;
   }
 
   public function fixURLPathing($url) {
@@ -192,7 +174,7 @@ class Entry {
     // Get the current sort order position
     $sortOrder = $dbConn->query("SELECT sort_order FROM entry_tags WHERE entry_id = '$this->id' ORDER BY sort_order DESC LIMIT 1")->fetch_array()[0];
     // Add the tags
-    print_r($newTags);
+    // print_r($newTags);
     foreach ($newTags as $tag) {
       $sortOrder++;
       $callStr = "CALL addTag('$tag', '$this->id', '$sortOrder')";
@@ -202,6 +184,87 @@ class Entry {
     return;
   }
 
+}
+
+class Meta {
+  
+  public $name;
+  public $value;
+  
+  public function __construct($name, $value) {
+    $this->name = $name;
+    $this->value = $value;
+  }
+    
+  public static function extractMeta($pageContent) { // Returns list of metas
+    // clean content of script
+    $pageContent = stripScripting($pageContent);
+    // echo $pageContent;
+    // Examine tags
+    $allMeta = explode("<meta", $pageContent);
+    array_shift($allMeta);
+    $allLink = explode("<link", $pageContent);
+    array_shift($allLink);
+    $data = [];
+    // Process Meta Tags
+    foreach ($allMeta as $metaLine) {
+      $nm = null;
+      $val = null;
+      // Extract Line Data
+      $dt = explode("'", $metaLine);
+      if (count($dt) < 2) {
+        $dt = explode('"', $metaLine);
+      }
+      $cont = false;
+      foreach ($dt as $ind=>$ln) {
+        if ($cont) { continue; }
+        if (strpos($ln, " name=") !== false || strpos($ln, " property=") !== false || strpos($ln, " itemprop=") !== false) {
+          $nm = ($ind+1 < count($dt)) ? $dt[$ind+1] : null;
+        } else if (strpos($ln, " content=") !== false || strpos($ln, "value=") !== false) {
+          $val = ($ind+1 < count($dt)) ? $dt[$ind+1] : null;
+        }
+      }
+      $meta = new Meta($nm, $val);
+      if ($meta->name == null || $meta->value == null) {
+        continue;
+      } else { array_push($data, $meta); }
+    }
+    // Process Link tags
+    foreach ($allLink as $linkLine) {
+      $nm = null;
+      $val = null;
+      // Extract Line Data
+      $dt = explode("'", $linkLine);
+      if (count($dt) < 2) {
+        $dt = explode('"', $linkLine);
+      }
+      $cont = false;
+      foreach ($dt as $ind=>$ln) {
+        if ($cont) { $cont = false; continue; }
+        if (strpos($ln, " rel=") !== false || strpos($ln, " itemprop=") !== false) {
+          $nm = ($ind+1 < count($dt)) ? $dt[$ind+1] : null;
+          $cont = true;
+        } else if (strpos($ln, " href=") !== false) {
+          $val = ($ind+1 < count($dt)) ? $dt[$ind+1] : null;
+          $cont = true;
+        }
+      }
+      $meta = new Meta($nm, $val);
+      if ($meta->name == null || $meta->value == null) {
+        continue;
+      } else { array_push($data, $meta); }
+    }
+    // Filter array to make unique name for meta
+    $final = [];
+    foreach ($data as $met) {
+      $fnd = false;
+      foreach ($final as $v) {
+        if ($v->name == $met->name) {$fnd = true; break;}
+      }
+      if (!$fnd) {array_push($final, $met);}
+    }
+    return $final;
+  }
 }
 
 class Tag {
