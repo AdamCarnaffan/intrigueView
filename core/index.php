@@ -25,7 +25,7 @@ require_once(ROOT_PATH . '/bin/manageUser.php');
   <script src='js/bootstrap.js'></script>
   <script src='js/loginManager.js'></script>
 </head>
-<body class="hide-overflow dark-back" onresize='resizeCanvas'>
+<body class="hide-overflow back" onresize='resizeCanvas'>
   <!-- Fixed navbar -->
 <nav class="navbar navbar-expand-md navbar-dark bg-dark dropdown-ontop">
   <a class="icon-brand icon-sprite-white" href="index.php"></a>

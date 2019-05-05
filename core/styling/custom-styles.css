@@ -2,8 +2,8 @@
   overflow-x: hidden;
   min-height: 100%;
 }
-.dark-back {
-  background-color: #475058;
+.back {
+  background-color: #e5f3ff;
 }
 .intview-color {
   color: #2888a7 !important;
@@ -100,7 +100,7 @@
 .entry-heading {
   padding: 0.25rem;
   margin-bottom: .4rem;
-  color: #dedede;
+  color: black;
 }
 .entry-stats {
   position: relative;
@@ -136,7 +136,7 @@
 }
 .entry-tile {
   /*border: 1px solid rgba(210,210,210,0.4);*/
-  background-color: #343a40;
+  background-color: #65c1de;
   /* box-shadow: 0.05rem 0.05rem rgba(128,128,128,0.35); */
   height: 20rem;
   display: flex;
