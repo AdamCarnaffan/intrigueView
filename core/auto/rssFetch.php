@@ -3,7 +3,7 @@ require_once('../config.php');
 require_once(ROOT_PATH . '/bin/dbConnect.php');
 require_once(ROOT_PATH . '/class/class_dataFetch.php');
 
-$_POST['sourceID'] = 1;
+// $_POST['sourceID'] = 1;
 
 
 // Get the Source ID for database selection of feed

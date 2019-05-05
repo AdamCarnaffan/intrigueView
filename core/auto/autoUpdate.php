@@ -1,17 +1,19 @@
 <?php
-include_once('dbConnect.php');
-// Select all pocket type feeds from the database
-$getFeeds = "SELECT externalFeedID, url FROM external_feeds WHERE active = 1";
+require_once('../config.php');
+require_once(ROOT_PATH . '/bin/dbConnect.php');
+
+// Select all external feeds from the database
+$getFeeds = "SELECT feed_id FROM feeds WHERE active = 1";
 
 $rssFeeds = [];
 $result = $conn->query($getFeeds);
 while ($row = $result->fetch_array()) {
-  array_push($rssFeeds, $row[0]);
+  $rssFeeds[] = $row[0];
 }
 
 foreach ($rssFeeds as $feed) {
   $_POST['sourceID'] = $feed;
-  include('rssFetch.php');
+  include(ROOT_PATH . '/auto/rssFetch.php');
 }
 
  ?>
