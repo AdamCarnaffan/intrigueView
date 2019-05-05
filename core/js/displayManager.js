@@ -181,6 +181,7 @@ function queryEntries(selection, feeds, displayRecommended, scroll = false) {
     dataType: 'json',
     attempt: 0,
     retryLimit: 5,
+    tryCount: 1,
     success: function (data) {
       // Remove the loading dots
       $('#loading').remove();
@@ -216,9 +217,11 @@ function queryEntries(selection, feeds, displayRecommended, scroll = false) {
         }
       });
     },
-    error: function() {
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
       this.tryCount++;
       if (this.tryCount <= this.retryLimit) {
+        console.log(errorThrown);
+        console.log("Retrying...");
         $.post(this);
         return;
       } else {

@@ -117,6 +117,7 @@ class Entry {
       // Clean this up
       $entryID = $data;
       $data = $dbConn->query("SELECT title, site_id, url, thumbnail, synopsis FROM entries WHERE entry_id = '$entryID' LIMIT 1")->fetch_array();
+      if ($data == null) { throw new Exception("The entry could not be found with entry ID $entryID"); }
       $data['entry_id'] = $entryID;
     }
     // Begin building the object

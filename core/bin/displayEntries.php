@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', '0');
+
 require_once('../config.php');
 require_once(ROOT_PATH . '/bin/dbConnect.php');
 require_once(ROOT_PATH . '/class/class_dataDisplay.php');
@@ -186,11 +188,14 @@ while ($row = $entries->fetch_array()) {
             break;
           }
         }
+        // print_r($user->recommendations);
+        // echo "</br>";
         // Check that the recommendation is not being displayed in this feed
         $checkRecom = "SELECT entry_id FROM feed_entries AS entryConn
                         WHERE feed_id IN ('$selectedFeedList') AND entry_id = '{$user->recommendations[$recomNumber]}'";
         if (!$conn->query($checkRecom)->fetch_array()) {
-          $entry = new Entry_Display($user->recommendations[$recomNumber], $conn, $context, true);
+          // echo $user->recommendations[$recomNumber];
+          $entry = new Entry_Display($user->recommendations[$recomNumber], $conn);
           $tempTile = $entry->displayEntryTile($entryDisplayNumber, $features);
           array_push($display, $tempTile);
           $entryDisplayNumber++;
