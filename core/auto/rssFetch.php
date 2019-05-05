@@ -121,9 +121,7 @@ for ($entryNumber = count($xml->channel->item) - 1; $entryNumber >= 0; $entryNum
         $entryInfo->title = $item->title;
       }
       $entryInfo->submitEntry($conn, $feedSelection->id, $dateAdded);
-      // LOG -> Entry added to db successfully
-      $logErr = "Adding the entry succeeded";
-      $conn->query("INSERT INTO entry_log (entry_id, status, success) VALUES ('$entryInfo->id', '$logErr', 0)");
+      // LOG -> Entry added to db successfully (Done internally)
       $entriesAdded++;
     } catch (Exception $e) {
       // LOG -> Exception with getting entry data or submitting

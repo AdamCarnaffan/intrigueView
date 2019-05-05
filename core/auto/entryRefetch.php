@@ -3,7 +3,7 @@ require_once('../config.php');
 require_once(ROOT_PATH . '/bin/dbConnect.php');
 require_once(ROOT_PATH . '/class/class_dataFetch.php');
 
-$_POST['entry_id'] = 49; // Select entry to re-fetch
+$_POST['entry_id'] = 66; // Select entry to re-fetch
 
 $selectedEntry = $_POST['entry_id'];
 

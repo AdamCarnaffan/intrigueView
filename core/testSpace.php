@@ -4,7 +4,7 @@ require_once('config.php');
 require_once(ROOT_PATH . '/bin/dbConnect.php');
 require_once(ROOT_PATH . '/class/class_dataFetch.php');
 
-$url = "https://photography.tutsplus.com/articles/100-free-photoshop-actions-and-how-to-make-your-own--photo-3502";
+$url = "https://www.youtube.com/watch?v=EAJM5L9hhBs";
 
 // Get tag blacklist
 if (Tag_Potential::getBlackList() == null) {
@@ -13,10 +13,9 @@ if (Tag_Potential::getBlackList() == null) {
 
 $entryInfo = new Entry_Data($url, $conn);
 
-$entryInfo->source->getPageIcon($entryInfo);
+echo "</br>";
+print_r($entryInfo->schema);
 
-echo $entryInfo->source->icon . "</br>";
-
-print_r($entryInfo->meta);
+print_r($entryInfo->tags);
 
  ?>
