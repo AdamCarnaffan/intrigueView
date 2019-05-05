@@ -1,7 +1,7 @@
 <?php
-require_once('class/class_userData.php');
-require_once('fixSession.php');
-require_once('dbConnect.php');
+require_once('../config.php');
+require_once(ROOT_PATH . '/bin/dbConnect.php');
+require_once(ROOT_PATH . '/class/class_userData.php');
 
 // Add the view in the post
 
@@ -10,9 +10,9 @@ require_once('dbConnect.php');
 $user = $_SESSION['user'];
 $selectedEntry = (int)$_POST['entry'];
 
-$conn->query("UPDATE entries SET views = views + 1 WHERE entryID = '$selectedEntry'");
+$conn->query("INSERT INTO user_views (user_id, entry_id) VALUES ({$user->id}, $selectedEntry)");
 
 // Add the view in the user
 
-$user->view(new Entry($selectedEntry, $conn), $conn);
+// $user->view(new Entry($selectedEntry, $conn), $conn);
 ?>
