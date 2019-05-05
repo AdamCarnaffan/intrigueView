@@ -89,7 +89,6 @@ class Entry_Data extends Entry {
       $this->synopsis = "Click the article to see what it's about!";
     }
     
-    
     // Call functions to build tag arrays
     $authorTags = $this->getAuthorTags($this->pageContent); // Try to ommit author name from these tags on return
     $titleTags = $this->getTags($this->title);
@@ -281,7 +280,7 @@ class Entry_Data extends Entry {
 
   public function getTags($content) {
     $tags = [];
-    $fillerWords = ['when', 'there', 'said', 'dr', 'after', 'my', 'doesn’t', 'who', 'now', 'most', 'good', 'receiving', 'place', 'should', 'best', 'using', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'mr', 'ms', 'mrs', 'dr', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
+    $fillerWords = ['when', 'there', 'loading', 'said', 'dr', 'after', 'my', 'doesn’t', 'who', 'now', 'most', 'good', 'receiving', 'place', 'should', 'best', 'using', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'mr', 'ms', 'mrs', 'dr', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
     $splitContent = explode(' ', stripPunctuation($content));
     foreach ($splitContent as &$word) {
       // Remove ALL whitespace
@@ -326,27 +325,38 @@ class Entry_Data extends Entry {
 
   public function getAuthorTags($pageContent) {
     $tags = [];
-    if (strpos($pageContent, 'schema.org"') !== false && strpos($pageContent, '"keywords":') !== false || strpos($pageContent, '"keywords" :') !== false) {
-      // Take out white space for uniformity
-      $noWhiteSpace = preg_replace('/\s*/m', '', $pageContent);
-      // Get the begining position of the schema
-      $startPos = strpos($noWhiteSpace, '"@context":"http://schema.org"');
-      $startPos = ($startPos == null) ? strpos($noWhiteSpace, '"@context":"https://schema.org"') : $startPos;
-      // Get the Schema information script
-      $finalContent = substr($noWhiteSpace, $startPos, strpos($noWhiteSpace, '</script>', $startPos) - $startPos);
-      // Select the Keywords tag from the schema
-      $keyWordSelect = explode('"keywords":', $pageContent)[1];
-      // Breakdown the element into a list of components
-      $tagList = explode('[', $keyWordSelect)[1];
-      $tagListFinished = explode(']', $tagList)[0];
-      $removeTagQuotes = str_replace('"', "", $tagListFinished);
-      // Explode the list into individual elements of an array
-      $initialTagArray = explode(',', $removeTagQuotes);
-      foreach ($initialTagArray as $tag) {
-        $tags[$tag] = 1;
+    if ($this->schema != null) {
+      if (property_exists($this->schema, "keywords")) {
+        if (is_array($this->schema->keywords)) {
+          foreach ($this->schema->keywords as $word) {
+            $tags[] = $word;
+          }
+        } else {
+          $tags[] = $this->schema->keywords;
+        }
       }
     }
-    return $this->buildTags($tags);
+    // Check Meta inclusion
+    if ($this->meta != null) {
+      foreach ($this->meta as $dat) {
+        if ($dat->name == "parsely-tags") {
+          foreach (explode(",", $dat->value) as $word) {
+            $tags[] = $word;
+          }
+        }
+      }
+    }
+    $tags = array_unique($tags);
+    // Filter tags for useless default tags
+    $defs = ["default", "top-image", "related-video"];
+    $finals = [];
+    foreach ($tags as $tg) {
+      if (in_array($tg, $defs)) {
+        continue;
+      }
+      $finals[] = $tg;
+    }
+    return $this->buildTags($finals);
   }
 
   // Tag Evaluations
@@ -372,6 +382,7 @@ class Entry_Data extends Entry {
     foreach ($input4 as $tagObject) {
       array_push($url, $tagObject->name);
     }
+    // print_r([$input1, $input2, $input3, $input4]);
     /*
     PRIORITY LIST
     -----------------
@@ -425,8 +436,8 @@ class Entry_Data extends Entry {
     /*
     TRIPLE W/ URL --> 5
     TRIPLE W/O URL --> 2
-    DOUBLE W/ URL --> 2
-    DOUBLE W/ Auth --> 1.3
+    DOUBLE W/ URL --> 1.8
+    DOUBLE W/ Auth --> 3
     DOUBLE W/ Title --> 0.8
     CONTENT FREQ TOP 10% --> 0.4
     */
@@ -435,7 +446,7 @@ class Entry_Data extends Entry {
     $subjects = 3;
     $triple = 2;
     $doubleU = 1.8;
-    $doubleA = 1.3;
+    $doubleA = 3;
     $doubleT = 0.8;
     $contFreq = 0.4;
     // Process All Final Tags
@@ -597,7 +608,7 @@ class Entry_Data extends Entry {
     }
     if (strpos($this->pageContent,'<div class="post-body__content"><figure') !== false) {
       $contentsTrim = substr($this->pageContent, strpos($this->pageContent, '<div class="post-body__content"><figure'), 600);
-      echo $contentsTrim;
+      // echo $contentsTrim;
       $targetURL = substr($contentsTrim, strpos($contentsTrim, '<img src='), 400);
       $imageURL = explode('"',$targetURL)[1];
       $this->image = validateImageLink($imageURL);
