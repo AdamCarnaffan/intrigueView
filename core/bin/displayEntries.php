@@ -215,7 +215,7 @@ while ($row = $entries->fetch_array()) {
 if (!$entriesFound && ($search == true || $tagged == true)) {
   array_push($display, "<h4>No Entries were found matching the provided parameters.</h4>");
 } elseif (!$entriesFound) {
-  array_push($display, "<h4>This Feed does not have any entries yet. Check out the <a href='feedBuilder.php'>Feed Builder</a> to find out how to add your own!</h4>");
+  array_push($display, "<h4>This Feed does not have any entries yet</h4>");
 }
 $finalDisplay = implode($display);
 $fullQuery = ($entryDisplayNumber-1 >= $selectionLimit) ? 'true' : 'false';
