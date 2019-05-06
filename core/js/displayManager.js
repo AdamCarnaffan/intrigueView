@@ -1,7 +1,15 @@
-var mainPath = location.href;
-if (mainPath.charAt(mainPath.length - 1) == '/') {
-  mainPath = mainPath.substring(0, mainPath.length - 1);
-}
+var mainPath;
+
+$(document).ready( function() {
+  mainPath = location.href.split('?')[0];
+  splt = mainPath.split('/');
+  splt.pop();
+  mainPath = splt.join('/');
+  if (mainPath.charAt(mainPath.length - 1) == '/') {
+    mainPath = mainPath.substring(0, mainPath.length - 1);
+  }
+});
+
 
 function openInNewTab(url, entryID) {
   var tab = window.open(url, '_blank');

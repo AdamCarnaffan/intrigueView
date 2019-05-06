@@ -25,7 +25,7 @@ require_once(ROOT_PATH . '/bin/manageUser.php');
   <script src='js/bootstrap.js'></script>
   <script src='js/loginManager.js'></script>
 </head>
-<body class="hide-overflow back" onresize='resizeCanvas'>
+<body class="hide-overflow dark-back" onresize='resizeCanvas'>
   <!-- Fixed navbar -->
 <nav class="navbar navbar-expand-md navbar-dark bg-dark dropdown-ontop">
   <a class="icon-brand icon-sprite-white" href="index.php"></a>
@@ -134,15 +134,15 @@ var entriesDisplayed = 0;
 var search = "";
 var queryTags = [];
 var display = true;
-var feedSelection = [2];
+var feedSelection = [1];
 var currentTagMode = 1; // Defined in a global scope to use in multiple functions
 // Toggle the AND selection
 $('#and-tag').toggleClass('toggle-button-class');
-// Make initial display
-queryEntries(51, feedSelection, true, true);
-getTags();
+// getTags();
 
 $(document).ready( function () {
+  // Make initial display
+  queryEntries(51, feedSelection, true, true);
   // Reset scroll before watching for scroll changes
   $(this).scrollTop(0);
   // Begin waiting for the scroll
