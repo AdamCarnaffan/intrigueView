@@ -4,22 +4,12 @@ A Site that uses javascript to display content has nothing to show when pulled (
 
 checkURLPathing() Makes http:// the standard when sometimes this doesn't work
 
-Admin area needs to be re-done (manage some things in regular UI) (edit button)
-
-Higher min-height for mobile Filter
-
-Website doesn't open in new tab
-
-Mobile Filters should be hidden by default, visible by button
-
-Back button should return to main browse page
-
 Allow multi-word tags where phrases are used repeatedly (Net Neutrality)
     when a tag is used more than 3 times, check the word in front of the tag and behind the tag.
     if either of these values are repeated for the majority of instances of the tag, they become part of the tag.
     this is repeated for the same side until it returns false or hits a cap of 3 words.
 
-Change filler image to default intrigue view !
+Change filler image to default intrigue view!
 
 Add view when the article is opened by middle mouse or right click
 
@@ -27,22 +17,13 @@ Add ability to rate
 
 Update ViewFeed.php
 
-#viewFeed appending in browse
-
-UI Needed for:
-----------------
-Refetch article
-removing tag
-feedback
-context menu (triple dots)
-
 Profanity Filter Title
 
 Add ability to re-order the tags on an article
 
 Add ability to manage and flag tags --> flagged tags must be confirmed before the article is displayed
 
-Make tags filter out verbs, they make poor tags --> a hurculeian task
+Make tags filter out verbs, they make poor tags --> a herculean task
 
 Make the feed builder
 
@@ -53,10 +34,3 @@ Use JS to preserve the check mark on entries recently saved
 Feedback needs to be related to recommendations (recalculate trends every generation)
 
 Determine which search keys to use to fetch each day
-
-----------------------
-
-To do:
-
-Allow for phrase tags
-Make new filler image
