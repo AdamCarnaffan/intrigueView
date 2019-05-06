@@ -24,7 +24,7 @@ DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `addTag` (IN `tag_name` VARCHAR(35), IN `ent_id` INT, IN `srtord` INT)  BEGIN
+CREATE PROCEDURE `addTag` (IN `tag_name` VARCHAR(35), IN `ent_id` INT, IN `srtord` INT)  BEGIN
 		SELECT tag_id INTO @tg_id FROM tags WHERE tag = tag_name LIMIT 1;
 		IF (@tg_id IS NULL) THEN
         	INSERT INTO tags (tag) VALUES (tag_name);
@@ -32,7 +32,7 @@ CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `addTag` (IN `tag_name` VARCHAR(35),
         INSERT INTO entry_tags (entry_id, tag_id, sort_order) VALUES (ent_id, (SELECT tag_id FROM tags WHERE tag = tag_name LIMIT 1), srtord);
     END$$
 
-CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `connectEntry` (IN `url_add` VARCHAR(255), IN `fd_id` INT)  BEGIN
+CREATE PROCEDURE `connectEntry` (IN `url_add` VARCHAR(255), IN `fd_id` INT)  BEGIN
     	SELECT entry_id INTO @pulled_entry_id FROM entries WHERE url = url_add;
         SELECT conn_id INTO @conned FROM feed_entries WHERE feed_id = fd_id AND entry_id = @pulled_entry_id;
         IF @conned IS NOT NULL THEN
@@ -40,7 +40,7 @@ CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `connectEntry` (IN `url_add` VARCHAR
         END IF;
 	END$$
 
-CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `createUser` (IN `username` VARCHAR(24), IN `passwrd` TEXT, IN `email` VARCHAR(255), OUT `usr_id` INT(11), OUT `coll_id` INT(11))  BEGIN
+CREATE PROCEDURE `createUser` (IN `username` VARCHAR(24), IN `passwrd` TEXT, IN `email` VARCHAR(255), OUT `usr_id` INT(11), OUT `coll_id` INT(11))  BEGIN
     	INSERT INTO `users` (username, password, email) VALUES (username, passwrd, email);
         SELECT LAST_INSERT_ID() INTO @v_user_id FROM `users` LIMIT 1;
         INSERT INTO `collections` (owner, title, description) VALUES (@v_user_id, 'Saved', 'A Collection of all of your saved readings');
@@ -50,7 +50,7 @@ CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `createUser` (IN `username` VARCHAR(
         SET coll_id = @v_coll_id;
     END$$
 
-CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `newEntry` (IN `st_id` INT, IN `fd_id` INT, IN `ttl` TEXT, IN `url_add` VARCHAR(255), IN `dt` DATETIME, IN `image` TEXT, IN `synopsis_add` TEXT, OUT `newID` INT)  BEGIN
+CREATE PROCEDURE `newEntry` (IN `st_id` INT, IN `fd_id` INT, IN `ttl` TEXT, IN `url_add` VARCHAR(255), IN `dt` DATETIME, IN `image` TEXT, IN `synopsis_add` TEXT, OUT `newID` INT)  BEGIN
     	INSERT INTO entries (site_id, title, url, published, thumbnail, synopsis) VALUES (st_id, ttl, url_add, dt, image, synopsis_add);
         SELECT LAST_INSERT_ID() INTO @new FROM entries LIMIT 1;
         INSERT INTO feed_entries (feed_id, entry_id) VALUES (fd_id, @new);
@@ -58,7 +58,7 @@ CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `newEntry` (IN `st_id` INT, IN `fd_i
         SET newID = @new;
     END$$
 
-CREATE DEFINER=`root`@`127.0.0.1` PROCEDURE `startFetchLog` (IN `fd_id` INT, OUT `sess_id` INT)  BEGIN
+CREATE PROCEDURE `startFetchLog` (IN `fd_id` INT, OUT `sess_id` INT)  BEGIN
     	SELECT IFNULL(MAX(fetch_id) + 1, 1) INTO @tt FROM fetch_log;
     	INSERT INTO fetch_log (fetch_id, feed_id, status, success) VALUES (@tt, fd_id, 'Began Fetch Procedure', 1);
         SET sess_id = @tt;
