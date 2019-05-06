@@ -132,17 +132,16 @@ class Entry_Data extends Entry {
     // Build the Query
     $addEntry = "CALL newEntry('{$this->source->id}','$feedID', '$this->title','$this->url','$date','$this->image','$this->synopsis', @newID);
                   SELECT @newID;";
-    $sortOrder = 1;
     foreach ($this->tags as $tag) {
       $addEntry = $addEntry . "CALL addTag('$tag->name', @newID, '$sortOrder'); ";
       $sortOrder++;
     }
     if ($dbConn->multi_query($addEntry)) {
-      // Cycle to second query
+      while ($dbConn->more_results()) {
+        $dbConn->next_result();
+      }
       $dbConn->next_result();
-      // Get the new entry's ID
-      $this->id = $dbConn->store_result()->fetch_array()[0];
-      // Add the tags with connections
+      $res = $dbConn->store_result();
       return true;
     } else { // The inital multi-query failed
       throw new exception($dbConn->error);
@@ -280,7 +279,7 @@ class Entry_Data extends Entry {
 
   public function getTags($content) {
     $tags = [];
-    $fillerWords = ['when', 'there', 'loading', 'said', 'dr', 'after', 'my', 'doesn’t', 'who', 'now', 'most', 'good', 'receiving', 'place', 'should', 'best', 'using', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'mr', 'ms', 'mrs', 'dr', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
+    $fillerWords = ['when', 'there', 'loading', 'working', 'said', 'dr', 'after', 'my', 'doesn’t', 'who', 'now', 'most', 'good', 'receiving', 'place', 'should', 'best', 'using', 'create', 'some', 'see', 'var', 'amp', 'click', "i'd", 'per', 'mr', 'ms', 'mrs', 'dr', 'called', 'go', 'also', 'each', 'seen', 'where', 'going', 'were', 'would', 'will', 'your', 'so', 'where', 'says', 'off', 'into', 'how', 'you', 'one', 'two', 'three', 'four', 'know', 'say', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'way', 'get', 'been', 'his', 'her', 'are', 'was', 'few', 'finally', 'not', 'can', 'be', 'exactly', 'our', 'still', 'need', 'up', 'down', 'new', 'old', 'the', 'own', 'enough', 'which', 'is', 'at', 'did', "don't", 'even', 'out', 'like', 'make', 'them', 'and', 'no', 'yes', 'on', 'why', "hasn't", 'hasn&#x27;t', 'then', 'we’re', 'we’re', 'or', 'do', 'any', 'if', 'that’s', 'could', 'only', 'again', "it’s", 'use', 'i', "i'm", 'i’m', 'it', 'as', 'in', 'from', 'an', 'yet', 'but', 'while', 'had', 'its', 'have', 'about', 'more', 'than', 'then', 'has', 'a', 'we', 'us', 'he', 'they', 'their', "they're", 'they&#x27;re', 'they&#x27;d', "they'd", 'this', 'he', 'she', 'to', 'for', 'without', 'all', 'of', 'with', 'that', "that's", 'what', 'by', 'just', "we're"];
     $splitContent = explode(' ', stripPunctuation($content));
     foreach ($splitContent as &$word) {
       // Remove ALL whitespace
@@ -647,6 +646,8 @@ class Entry_Data extends Entry {
   
   public static function doesExist($url, $feedID, $dbConn) {
     $getDuplicateEntry = "SELECT IF(COUNT(*) > 0, TRUE, FALSE) as res FROM entries WHERE url = '$url'";
+    $dbConn->query($getDuplicateEntry);
+    echo $dbConn->error;
     if ($dbConn->query($getDuplicateEntry)->fetch_array()[0]) {
       // Connect the url to the feed if it isn't already
       $dbConn->query("CALL connectEntry('$url', '$feedID')");
