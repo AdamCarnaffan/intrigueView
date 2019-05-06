@@ -34,3 +34,7 @@ Use JS to preserve the check mark on entries recently saved
 Feedback needs to be related to recommendations (recalculate trends every generation)
 
 Determine which search keys to use to fetch each day
+
+-------
+
+Feed entries connects entries twice
