@@ -131,18 +131,18 @@ class Entry_Data extends Entry {
     $this->synopsis = $dbConn->real_escape_string($this->synopsis);
     // Build the Query
     $addEntry = "CALL newEntry('{$this->source->id}','$feedID', '$this->title','$this->url','$date','$this->image','$this->synopsis', @newID);
-                  SELECT @newID";
+                  SELECT @newID;";
+    $sortOrder = 1;
+    foreach ($this->tags as $tag) {
+      $addEntry = $addEntry . "CALL addTag('$tag->name', @newID, '$sortOrder'); ";
+      $sortOrder++;
+    }
     if ($dbConn->multi_query($addEntry)) {
       // Cycle to second query
       $dbConn->next_result();
       // Get the new entry's ID
-      $entryID = $dbConn->store_result()->fetch_array()[0];
+      $this->id = $dbConn->store_result()->fetch_array()[0];
       // Add the tags with connections
-      $sortOrder = 1;
-      foreach ($this->tags as $tag) {
-        $dbConn->query("CALL addTag('$tag->name', '$entryID', '$sortOrder')");
-        $sortOrder++;
-      }
       return true;
     } else { // The inital multi-query failed
       throw new exception($dbConn->error);
