@@ -1,9 +1,7 @@
 var mainPath = location.href;
-v = mainPath.split('/');
-v.splice(-1,1);
-v.splice(0, 3);
-mainPath = v.join('/');
-mainPath = '/' + mainPath;
+if (mainPath.charAt(mainPath.length - 1) == '/') {
+  mainPath = mainPath.substring(0, mainPath.length - 1);
+}
 
 function openInNewTab(url, entryID) {
   var tab = window.open(url, '_blank');
@@ -299,7 +297,7 @@ function getTags() {
   // Empty the current Tags field
   $('#tag-collection').html('');
   $.post({
-    url: mainPath + '/bin/displayTags.php',
+    url: mainPath + 'bin/displayTags.php',
     data: {
       'tags': tagString,
       'feeds': feedString
