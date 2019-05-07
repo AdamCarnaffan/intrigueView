@@ -5,7 +5,6 @@ require_once(ROOT_PATH . '/class/class_dataFetch.php');
 
 // $_POST['sourceID'] = 1;
 
-
 // Get the Source ID for database selection of feed
 $sourceID = $_POST['sourceID'];
 $expectShutdown = false;
@@ -51,7 +50,6 @@ register_shutdown_function(function() use ($feedSelection, $fetchSession, $conn,
     // LOG -> shutdown time
     if (!$expectShutdown) {
       $logErr = "Encountered an unexpected shutdown";
-      $succ = 0;
       $conn->query("INSERT INTO fetch_log (fetch_id, feed_id, status, success) VALUES ('$fetchSession', '$feedSelection->id', '$logErr', 0)");
     }
   } catch (exception $e) {

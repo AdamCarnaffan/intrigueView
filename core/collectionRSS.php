@@ -1,7 +1,9 @@
 <?php
 	// Encode the page
 	header("Content-Type: application/xml;charset=UTF-8");
-	require('dbConnect.php');
+  // Include requirements
+  require_once('config.php');
+	require_once(ROOT_PATH . '/bin/dbConnect.php');
 	// Set Default Values
 	$feedSize = (isset($_GET['size'])) ? $_GET['size'] : "*";
 	$feedIDs = (isset($_GET['selection'])) ? explode(' ', $_GET['selection']) : [0];
@@ -15,11 +17,11 @@
 	// Fetch subscribed feeds from the database
 	$initalFeedSelection = implode(',',$feedIDs);
 	// Query and fetch connected Feeds
-	$getFeedIDs = "SELECT sourceFeed FROM feed_connections WHERE internalFeed IN('$initalFeedSelection')";
-	$feedIDData = $conn->query($getFeedIDs);
-	while ($feedID = $feedIDData->fetch_array()[0]) {
-		$feedIDs[] = $feedID;
-	}
+	// $getFeedIDs = "SELECT sourceFeed FROM feed_connections WHERE internalFeed IN('$initalFeedSelection')";
+	// $feedIDData = $conn->query($getFeedIDs);
+	// while ($feedID = $feedIDData->fetch_array()[0]) {
+	// 	$feedIDs[] = $feedID;
+	// }
 	// verify that no feed now exists twice
 	array_unique($feedIDs);
 	// Build the selection string
@@ -27,7 +29,7 @@
 	// Build the tag selection string
 	$tagIDSelection = implode("','", $tags);
 	// Build the correct Query for the Database
-	$getFeed = "SELECT title, url, datePublished, featureImage FROM entries 
+	$getFeed = "SELECT title, url, published, thumbnail FROM entries 
 								JOIN entry_connections AS connections ON entries.entryID = connections.entryID
 								JOIN entry_tags AS tagConn ON entries.entryID = tagConn.entryID 
 								WHERE visible = 1";

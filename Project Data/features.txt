@@ -7,3 +7,9 @@ Article rating
 Export for external users (first 10)
 
 Feed thumbnail as random entry thumbnail if NULL
+
+Function to try https if http when getting a link
+
+CollectionRSS needs completion
+
+Google Adsense
