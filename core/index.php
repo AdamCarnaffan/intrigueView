@@ -11,6 +11,14 @@ require_once(ROOT_PATH . '/bin/manageUser.php');
 
   <title>Intrigue View <?php echo $cfg->displayVersion ?></title>
 
+  <!-- Google AdSense -->
+  <!-- <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+  (adsbygoogle = window.adsbygoogle || []).push({
+    google_ad_client: "ca-pub-9897291408852242",
+    enable_page_level_ads: true
+  });
+  </script> -->
   <!-- Bootstrap core CSS -->
   <link href="styling/bootstrap.min.css" rel="stylesheet">
   <link href="styling/bootstrap-grid.css" rel="stylesheet">
