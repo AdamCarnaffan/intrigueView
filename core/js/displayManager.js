@@ -15,7 +15,7 @@ function openInNewTab(url, entryID) {
   var tab = window.open(url, '_blank');
   tab.focus();
   $.post({
-    url: 'viewEntry.php',
+    url: mainPath + '/bin/viewEntry.php',
     data: {
       'entry': entryID
     },
