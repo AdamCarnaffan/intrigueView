@@ -26,6 +26,12 @@ function openInNewTab(url, entryID) {
   return false;
 }
 
+function accessFeed(feedID) {
+  url = mainPath + '/feedRSS.php?selection=' + feedID + '&size=25';
+  var tab = window.open(url, '_blank');
+  tab.focus();
+}
+
 function beginSearch() {
   // Reset Settings
   display = true;
