@@ -88,7 +88,7 @@ class Entry_Display extends Entry {
       $tile .= '<img src="' . $this->source->icon . '" class="site-icon"/>';
     }
     // Site URL (hyperlink)
-    $linkedURL = "http://" . $this->source->url;
+    $linkedURL = "https://" . $this->source->url;
     $tile .= '<a class="site-info-url" href="' . $linkedURL . '">';
     // Site URL (visual)
     $tile .= $this->source->url . '</a>';

@@ -101,13 +101,62 @@ class Source_Site {
 
 }
 
-class Entry {
-
+class Entry_Base {
+  
   public $source;
   public $id;
   public $title;
   public $url;
   public $image;
+  
+  public function __construct($data) {
+    if (is_array($data)) {
+      $this->source = new Source_Site(["icon"=>$data['icon'], "url"=>$data['site_url']], null);
+      $this->title = $data['title'];
+      $this->url = $data['url'];
+      $this->image = $data['thumbnail'];
+      $this->id = $data['entry_id'];
+    } else {
+      throw new Exception("An Entry Data Package is required to build an Entry where '$data' was provided");
+    }
+  }
+  
+  public function build_tile($isRecommended) {
+    $tile = "<div class='tile-wrapper'><div class='tile'><div class='tile-title'>";
+    $tile .= "<a class='tile-link tile-url' onclick='return open_in_tab(\"" . $this->url . "\")' href='#'>";
+    $tile .= $this->title . "</a></div><div class='tile-specifics'>";
+    $tile .= "<img class='tile-site-icon' src='" . $this->source->icon . "'>";
+    $tile .= "<a class='tile-site-link tile-link' onclick='return open_in_tab(\"https://" . $this->source->url;
+    $tile .= "\")' href='#'>" . $this->source->url . "</a></div>";
+    $tile .= "<a class='tile-image-wrapper tile-details' onclick='return get_entry_details(this, ";
+    $tile .= $this->id . ")' href='#'><div class='tile-image-wrapper'>";
+    $tile .= "<img class='tile-image' src='" . $this->image . "'>";
+    $tile .= "</div></a></div></div>";
+    return $tile;
+    /*
+    <div class='tile-wrapper tile-sm'>
+      <div class='tile'>
+        <div class='tile-title'>
+          <a class='tile-link tile-url' onclick='return open_in_tab(ARTICLE URL)' href='#'>This is an article title</a>
+        </div>
+        <div class='tile-specifics'>
+          <img class='tile-site-icon' src='assets/rss-icon.png'>
+          <a class='tile-site-link tile-link' onclick='return open_in_tab(WEBSITE URL)' href='#'>www.website.com</a>
+        </div>
+        <a class='tile-image-wrapper tile-details' onclick='return get_entry_details(this, ENTRYID)' href='#'>
+          <div class='tile-image-wrapper'>
+            <img class='tile-image' src='ARTICLE IMAGE'>
+          </div>
+        </a>
+      </div>
+    </div>
+    */
+  }
+  
+}
+
+class Entry extends Entry_Base {
+
   public $synopsis;
   public $tags = [];
 
@@ -116,19 +165,20 @@ class Entry {
     if (is_int($data) || is_string($data)) {
       // Clean this up
       $entryID = $data;
-      $data = $dbConn->query("SELECT title, site_id, url, thumbnail, synopsis FROM entries WHERE entry_id = '$entryID' LIMIT 1")->fetch_array();
+      $entryQuery = "SELECT ent.title, ent.site_id, ent.url, ent.thumbnail, ent.synopsis, sites.url AS site_url, sites.icon 
+                      FROM entries AS ent
+                      JOIN sites ON ent.site_id = sites.site_id
+                      WHERE entry_id = '$entryID' LIMIT 1";
+      $data = $dbConn->query($entryQuery)->fetch_array();
       if ($data == null) { throw new Exception("The entry could not be found with entry ID $entryID"); }
       $data['entry_id'] = $entryID;
     }
     // Begin building the object
     if (is_array($data)) {
-      $this->source = new Source_Site($data['site_id'], $dbConn);
-      $this->title = $data['title'];
-      $this->url = $data['url'];
-      $this->image = $data['thumbnail'];
+      parent::__construct($data);
+      $sourceData = ["site_id"=>$data['site_id'], "icon"=>$data['icon'], "url"=>$data['site_url']];
+      $this->source = new Source_Site($sourceData, null);
       $this->synopsis = $data['synopsis'];
-      $this->id = $data['entry_id'];
-      // $this->views = $data['views'];
       $this->fetchTags($dbConn);
     } else {
       throw new Exception("An ID or Entry Data Package is required to build an Entry where '$data' was provided");
